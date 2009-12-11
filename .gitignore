@@ -1,4 +1,6 @@
-bin
 *.log
 CVS
 *.tmproj
+build
+package
+MANIFEST.MF

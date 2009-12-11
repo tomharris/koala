@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="jar" name="pos">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="pos.classpath">
+        <pathelement location="build"/>
+        <pathelement location="lib/mysql-connector-java-5.1.6-bin.jar"/>
+        <pathelement location="lib/postgresql-8.3-603.jdbc4.jar"/>
+        <pathelement location="lib/log4j-1.2.15.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="build"/>
+        <copy includeemptydirs="false" todir="build">
+            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        </copy>
+        <copy includeemptydirs="false" todir="build">
+            <fileset dir="images" excludes="**/*.launch, **/*.java"/>
+        </copy>
+        <copy includeemptydirs="false" todir="build">
+            <fileset dir="resources" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-project" name="build"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="pos.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build" source="${source}" target="${target}">
+            <src path="images"/>
+            <classpath refid="pos.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build" source="${source}" target="${target}">
+            <src path="resources"/>
+            <classpath refid="pos.classpath"/>
+        </javac>
+    </target>
+    <target name="jar" depends="build">
+      <delete file="package/pos.jar"/>
+
+      <jar destfile="package/pos.jar">
+        <manifest>
+             <attribute name="Built-By" value="${user.name}"/>
+             <attribute name="Main-Class" value="org.koala.ui.DriverGUI"/>
+             <attribute name="Class-Path" value="."/>
+         </manifest>
+         <fileset dir="/Users/tom/Projects/PoS/workspace/pos/bin"/>
+         <zipfileset excludes="META-INF/*.SF" src="/Users/tom/Projects/PoS/mysql-connector-java-5.1.6-bin.jar"/>
+         <zipfileset excludes="META-INF/*.SF" src="/Users/tom/Projects/PoS/postgresql-8.3-603.jdbc4.jar"/>
+         <zipfileset excludes="META-INF/*.SF" src="/Users/tom/Projects/PoS/log4j-1.2.15.jar"/>
+      </jar>
+
+    </target>
+</project>

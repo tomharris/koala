@@ -59,7 +59,7 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `username` varchar(32) NOT NULL default '',
-  `password` varbinary(41) NOT NULL default '',
+  `password_hash` varbinary(41) NOT NULL default '',
   `level` tinyint(4) NOT NULL default '0',
   `firstname` varchar(32) NOT NULL default '',
   `lastname` varchar(32) NOT NULL default '',

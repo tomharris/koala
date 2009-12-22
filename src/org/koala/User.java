@@ -10,6 +10,7 @@ package org.koala;
  * functions here.
  */
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.math.BigDecimal;
 
@@ -20,6 +21,7 @@ import org.koala.exception.ItemNotFoundException;
 public class User extends Person {
   private DBase dbHandle;
   private String userName;
+  private String password;
   private Transaction currentTransaction;
   private int accessLevel;
 
@@ -69,19 +71,40 @@ public class User extends Person {
     return userName;
   }
 
-  public static User login(String username, String password) throws Exception {
-    User userInfo = null;
+  public String getPassword() {
+    return this.password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public static User login(String username, String password) {
+    PreparedStatement stmt;
+    ResultSet rs;
+    int user_id = 0;
+    StringBuilder query = new StringBuilder();
+    query.append("select id from users where username=? and password_hash=");
+    query.append(DatabaseConnection.getInstance().getProfile().getPasswordCmd());
 
     try {
-      DBase dbHandle = new DBase();
-        userInfo = dbHandle.loginUser(username, password);
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      stmt.setString(1, username);
+      stmt.setString(2, password);
+      rs = stmt.executeQuery();
+
+      if(rs.next()) {
+        user_id = rs.getInt("id");
+      }
+
+      rs.close();
+      stmt.close();
     }
-    catch (Exception e) {
-      logger.error("Error connecting to Database", e);
-        throw new Exception("Error connecting to Database");
+    catch (SQLException e) {
+      logger.error("SQL error logging in user", e);
     }
 
-      return userInfo;
+    return User.find(user_id);
   }
 
   public void logout() {
@@ -91,6 +114,146 @@ public class User extends Person {
 
   public void setDBHandle(DBase dbHandle) {
     this.dbHandle = dbHandle;
+  }
+
+  public boolean isNewRecord() {
+    return this.getId() > 0;
+  }
+
+  public static User find(int id) {
+    PreparedStatement stmt;
+    ResultSet rs;
+    String query = "select level, username, firstname, lastname from users where id=?";
+
+    User user = null;
+
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
+      stmt.setInt(1, id);
+      rs = stmt.executeQuery();
+
+      if(rs.next()) {
+        user = new User(id, rs.getInt("level"), rs.getString("username"), rs.getString("firstname"), rs.getString("lastname"));
+        user.setDBHandle(new DBase());
+      }
+
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error retrieving user info for user(" + id + ")", e);
+    }
+
+    return user;
+  }
+
+  public static ArrayList<User> findAllByAccess(int access) {
+    PreparedStatement stmt;
+    ResultSet rs;
+    String query = "select id, username, firstname, lastname from users where level=? order by username";
+
+    ArrayList<User> userVec = new ArrayList<User>();
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
+      stmt.setInt(1, access);
+      rs = stmt.executeQuery();
+
+      while(rs.next()) {
+        userVec.add(new User(rs.getInt("id"), access,
+          rs.getString("username"), rs.getString("firstname"),
+          rs.getString("lastname")));
+      }
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error searching users", e);
+    }
+
+    return userVec;
+  }
+
+  //remove user (operator) from system
+  public void destroy() {
+    PreparedStatement stmt;
+    String query = "delete from users where id=?";
+
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
+      stmt.setInt(1, this.getId());
+      stmt.executeUpdate();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error removing user", e);
+    }
+  }
+
+  public void save() throws EntryAlreadyExistsException {
+    if(this.isNewRecord()) {
+      this.create();
+    }
+    else {
+      this.update();
+    }
+  }
+
+  //add a user (operator) to the system
+  protected void create() throws EntryAlreadyExistsException {
+    PreparedStatement stmt;
+    StringBuilder query = new StringBuilder();
+    query.append("insert into users (username, password_hash, level, firstname, lastname) ");
+    query.append("VALUES(?, ");
+    query.append(DatabaseConnection.getInstance().getProfile().getPasswordCmd());
+    query.append(", ?, ?, ?)");
+
+    if(User.userExists(this.getUserName())) {
+      throw new EntryAlreadyExistsException(this.getUserName()); //user already exists
+    }
+
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      stmt.setString(1, this.getUserName());
+      stmt.setString(2, this.getPassword());
+      stmt.setInt(3, this.getLevel());
+      stmt.setString(4, this.getFirstName());
+      stmt.setString(5, this.getLastName());
+      stmt.executeUpdate();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error adding new user", e);
+    }
+  }
+
+  //change user details
+  //  doesnt change password if that field is null
+  protected void update() {
+    PreparedStatement stmt;
+    StringBuilder query = new StringBuilder();
+    query.append("update users set username=?, firstname=?, lastname=?, ");
+    if(this.getPassword() != null && !this.getPassword().trim().equals("")) {
+      query.append("password_hash=");
+      query.append(DatabaseConnection.getInstance().getProfile().getPasswordCmd());
+    }
+    query.append(" where id=?");
+
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      int paramCount = 1;
+      stmt.setString(paramCount++, this.getUserName());
+      stmt.setString(paramCount++, this.getFirstName());
+      stmt.setString(paramCount++, this.getLastName());
+      if(this.getPassword() != null && !this.getPassword().trim().equals("")) {
+        stmt.setString(paramCount++, this.getPassword());
+      }
+      stmt.setInt(paramCount++, this.getId());
+      stmt.executeUpdate();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error moddifying user", e);
+    }
   }
 
   public void addCustomer(Customer customer) throws EntryAlreadyExistsException, ItemNotFoundException {
@@ -128,19 +291,6 @@ public class User extends Person {
 
   public void removeCustomer(Customer remCustomer) {
         dbHandle.removeCustomer(remCustomer);
-  }
-
-  public void addUser(User newUser, String password) throws EntryAlreadyExistsException {
-        dbHandle.addUser(newUser, password);
-  }
-
-  public void removeUser(User remUser) {
-        dbHandle.removeUser(remUser);
-  }
-
-  //a password of null means dont change it
-  public void updateUser(User moddifiedUser, String password) {
-        dbHandle.updateUser(moddifiedUser, password);
   }
 
   public Customer getCustomer(int customerid) {
@@ -285,23 +435,6 @@ public class User extends Person {
       return new OutstandingAccountsReport(dbHandle);
   }
 
-  /* notes:
-   * 1. respect access_level ie: manager cant search admins
-   */
-  public ArrayList<User> searchUsers(int userLevel) {
-    if(userLevel > accessLevel)
-      return null;
-
-      if(accessLevel < MANAGER)
-          return null;
-      else if(accessLevel == MANAGER)
-          return dbHandle.searchUsers(CASHIER);
-      else if(accessLevel == ADMIN)
-          return dbHandle.searchUsers(MANAGER);
-      else
-          return null;
-  }
-
   /* stuff to think about
    * 1. check to see if any cashiers are logged in
    * 2. tell manager of any still logged in; best to log them out; optionaly force
@@ -343,5 +476,31 @@ public class User extends Person {
     }
 
     return method;
+  }
+
+  //we just check to see if that user is in our database
+  private static boolean userExists(String username) {
+    PreparedStatement stmt;
+    ResultSet rs;
+    boolean status = false;
+    String query = "select id from users where username=?";
+
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
+      stmt.setString(1, username);
+      rs = stmt.executeQuery();
+
+      if(rs.next()) {
+        status = true;
+      }
+
+      stmt.close();
+      rs.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error checking if user exists", e);
+    }
+
+    return status;
   }
 }

@@ -136,8 +136,9 @@ public class UpdateUsersGUI extends DriverGUI {
 
 	private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		int userid = 0;
-		if(usernameComboBox.getSelectedIndex() != 0)
-			userid = ((User)usernameComboBox.getSelectedItem()).getId();
+		if(usernameComboBox.getSelectedIndex() != 0) {
+		  userid = ((User)usernameComboBox.getSelectedItem()).getId();
+		}
 		
 		//create user
 		User updatedUser = new User(userid, userLevel,
@@ -146,26 +147,22 @@ public class UpdateUsersGUI extends DriverGUI {
 				lastNameTextField.getText());
 
 		String password = null;
-		if(newPasswordTextField.getText() != null && !newPasswordTextField.getText().trim().equals(""))
-			password = newPasswordTextField.getText();
+		if(newPasswordTextField.getText() != null && !newPasswordTextField.getText().trim().equals("")) {
+		  updatedUser.setPassword(newPasswordTextField.getText());
+		}
 
 		//update db
 		try {
-			if(usernameComboBox.getSelectedIndex() == 0) {
-				currentUser.addUser(updatedUser, password);
-			}
-			else {
-				currentUser.updateUser(updatedUser, password);
-
-			}
+			updatedUser.save();
 		}
 		catch (EntryAlreadyExistsException e) {
-		    DriverGUI.printError(e);
+	    DriverGUI.printError(e);
 		}
 
 		//update combo box
-		if(usernameComboBox.getSelectedIndex() != 0)
-			usernameComboBox.removeItemAt(usernameComboBox.getSelectedIndex());
+		if(usernameComboBox.getSelectedIndex() != 0) {
+		  usernameComboBox.removeItemAt(usernameComboBox.getSelectedIndex());
+		}
 		usernameComboBox.addItem(updatedUser);
 		usernameComboBox.setSelectedIndex(0);
 		clearFields();
@@ -243,7 +240,7 @@ public class UpdateUsersGUI extends DriverGUI {
 	        if(currentUser == null)
 	        	usernameComboBox = new JComboBox();
 	        else {
-	        	usernameComboBox = new JComboBox(currentUser.searchUsers(userLevel).toArray());
+	        	usernameComboBox = new JComboBox(User.findAllByAccess(userLevel).toArray());
 	        }
 
 		    usernameComboBox.setPreferredSize(new java.awt.Dimension(150,20));
@@ -304,7 +301,7 @@ public class UpdateUsersGUI extends DriverGUI {
 		if(result != JOptionPane.YES_OPTION)
 			return;
 
-		currentUser.removeUser((User)usernameComboBox.getSelectedItem());
+		((User)usernameComboBox.getSelectedItem()).destroy();
 		usernameComboBox.removeItemAt(usernameComboBox.getSelectedIndex());
 	}
 

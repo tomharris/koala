@@ -25,13 +25,13 @@ USE `pos`;
 
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE `customers` (
-  `customerid` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `balance` decimal(10,2) NOT NULL default '0.00',
   `firstname` varchar(32) NOT NULL default '',
   `lastname` varchar(32) NOT NULL default '',
   `comp` tinyint(3) unsigned NOT NULL default '0',
   `renewamount` decimal(10,2) NOT NULL default '0.00',
-  PRIMARY KEY `customerid` (`customerid`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -40,6 +40,7 @@ CREATE TABLE `customers` (
 
 DROP TABLE IF EXISTS `inventory`;
 CREATE TABLE `inventory` (
+  `id` int(10) unsigned NOT NULL auto_increment,
   `sku` varchar(32) NOT NULL default '',
   `quantity` int(10) unsigned NOT NULL default '0',
   `name` varchar(128) NOT NULL default '',
@@ -47,7 +48,7 @@ CREATE TABLE `inventory` (
   `tax` decimal(3,2) NOT NULL default '0.00',
   `rentable` tinyint(3) unsigned NOT NULL default '0',
   `unlimited` tinyint(3) unsigned NOT NULL default '0',
-  PRIMARY KEY `sku` (`sku`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -56,13 +57,13 @@ CREATE TABLE `inventory` (
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `userid` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `username` varchar(32) NOT NULL default '',
   `password` varbinary(41) NOT NULL default '',
   `level` tinyint(4) NOT NULL default '0',
   `firstname` varchar(32) NOT NULL default '',
   `lastname` varchar(32) NOT NULL default '',
-  PRIMARY KEY `userid` (`userid`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 --
@@ -81,11 +82,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
-  `customerid` int(10) unsigned NOT NULL default '0',
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `customer_id` int(10) unsigned NOT NULL default '0',
   `note` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`customerid`),
-  KEY `notes_customerid_fkey` (`customerid`),
-  CONSTRAINT `notes_customerid_fkey` FOREIGN KEY (`customerid`) REFERENCES `customers` (`customerid`) ON DELETE CASCADE
+  PRIMARY KEY  (`id`),
+  KEY `notes_customerid_fkey` (`customer_id`),
+  CONSTRAINT `notes_customerid_fkey` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -94,18 +96,18 @@ CREATE TABLE `notes` (
 
 DROP TABLE IF EXISTS `transactions`;
 CREATE TABLE `transactions` (
-  `transaction_id` int(10) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `transaction_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `code` char(1) NOT NULL default '',
-  `cashierid` int(10) unsigned NOT NULL,
-  `customerid` int(10) unsigned,
+  `user_id` int(10) unsigned NOT NULL,
+  `customer_id` int(10) unsigned,
   `subtotal` decimal(10,2) NOT NULL default '0.00',
   `tax` decimal(3,2) NOT NULL default '0.00',
-  PRIMARY KEY  (`transaction_id`),
-  KEY `transactions_cashierid_fkey` (`cashierid`),
-  CONSTRAINT `transactions_cashierid_fkey` FOREIGN KEY (`cashierid`) REFERENCES `users` (`userid`),
-  KEY `transactions_customerid_fkey` (`customerid`),
-  CONSTRAINT `transactions_customerid_fkey` FOREIGN KEY (`customerid`) REFERENCES `customers` (`customerid`)
+  PRIMARY KEY (`id`),
+  KEY `transactions_cashierid_fkey` (`user_id`),
+  CONSTRAINT `transactions_cashierid_fkey` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  KEY `transactions_customerid_fkey` (`customer_id`),
+  CONSTRAINT `transactions_customerid_fkey` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -114,12 +116,14 @@ CREATE TABLE `transactions` (
 
 DROP TABLE IF EXISTS `transaction_items`;
 CREATE TABLE `transaction_items` (
+  `id` int(10) unsigned NOT NULL auto_increment,
   `transaction_id` int(10) unsigned NOT NULL,
   `sku` varchar(32) NOT NULL,
   `quantity` int(10) unsigned NOT NULL,
   `price` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`id`),
   KEY `transaction_items_transaction_id_fkey` (`transaction_id`),
-  CONSTRAINT `transaction_items_transaction_id_fkey` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`transaction_id`) ON DELETE CASCADE
+  CONSTRAINT `transaction_items_transaction_id_fkey` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

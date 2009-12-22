@@ -31,7 +31,7 @@ public class DBase {
       PreparedStatement stmt;
     ResultSet rs;
     String query =
-      "select level, username, firstname, lastname from users where userid=?";
+      "select level, username, firstname, lastname from users where id=?";
 
     User user = null;
 
@@ -58,7 +58,7 @@ public class DBase {
     PreparedStatement stmt;
     ResultSet rs;
       String query =
-        "select userid, username, firstname, lastname from users where level=? order by username";
+        "select id, username, firstname, lastname from users where level=? order by username";
 
       ArrayList<User> userVec = new ArrayList<User>();
       try {
@@ -67,7 +67,7 @@ public class DBase {
       rs = stmt.executeQuery();
 
       while(rs.next()) {
-          userVec.add(new User(rs.getInt("userid"), Access,
+          userVec.add(new User(rs.getInt("id"), Access,
                   rs.getString("username"), rs.getString("firstname"),
                   rs.getString("lastname")));
       }
@@ -88,7 +88,7 @@ public class DBase {
       StringBuilder query = new StringBuilder();
       query.append("select firstname, lastname, comp, ");
       query.append("renewamount, note from customers left join notes on ");
-      query.append("customers.customerid = notes.customerid where customers.customerid=?");
+      query.append("customers.id = notes.customer_id where customers.id=?");
 
       Customer customer = null;
       try {
@@ -115,10 +115,10 @@ public class DBase {
 
   public ArrayList<Customer> getAllCustomers() {
       StringBuilder query = new StringBuilder();
-      query.append("select customers.customerid, ");
+      query.append("select customers.id, ");
       query.append("customers.firstname, customers.lastname, customers.comp, ");
       query.append("customers.renewamount, notes.note from customers ");
-      query.append("left join notes on customers.customerid = notes.customerid ");
+      query.append("left join notes on customers.id = notes.customer_id ");
       query.append("order by customers.lastname, customers.firstname");
 
       ArrayList<Customer> custVec = new ArrayList<Customer>();
@@ -127,8 +127,8 @@ public class DBase {
       ResultSet rs = stmt.executeQuery(query.toString());
 
       while(rs.next()) {
-          custVec.add(new Customer(rs.getInt("customerid"),
-              getCustomerBalanceFromTransactions(rs.getInt("customerid")),
+          custVec.add(new Customer(rs.getInt("id"),
+              getCustomerBalanceFromTransactions(rs.getInt("id")),
                   rs.getString("lastname"), rs.getString("firstname"),
                   rs.getInt("comp") == 1, rs.getBigDecimal("renewamount"),
                   rs.getString("note")));
@@ -146,7 +146,7 @@ public class DBase {
 
   public ArrayList<Person> getCustomerList() {
     String query =
-      "select customerid, firstname, lastname from customers order by lastname, firstname";
+      "select id, firstname, lastname from customers order by lastname, firstname";
 
     ArrayList<Person> custVec = new ArrayList<Person>();
         try {
@@ -154,7 +154,7 @@ public class DBase {
         ResultSet rs = stmt.executeQuery(query);
 
         while(rs.next()) {
-            custVec.add(new Person(rs.getInt("customerid"),
+            custVec.add(new Person(rs.getInt("id"),
                     rs.getString("lastname"), rs.getString("firstname")));
         }
         rs.close();
@@ -171,8 +171,8 @@ public class DBase {
     if(id == Customer.CashCustomer.getId())
       return null;
 
-      String creditQuery = "select sum(subtotal+tax) as credits from transactions t where t.code='b' and t.customerid=?";
-      String debitQuery = "select sum(subtotal+tax) as debits from transactions t where t.code='c' and t.customerid=?";
+      String creditQuery = "select sum(subtotal+tax) as credits from transactions t where t.code='b' and t.customer_id=?";
+      String debitQuery = "select sum(subtotal+tax) as debits from transactions t where t.code='c' and t.customer_id=?";
 
       BigDecimal balance = null;
       try {
@@ -208,13 +208,13 @@ public class DBase {
     StringBuilder query = new StringBuilder();
     int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
 
-      query.append("select transaction_id, transaction_time, cashierid, subtotal, tax, code from transactions ");
+      query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
       //here are some good guesses for a default array size; on average, I think this is close
     if(customer == null) { //we are getting all transaction for everyone
       initialCapacity = 750;
     }
     else { //just the one customer
-      query.append("where customerid=? ");
+      query.append("where customer_id=? ");
       initialCapacity = 15;
     }
     query.append("order by transaction_time");
@@ -229,8 +229,8 @@ public class DBase {
 
           Transaction transaction = null;
           while(rs.next()) {
-            transaction = new Transaction(rs.getInt("transaction_id"),
-                  this.getUser(rs.getInt("cashierid")), customer,
+            transaction = new Transaction(rs.getInt("id"),
+                  this.getUser(rs.getInt("user_id")), customer,
                   rs.getBigDecimal("subtotal"),
                     rs.getBigDecimal("tax"),
                     rs.getString("code"), rs.getDate("transaction_time"));
@@ -297,7 +297,7 @@ public class DBase {
     ResultSet rs;
       User loginUser = null;
       StringBuilder query = new StringBuilder();
-    query.append("select userid from users where username=? and password=");
+    query.append("select id from users where username=? and password=");
     query.append(DatabaseConnection.getInstance().getProfile().getPasswordCmd());
 
     try {
@@ -307,7 +307,7 @@ public class DBase {
       rs = stmt.executeQuery();
 
       if(rs.next()) {
-          int uid = rs.getInt("userid");
+          int uid = rs.getInt("id");
 
         loginUser = getUser(uid);
         loginUser.setDBHandle(this);
@@ -507,7 +507,7 @@ public class DBase {
   //remove user (operator) from system
   public void removeUser(User remUser) {
     PreparedStatement stmt;
-      String query = "delete from users where userid=?";
+      String query = "delete from users where id=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -530,7 +530,7 @@ public class DBase {
         query.append("password=");
         query.append(DatabaseConnection.getInstance().getProfile().getPasswordCmd());
       }
-      query.append(" where userid=?");
+      query.append(" where id=?");
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
@@ -554,7 +554,7 @@ public class DBase {
       PreparedStatement stmt;
     ResultSet rs;
     boolean status = false;
-      String query = "select userid from users where username=?";
+      String query = "select id from users where username=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -579,7 +579,7 @@ public class DBase {
       PreparedStatement stmt;
     ResultSet rs;
     boolean status = false;
-      String query = "select customerid from customers where lastname=? and firstname=?";
+      String query = "select id from customers where lastname=? and firstname=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -600,7 +600,7 @@ public class DBase {
       return status;
   }
 
-  //add a new customer to the database and return customer with correct userid
+  //add a new customer to the database and return customer with correct id
   public Customer addCustomer(Customer newCustomer) throws EntryAlreadyExistsException {
     PreparedStatement stmt;
     StringBuilder query = new StringBuilder();
@@ -622,7 +622,7 @@ public class DBase {
 
           //get the auto inc field of the row just inserted
           // and assign it to the customer
-          newCustomer.setId(getAutoIncKey("customers", "customerid"));
+          newCustomer.setId(getAutoIncKey("customers", "id"));
       }
       catch (SQLException e) {
           logger.error("SQL error adding new customer", e);
@@ -656,7 +656,7 @@ public class DBase {
               stmt.executeUpdate();
 
               //get the auto inc field of the row just inserted
-              newCustomer.setId(getAutoIncKey("customers", "customerid"));
+              newCustomer.setId(getAutoIncKey("customers", "id"));
 
               //save account note
             updateCustomerNote(newCustomer);
@@ -682,7 +682,7 @@ public class DBase {
       PreparedStatement stmt;
       StringBuilder query = new StringBuilder();
     query.append("update customers set balance=?, firstname=?, ");
-    query.append("lastname=?, comp=?, renewamount=? where customerid=?");
+    query.append("lastname=?, comp=?, renewamount=? where id=?");
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
@@ -706,7 +706,7 @@ public class DBase {
   //reamove customer from system
   public void removeCustomer(Customer customer) {
     PreparedStatement stmt;
-      String query = "delete from customers where customerid=?";
+      String query = "delete from customers where id=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -734,7 +734,7 @@ public class DBase {
   //add a new note to customer account
   private void addCustomerNote(Customer customer) {
     PreparedStatement stmt;
-      String query = "insert into notes (customerid, note) VALUES(?, ?)";
+      String query = "insert into notes (customer_id, note) VALUES(?, ?)";
 
       if(customer.getNote() == null || customer.getNote().equals(""))
         return;
@@ -754,7 +754,7 @@ public class DBase {
   //remove this customer's note
   private void removeCustomerNote(Customer customer) {
     PreparedStatement stmt;
-    String query = "delete from notes where customerid=?";
+    String query = "delete from notes where customer_id=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -832,7 +832,7 @@ public class DBase {
     PreparedStatement stmt;
     int autoIncKey = -1;
     StringBuilder query = new StringBuilder();
-    query.append("insert into transactions (transaction_time, code, cashierid, customerid, subtotal, tax) ");
+    query.append("insert into transactions (transaction_time, code, user_id, customer_id, subtotal, tax) ");
     query.append("VALUES(");
     query.append(DatabaseConnection.getInstance().getProfile().getCurrentTimeCmd());
     query.append(", ?, ?, ?, ?, ?)");
@@ -852,7 +852,7 @@ public class DBase {
           stmt.executeUpdate();
 
           //get the auto inc field of the row just inserted
-          autoIncKey = getAutoIncKey("transactions", "transaction_id");
+          autoIncKey = getAutoIncKey("transactions", "id");
 
           stmt.close();
       }
@@ -912,7 +912,7 @@ public class DBase {
         return;
 
     PreparedStatement stmt;
-    String query = "update customers set balance=? where customerid=?";
+    String query = "update customers set balance=? where id=?";
 
       try {
           stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -929,9 +929,9 @@ public class DBase {
 
   public ArrayList<Customer> getRenewCustomers() {
     StringBuilder query = new StringBuilder();
-    query.append("select customers.customerid, customers.firstname, ");
+    query.append("select customers.id, customers.firstname, ");
     query.append("customers.lastname, customers.renewamount, notes.note from customers ");
-    query.append("left join notes on customers.customerid = notes.customerid ");
+    query.append("left join notes on customers.id = notes.customerid ");
     query.append("where customers.renewamount > 0 order by customers.lastname");
 
     ArrayList<Customer> customers = new ArrayList<Customer>();
@@ -940,7 +940,7 @@ public class DBase {
       ResultSet rs = stmt.executeQuery(query.toString());
 
       while(rs.next()) {
-        customers.add(new Customer(rs.getInt("customerid"),
+        customers.add(new Customer(rs.getInt("id"),
                   rs.getBigDecimal("renewamount"),
                   rs.getString("lastname"), rs.getString("firstname"),
                   true, rs.getBigDecimal("renewamount"),

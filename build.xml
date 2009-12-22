@@ -26,6 +26,7 @@
     </target>
     <target name="clean">
         <delete dir="build"/>
+        <delete file="package/pos.jar"/>
     </target>
     <target depends="clean" name="cleanall"/>
     <target depends="build-project" name="build"/>
@@ -53,7 +54,7 @@
              <attribute name="Main-Class" value="org.koala.ui.DriverGUI"/>
              <attribute name="Class-Path" value="."/>
          </manifest>
-         <fileset dir="/Users/tom/Projects/PoS/workspace/pos/bin"/>
+         <fileset dir="build"/>
          <zipfileset excludes="META-INF/*.SF" src="lib/mysql-connector-java-5.1.6-bin.jar"/>
          <zipfileset excludes="META-INF/*.SF" src="lib/postgresql-8.3-603.jdbc4.jar"/>
          <zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>

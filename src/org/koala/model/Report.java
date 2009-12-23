@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on Jun 18, 2005
  *
@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.text.NumberFormat;
 
 import org.koala.ui.DriverGUI;
+import org.koala.DBase;
 
 abstract public class Report {
     protected StringBuilder report;

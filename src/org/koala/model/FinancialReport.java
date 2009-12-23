@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on Jun 19, 2005
  *
@@ -13,6 +13,8 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 import java.math.BigDecimal;
+
+import org.koala.DBase;
 
 public class FinancialReport extends Report {
 	private ArrayList<Transaction> transactionsBundle = null;

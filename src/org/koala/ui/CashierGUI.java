@@ -6,8 +6,8 @@ import java.awt.*;
 
 import javax.swing.table.DefaultTableModel;
 
-import org.koala.Customer;
-import org.koala.Item;
+import org.koala.model.Customer;
+import org.koala.model.Item;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.ItemTable;
 

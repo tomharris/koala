@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on May 29, 2005
  *
@@ -25,15 +25,15 @@ public class Person {
 		this.firstName = firstname;
 	}
 
-	protected void setId(int id) {
+	public void setId(int id) {
 	    this.id = id;
 	}
 
-	protected void setLastName(String lastName) {
+	public void setLastName(String lastName) {
 	    this.lastName = lastName;
 	}
 
-	protected void setFirstName(String firstName) {
+	public void setFirstName(String firstName) {
 	    this.firstName = firstName;
 	}
 

@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on May 29, 2005
  */

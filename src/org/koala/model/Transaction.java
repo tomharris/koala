@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on Apr 18, 2005
  *
@@ -17,6 +17,8 @@ package org.koala;
 import java.util.ArrayList;
 import java.math.BigDecimal;
 import java.sql.Date;
+
+import org.koala.DBase;
 
 public class Transaction {
 	private int id;

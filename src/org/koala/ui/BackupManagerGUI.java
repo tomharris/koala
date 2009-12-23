@@ -4,7 +4,7 @@ import javax.swing.*;
 
 import org.apache.log4j.Logger;
 import org.koala.BackupMethod;
-import org.koala.User;
+import org.koala.model.User;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;

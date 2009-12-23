@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /*
  * Created on Apr 14, 2005
  */
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
+import org.koala.*;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
@@ -117,7 +118,7 @@ public class User extends Person {
   }
 
   public boolean isNewRecord() {
-    return this.getId() > 0;
+    return this.getId() <= 0;
   }
 
   public static User find(int id) {

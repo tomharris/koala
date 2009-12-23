@@ -15,7 +15,7 @@ import java.awt.GridLayout;
 
 import javax.swing.*;
 
-import org.koala.Report;
+import org.koala.model.Report;
 
 public class ReportGUI extends DriverGUI {
 	public static final long serialVersionUID = DriverGUI.serialVersionUID;

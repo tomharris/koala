@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JCheckBox;
 
-import org.koala.Customer;
+import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;

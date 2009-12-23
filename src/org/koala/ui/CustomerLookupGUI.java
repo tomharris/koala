@@ -17,8 +17,8 @@ import java.awt.*;
 
 import javax.swing.JButton;
 
-import org.koala.Customer;
-import org.koala.User;
+import org.koala.model.Customer;
+import org.koala.model.User;
 
 import java.awt.event.ActionEvent;
 

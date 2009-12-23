@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
+import org.koala.model.*;
 import org.koala.exception.EntryAlreadyExistsException;
 
 public class DBase {
@@ -23,7 +24,7 @@ public class DBase {
   public DBase() {
   }
 
-  protected void finalize() {
+  public void finalize() {
     DatabaseConnection.getInstance().disconnect();
   }
 

@@ -11,9 +11,9 @@ package org.koala.ui;
 
 import javax.swing.*;
 
-import org.koala.ForRent;
-import org.koala.ForSale;
-import org.koala.Item;
+import org.koala.model.ForRent;
+import org.koala.model.ForSale;
+import org.koala.model.Item;
 import org.koala.exception.ItemNotFoundException;
 
 import java.awt.*;

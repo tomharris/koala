@@ -15,7 +15,7 @@ package org.koala.ui;
 
 import javax.swing.*;
 
-import org.koala.User;
+import org.koala.model.User;
 
 public class ManagerMenuGUI extends DriverGUI {
 	public static final long serialVersionUID = DriverGUI.serialVersionUID;

@@ -14,7 +14,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import org.koala.User;
+import org.koala.model.User;
 import org.koala.exception.EntryAlreadyExistsException;
 
 public class UpdateUsersGUI extends DriverGUI {

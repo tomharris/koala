@@ -15,9 +15,9 @@ import java.io.*;
 import java.util.Stack;
 import java.util.Properties;
 import org.apache.log4j.*;
-import org.koala.Config;
-import org.koala.Customer;
-import org.koala.User;
+import org.koala.model.Config;
+import org.koala.model.Customer;
+import org.koala.model.User;
 
 public class DriverGUI extends javax.swing.JFrame {
     private static Stack<String> previousGui = null;

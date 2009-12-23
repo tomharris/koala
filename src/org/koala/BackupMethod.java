@@ -2,6 +2,7 @@ package org.koala;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+import org.koala.model.Config;
 
 /*
  * Created on May 12, 2007

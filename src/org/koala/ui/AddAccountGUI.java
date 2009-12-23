@@ -12,7 +12,7 @@ package org.koala.ui;
 
 import javax.swing.*;
 
-import org.koala.Customer;
+import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;

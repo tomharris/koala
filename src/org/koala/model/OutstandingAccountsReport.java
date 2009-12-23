@@ -1,4 +1,4 @@
-package org.koala;
+package org.koala.model;
 /**
  *  Shows customers who have not cashed out their accounts.
  */
@@ -10,6 +10,8 @@ package org.koala;
 
 import java.util.ArrayList;
 import java.math.BigDecimal;
+
+import org.koala.DBase;
 
 public class OutstandingAccountsReport extends Report {
 	private ArrayList<Customer> customers;

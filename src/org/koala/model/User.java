@@ -19,10 +19,12 @@ import org.koala.*;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
-public class User extends Person {
+public class User {
   private DBase dbHandle;
+  private int id; //non-neg if valid
   private String userName;
   private String password;
+  private String firstName, lastName;
   private Transaction currentTransaction;
   private int accessLevel;
 
@@ -35,18 +37,22 @@ public class User extends Person {
   private static Logger logger = Logger.getLogger(User.class);
 
   public User(User user) {
-    super(user.getId(), user.getLastName(), user.getFirstName());
-    accessLevel = user.getLevel();
-    userName = user.getUserName();
+    this.id = user.getId();
+    this.lastName = user.getLastName();
+    this.firstName = user.getFirstName();
+    this.accessLevel = user.getLevel();
+    this.userName = user.getUserName();
     currentTransaction = null;
 
     dbHandle = null;
   }
 
-  public User(int uid, int level, String username, String firstname, String lastname) {
-    super(uid, lastname, firstname);
-    accessLevel = level;
-    userName = username;
+  public User(int id, int level, String username, String firstname, String lastname) {
+    this.id = id;
+		this.lastName = lastname;
+		this.firstName = firstname;
+    this.accessLevel = level;
+    this.userName = username;
     currentTransaction = null;
 
     //null is useful because this could have been a search result
@@ -63,6 +69,30 @@ public class User extends Person {
   public String toString() {
       return userName;
   }
+
+  public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+	  this.id = id;
+	}
+
+  public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+	  this.lastName = lastName;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+    this.firstName = firstName;
+	}
 
   public int getLevel() {
     return accessLevel;

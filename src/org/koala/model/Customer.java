@@ -10,42 +10,74 @@ package org.koala.model;
 
 import java.math.BigDecimal;
 
-public class Customer extends Person {
-	private BigDecimal balance;
-	private BigDecimal renewAmount;
-	private boolean comp;
-	private String note; //some textual info that we need to keep
+public class Customer {
+  private int id; //non-neg if valid
+  private String firstName, lastName;
+  private BigDecimal balance;
+  private BigDecimal renewAmount;
+  private boolean comp;
+  private String note; //some textual info that we need to keep
 
-	public static final Customer CashCustomer =
-		new Customer(0, BigDecimal.ZERO, "Cash", "Cash", false, BigDecimal.ZERO, null);
+  public static final Customer CashCustomer =
+    new Customer(0, BigDecimal.ZERO, "Cash", "Cash", false, BigDecimal.ZERO, null);
 
-	public Customer(int customerId, BigDecimal balance, String lastName, String firstName, boolean comp, BigDecimal renewAmount, String note) {
-	    super(customerId, lastName, firstName);
-	    this.balance = balance;
-	    this.balance.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.comp = comp;
-	    this.renewAmount = renewAmount;
-	    this.renewAmount.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.note = note;
-	}
+  public Customer(int id, BigDecimal balance, String lastName, String firstName, boolean comp, BigDecimal renewAmount, String note) {
+    this.id = id;
+    this.lastName = lastName;
+    this.firstName = firstName;
+    this.balance = balance;
+    this.balance.setScale(2, BigDecimal.ROUND_CEILING);
+    this.comp = comp;
+    this.renewAmount = renewAmount;
+    this.renewAmount.setScale(2, BigDecimal.ROUND_CEILING);
+    this.note = note;
+  }
 
-	public BigDecimal getBalance() {
-		return balance;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public void setBalance(BigDecimal amount) {
-			balance = amount;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public boolean isComplementary() {
-	    return comp;
-	}
+  public String getLastName() {
+    return lastName;
+  }
 
-	public BigDecimal getRenewAmount() {
-		return renewAmount;
-	}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-	public String getNote() {
-		return note;
-	}
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public BigDecimal getBalance() {
+    return balance;
+  }
+
+  public void setBalance(BigDecimal amount) {
+    balance = amount;
+  }
+
+  public boolean isComplementary() {
+    return comp;
+  }
+
+  public BigDecimal getRenewAmount() {
+    return renewAmount;
+  }
+
+  public String getNote() {
+    return note;
+  }
+
+  public String toString() {
+    return new String(getLastName() + ", " + getFirstName());
+  }
 }

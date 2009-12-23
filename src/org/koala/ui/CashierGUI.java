@@ -7,6 +7,7 @@ import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 
 import org.koala.model.Customer;
+import org.koala.model.CashCustomer;
 import org.koala.model.Item;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.ItemTable;
@@ -395,7 +396,7 @@ public class CashierGUI extends DriverGUI {
 		if(!currentUser.isTransactionStarted())
 			return false;
 
-        if(currentCustomer.getId() != Customer.CashCustomer.getId() &&
+        if(!(currentCustomer instanceof CashCustomer) &&
         	currentUser.getTransactionTotal().compareTo(currentCustomer.getBalance()) > 0) { //TransactionTotal > Balance 
 
         	if(additionalFundsRequiredPopup(currentUser.getTransactionTotal().subtract(currentCustomer.getBalance()))) {
@@ -405,7 +406,7 @@ public class CashierGUI extends DriverGUI {
         		return true;
         	}
         }
-        else if(currentCustomer.getId() == Customer.CashCustomer.getId()) {
+        else if(currentCustomer instanceof CashCustomer) {
         	if(additionalFundsRequiredPopup(currentUser.getTransactionTotal())) {
         		currentUser.doTransaction();
         		currentUser.removeAllItems();
@@ -477,8 +478,9 @@ public class CashierGUI extends DriverGUI {
     }
 
     private void cashOutButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        if(currentCustomer.getId() == Customer.CashCustomer.getId()) //cant cash out a cash customer
-            return;
+      if(currentCustomer instanceof CashCustomer) { //cant cash out a cash customer
+        return;
+      }
 
         try {
             if(currentUser.isTransactionStarted()) {

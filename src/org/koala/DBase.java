@@ -29,9 +29,6 @@ public class DBase {
   }
 
   public Customer getCustomer(int customerid) {
-    if(customerid == Customer.CashCustomer.getId())
-      return null;
-
       StringBuilder query = new StringBuilder();
       query.append("select firstname, lastname, comp, ");
       query.append("renewamount, note from customers left join notes on ");
@@ -91,9 +88,6 @@ public class DBase {
   }
 
   public BigDecimal getCustomerBalanceFromTransactions(int id) {
-    if(id == Customer.CashCustomer.getId())
-      return null;
-
       String creditQuery = "select sum(subtotal+tax) as credits from transactions t where t.code='b' and t.customer_id=?";
       String debitQuery = "select sum(subtotal+tax) as debits from transactions t where t.code='c' and t.customer_id=?";
 
@@ -517,13 +511,11 @@ public class DBase {
   //update note on a customer account
   // updating a note to null will delete the note
   private void updateCustomerNote(Customer customer) {
-    if(customer.getId() != Customer.CashCustomer.getId()) {
-      //first delete the old note
-      removeCustomerNote(customer);
+    //first delete the old note
+    removeCustomerNote(customer);
 
-      //add note if exists
-      addCustomerNote(customer);
-    }
+    //add note if exists
+    addCustomerNote(customer);
   }
 
   //add a new note to customer account
@@ -637,11 +629,12 @@ public class DBase {
 
           stmt.setString(1, TransAction.getAcctCode());
           stmt.setInt(2, TransAction.getCashier().getId());
-          if(TransAction.getCustomer() == null ||
-              TransAction.getCustomer().getId() == Customer.CashCustomer.getId())
+          if(TransAction.getCustomer() == null || TransAction.getCustomer() instanceof CashCustomer) {
             stmt.setNull(3, java.sql.Types.INTEGER);
-          else
+          }
+          else {
             stmt.setInt(3, TransAction.getCustomer().getId());
+          }
           stmt.setBigDecimal(4, TransAction.getSubTotal());
           stmt.setBigDecimal(5, TransAction.getTax());
           stmt.executeUpdate();
@@ -693,9 +686,9 @@ public class DBase {
   //debit the transaction total from a customer's account
   private void debitAccount(Transaction transaction) throws SQLException {
       //check for cash transaction
-      if(transaction.getCustomer() == null ||
-          transaction.getCustomer().getId() == Customer.CashCustomer.getId())
+      if(transaction.getCustomer() == null || transaction.getCustomer() instanceof CashCustomer) {
         return;
+      }
 
       //check to see if the transaction is special;
       // its not that allowing these is 'bad', but rather redundent

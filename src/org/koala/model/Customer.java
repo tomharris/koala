@@ -17,9 +17,6 @@ public class Customer extends Base {
   private boolean comp;
   private String note; //some textual info that we need to keep
 
-  public static final Customer CashCustomer =
-    new Customer(0, BigDecimal.ZERO, "Cash", "Cash", false, BigDecimal.ZERO, null);
-
   public Customer() {
     super();
   }
@@ -57,19 +54,33 @@ public class Customer extends Base {
   }
 
   public void setBalance(BigDecimal amount) {
-    balance = amount;
+    this.balance = amount;
+    this.balance.setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public boolean isComplementary() {
     return comp;
   }
 
+  public void setComplementary(boolean value) {
+    this.comp = value;
+  }
+
   public BigDecimal getRenewAmount() {
     return renewAmount;
   }
 
+  public void setRenewAmount(BigDecimal amount) {
+    this.renewAmount = amount;
+    this.renewAmount.setScale(2, BigDecimal.ROUND_CEILING);
+  }
+
   public String getNote() {
     return note;
+  }
+
+  public void setNote(String note) {
+    this.note = note;
   }
 
   public String toString() {

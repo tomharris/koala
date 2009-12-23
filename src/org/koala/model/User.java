@@ -151,10 +151,6 @@ public class User extends Base {
     this.dbHandle = dbHandle;
   }
 
-  public boolean isNewRecord() {
-    return this.getId() <= 0;
-  }
-
   public static User find(int id) {
     PreparedStatement stmt;
     ResultSet rs;
@@ -221,15 +217,6 @@ public class User extends Base {
     }
     catch (SQLException e) {
       logger.error("SQL error removing user", e);
-    }
-  }
-
-  public void save() throws EntryAlreadyExistsException {
-    if(this.isNewRecord()) {
-      this.create();
-    }
-    else {
-      this.update();
     }
   }
 
@@ -378,7 +365,7 @@ public class User extends Base {
       currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
       doTransaction();
 
-      currentTransaction = new Transaction(this, Customer.CashCustomer, cashHalf);
+      currentTransaction = new Transaction(this, new CashCustomer(), cashHalf);
       doTransaction();
   }
 

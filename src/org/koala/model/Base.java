@@ -8,6 +8,8 @@ package org.koala.model;
  *
  */
 
+import org.koala.exception.EntryAlreadyExistsException;
+
 abstract public class Base {
   protected int id; //non-neg if valid
 
@@ -25,5 +27,24 @@ abstract public class Base {
 
   public String toString() {
     return this.getClass().getSimpleName() + "(#" + this.id + ")";
+  }
+
+  public boolean isNewRecord() {
+    return this.getId() <= 0;
+  }
+
+  protected void create() throws EntryAlreadyExistsException {
+  }
+
+  protected void update() {
+  }
+
+  public void save() throws EntryAlreadyExistsException {
+    if(this.isNewRecord()) {
+      this.create();
+    }
+    else {
+      this.update();
+    }
   }
 }

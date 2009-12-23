@@ -18,6 +18,7 @@ import java.awt.*;
 import javax.swing.JButton;
 
 import org.koala.model.Customer;
+import org.koala.model.CashCustomer;
 import org.koala.model.User;
 
 import java.awt.event.ActionEvent;
@@ -167,7 +168,7 @@ public class CustomerLookupGUI extends DriverGUI {
 	}
 
 	private void cashSaleButtonActionPerformed(ActionEvent evt) {
-	    currentCustomer = Customer.CashCustomer; //this means cash
+	    currentCustomer = new CashCustomer(); //this means cash
 	    DriverGUI.nextGui(new CashierGUI());
 	}
 

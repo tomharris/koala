@@ -90,30 +90,6 @@ public class DBase {
       return custVec;
   }
 
-
-  public ArrayList<Person> getCustomerList() {
-    String query =
-      "select id, firstname, lastname from customers order by lastname, firstname";
-
-    ArrayList<Person> custVec = new ArrayList<Person>();
-        try {
-          Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-
-        while(rs.next()) {
-            custVec.add(new Person(rs.getInt("id"),
-                    rs.getString("lastname"), rs.getString("firstname")));
-        }
-        rs.close();
-        stmt.close();
-        }
-        catch (SQLException e) {
-        logger.error("SQL error generating customer list", e);
-        }
-
-        return custVec;
-  }
-
   public BigDecimal getCustomerBalanceFromTransactions(int id) {
     if(id == Customer.CashCustomer.getId())
       return null;

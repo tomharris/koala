@@ -10,8 +10,7 @@ package org.koala.model;
 
 import java.math.BigDecimal;
 
-public class Customer {
-  private int id; //non-neg if valid
+public class Customer extends Base {
   private String firstName, lastName;
   private BigDecimal balance;
   private BigDecimal renewAmount;
@@ -20,6 +19,10 @@ public class Customer {
 
   public static final Customer CashCustomer =
     new Customer(0, BigDecimal.ZERO, "Cash", "Cash", false, BigDecimal.ZERO, null);
+
+  public Customer() {
+    super();
+  }
 
   public Customer(int id, BigDecimal balance, String lastName, String firstName, boolean comp, BigDecimal renewAmount, String note) {
     this.id = id;
@@ -31,14 +34,6 @@ public class Customer {
     this.renewAmount = renewAmount;
     this.renewAmount.setScale(2, BigDecimal.ROUND_CEILING);
     this.note = note;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
   }
 
   public String getLastName() {

@@ -113,7 +113,7 @@ public class FinancialReport extends Report {
         		}
         		else if(currentTrans.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
         			//this works because a new account will be the only item in a transaction
-        			if(dbHandle.getTransactionItems(currentTrans.getTransactionID()).get(0).getSku().equals(Item.NEW_ACCOUNT_SKU)) {
+        			if(dbHandle.getTransactionItems(currentTrans.getId()).get(0).getSku().equals(Item.NEW_ACCOUNT_SKU)) {
         				accountsNumber++;
         				accountsNumberTotal++;
         			}

@@ -19,7 +19,7 @@ import org.koala.*;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
-public class User {
+public class User extends Base {
   private DBase dbHandle;
   private int id; //non-neg if valid
   private String userName;
@@ -35,6 +35,10 @@ public class User {
   public static final int ADMIN = 3;
 
   private static Logger logger = Logger.getLogger(User.class);
+
+  public User() {
+    super();
+  }
 
   public User(User user) {
     this.id = user.getId();
@@ -330,10 +334,6 @@ public class User {
 
   public ArrayList<Customer> getAllCustomers() {
         return dbHandle.getAllCustomers();
-  }
-
-  public ArrayList<Person> getCustomerList() {
-        return dbHandle.getCustomerList();
   }
 
   //cashier level

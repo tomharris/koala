@@ -10,7 +10,7 @@ package org.koala.model;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
-public class Item {
+public class Item extends Base {
 	protected String sku;
 	protected String invName;
 	protected BigDecimal price, taxRate;

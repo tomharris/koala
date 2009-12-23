@@ -20,8 +20,7 @@ import java.sql.Date;
 
 import org.koala.DBase;
 
-public class Transaction {
-	private int id;
+public class Transaction extends Base {
 	private User cashier;
 	private Customer customer;
 	private BigDecimal subTotal;
@@ -132,10 +131,6 @@ public class Transaction {
 			this.subTotal = this.subTotal.add(item.getTotal());
 			this.tax = this.tax.add(item.getPrice()).multiply(item.getTaxRate());
 	    }
-	}
-
-	public int getTransactionID() {
-		return this.id;
 	}
 
 	public Date getTransactionTime() {

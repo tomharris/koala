@@ -14,6 +14,7 @@ import javax.swing.*;
 import org.koala.model.ForRent;
 import org.koala.model.ForSale;
 import org.koala.model.Item;
+import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
 import java.awt.*;
@@ -165,7 +166,7 @@ public class UpdateInventoryGUI extends DriverGUI {
 	    }
 
 	    Item invItem = null;
-        invItem = currentUser.getItem(skuTextField.getText());
+        invItem = Item.findBySku(skuTextField.getText());
 
 	    //fill in the textboxes
 	    if(invItem != null && !invItem.getSku().equals("")) {
@@ -333,7 +334,7 @@ public class UpdateInventoryGUI extends DriverGUI {
 	    Item newItem = null;
 
 	    try {
-	    		Item currentItem = currentUser.getItem(skuTextField.getText().trim());
+	    		Item currentItem = Item.findBySku(skuTextField.getText().trim());
 	    	
 	    		if(currentItem == null) {
 	    			//check that quantity isnt empty
@@ -365,7 +366,12 @@ public class UpdateInventoryGUI extends DriverGUI {
 		    			currentUser.doTransaction(); //somehow this triggers two transactions FIX
 	
 		    			//add to inv
-		    			currentUser.addInventory(newItem);
+		    			try {
+		    			  newItem.save();
+		    			}
+		    			catch (EntryAlreadyExistsException e) {
+        	        DriverGUI.printError(e);
+        	    }
 	    			}
 	    		}
 	    		else {
@@ -436,7 +442,12 @@ public class UpdateInventoryGUI extends DriverGUI {
 		    			}
 	    			}
 
-	    			currentUser.updateInventory(newItem);
+            try {
+              newItem.save();
+            }
+            catch (EntryAlreadyExistsException e) {
+      	        DriverGUI.printError(e);
+      	    }
 	    		}
 	    }
 	    catch (ItemNotFoundException e) {
@@ -569,11 +580,14 @@ public class UpdateInventoryGUI extends DriverGUI {
 	}
 
 	private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		if(skuTextField.getText().equals(""))
-			return;
-
-	    if(currentUser.getItem(skuTextField.getText()) != null)
-	        currentUser.removeInventory(skuTextField.getText());
+		if(skuTextField.getText().equals("")) {
+		  return;
+		}
+		
+		Item item = Item.findBySku(skuTextField.getText());
+    if(item != null) {
+      item.destroy();
+    }
 
 		clearFields();
 		skuTextField.requestFocus();

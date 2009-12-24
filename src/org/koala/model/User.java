@@ -317,7 +317,7 @@ public class User extends Base {
   public void addItem(String sku, int quantity, Customer customer) throws ItemNotFoundException {
       Item currentItem = Item.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
       if(currentItem == null) {
-          currentItem = dbHandle.getItem(sku);
+          currentItem = Item.findBySku(sku);
           if(currentItem == null)
               throw new ItemNotFoundException("add Item");
 
@@ -363,28 +363,6 @@ public class User extends Base {
       currentTransaction.setCustomer(new CashCustomer());
       currentTransaction.addItem(cashHalf);
       doTransaction();
-  }
-
-  public Item getItem(String sku) {
-        return dbHandle.getItem(sku);
-  }
-
-  public ArrayList<Item> getAllItems() {
-        return dbHandle.getAllItem();
-  }
-
-  public void addInventory(Item invItem) {
-    //currentTransaction = new Transaction(this, Customer.getInternalCustomer(), invItem);
-    //doTransaction();
-        dbHandle.addInv(invItem);
-  }
-
-  public void updateInventory(Item invItem) {
-        dbHandle.updateInv(invItem);
-  }
-
-  public void removeInventory(String Sku) {
-        dbHandle.removeInv(Sku);
   }
 
   public void removeItem(String sku) {

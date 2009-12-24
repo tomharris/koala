@@ -277,7 +277,7 @@ public class CashierGUI extends DriverGUI {
 	        skuLabel.setText("Item: ");
 	        this.skuPanel.add(skuLabel);
 
-        	this.skuComboBox = new JComboBox(currentUser.getAllItems().toArray());
+        	this.skuComboBox = new JComboBox(Item.findAll().toArray());
 
 	        //this.skuTextField.setMinimumSize(TEXTAREA_SIZE);
 	        //this.skuTextField.setPreferredSize(TEXTAREA_SIZE);

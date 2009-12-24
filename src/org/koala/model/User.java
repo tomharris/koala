@@ -336,10 +336,15 @@ public class User extends Base {
           currentItem.setQuantity(quantity);
       }
 
-      if(currentTransaction == null)
-          currentTransaction = new Transaction(this, customer, currentItem);
-      else
-          currentTransaction.addItem(currentItem);
+      if(currentTransaction == null) {
+        currentTransaction = new Transaction();
+        currentTransaction.setCashier(this);
+        currentTransaction.setCustomer(customer);
+        currentTransaction.addItem(currentItem);
+      }
+      else {
+        currentTransaction.addItem(currentItem);
+      }
   }
 
   //we just dont do a inventory lookup
@@ -348,10 +353,15 @@ public class User extends Base {
         throw new ItemNotFoundException("add Special item");
       }
 
-      if(currentTransaction == null)
-          currentTransaction = new Transaction(this, customer, item);
-      else
-          currentTransaction.addItem(item);
+      if(currentTransaction == null) {
+        currentTransaction = new Transaction();
+        currentTransaction.setCashier(this);
+        currentTransaction.setCustomer(customer);
+        currentTransaction.addItem(item);
+      }
+      else {
+        currentTransaction.addItem(item);
+      }
   }
 
   public void doPartialCashTransaction(Customer customer) {
@@ -360,7 +370,10 @@ public class User extends Base {
       currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
       doTransaction();
 
-      currentTransaction = new Transaction(this, new CashCustomer(), cashHalf);
+      currentTransaction = new Transaction();
+      currentTransaction.setCashier(this);
+      currentTransaction.setCustomer(new CashCustomer());
+      currentTransaction.addItem(cashHalf);
       doTransaction();
   }
 

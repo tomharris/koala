@@ -11,7 +11,7 @@ package org.koala.model;
  *		another gui screen to be presented after the cashier logs in but
  *		before the CashierScreenGUI (to get the customer's name). This screen
  *		will collect the customer's name and convert that to a ID. The
- *		CashierScreenGUI will then be launched to add items to the transaction. 
+ *		CashierScreenGUI will then be launched to add items to the transaction.
  */
 
 import java.util.ArrayList;
@@ -45,52 +45,43 @@ public class Transaction extends Base {
 	 * The idea is that you shouldnt need to create a transaction unless you already
 	 * have a item to put in it.
 	 */
-	public Transaction(User cashier, Customer customer, Item newItem) {
-		this.id = -1;
-		this.subTotal = BigDecimal.ZERO;
-	    this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.tax = BigDecimal.ZERO;
-	    this.tax.setScale(2, BigDecimal.ROUND_CEILING);
+  // public Transaction(User cashier, Customer customer, Item newItem) {
+  //  this.id = -1;
+  //  this.subTotal = BigDecimal.ZERO;
+  //     this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
+  //     this.tax = BigDecimal.ZERO;
+  //     this.tax.setScale(2, BigDecimal.ROUND_CEILING);
+  //
+  //     this.cashier = cashier;
+  //     this.customer = customer;
+  //     if(newItem == null) {
+  //      this.transactions = null;
+  //     }
+  //     else {
+  //      this.transactions = new ArrayList<Item>(initSize);
+  //      addItem(newItem);
+  //      if(newItem.getSku().equals(Item.NEW_ACCOUNT_SKU))
+  //        this.acctCode = Transaction.CODE_CREDITACCOUNT;
+  //      else if(newItem.getSku().equals(Item.COMP_ACCOUNT_SKU))
+  //        this.acctCode = Transaction.CODE_CREDITCOMPACCOUNT;
+  //      else if(newItem.getSku().equals(Item.CASHOUT_SKU))
+  //        this.acctCode = Transaction.CODE_CLOSEACCOUNT;
+  //      else if(newItem.getSku().equals(Item.INVENTORYADD_SKU))
+  //        this.acctCode = Transaction.CODE_INVENTORYADD;
+  //      else if(newItem.getSku().equals(Item.INVENTORYCORRECTION_SKU))
+  //        this.acctCode = Transaction.CODE_INVENTORYCORRECTION;
+  //      else if(customer != null && customer.isComplementary())
+  //        this.acctCode = Transaction.CODE_DEBITCOMPACCOUNT;
+  //      else if(customer != null && customer.getId() != 0)
+  //        this.acctCode = Transaction.CODE_DEBITACCOUNT;
+  //      else
+  //        this.acctCode = Transaction.CODE_CASH;
+  //     }
+  // }
 
-	    this.cashier = cashier;
-	    this.customer = customer;
-	    if(newItem == null)
-	    	this.transactions = null;
-	    else {
-	    	this.transactions = new ArrayList<Item>(initSize);
-    		addItem(newItem);
-    		if(newItem.getSku().equals(Item.NEW_ACCOUNT_SKU))
-    			this.acctCode = Transaction.CODE_CREDITACCOUNT;
-    		else if(newItem.getSku().equals(Item.COMP_ACCOUNT_SKU))
-    			this.acctCode = Transaction.CODE_CREDITCOMPACCOUNT;
-    		else if(newItem.getSku().equals(Item.CASHOUT_SKU))
-    			this.acctCode = Transaction.CODE_CLOSEACCOUNT;
-    		else if(newItem.getSku().equals(Item.INVENTORYADD_SKU))
-    			this.acctCode = Transaction.CODE_INVENTORYADD;
-    		else if(newItem.getSku().equals(Item.INVENTORYCORRECTION_SKU))
-    			this.acctCode = Transaction.CODE_INVENTORYCORRECTION;
-    		else if(customer != null && customer.isComplementary())
-    			this.acctCode = Transaction.CODE_DEBITCOMPACCOUNT;
-    		else if(customer != null && customer.getId() != 0)
-    			this.acctCode = Transaction.CODE_DEBITACCOUNT;
-    		else
-    			this.acctCode = Transaction.CODE_CASH;
-	    }
-	}
-
-	//mostly for reports; would take alot of work to craft a item to set all this info
-	public Transaction(int id, User cashier, Customer customer, BigDecimal subTotal,
-			BigDecimal tax, String accountCode, Date transTime) {
-	    this.id = id;
-		this.cashier = cashier;
-	    this.customer = customer;
-	    this.subTotal = subTotal;
-	    this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.tax = tax;
-	    this.tax.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.acctCode = accountCode;
-	    this.transTime = transTime;
-	}
+  public Transaction() {
+    super();
+  }
 
 	protected void finalize() {
 		this.transactions.clear();
@@ -104,10 +95,10 @@ public class Transaction extends Base {
 		this.transTime = null;
 	}
 
-	public void lookupTransactionItems(DBase dbHandle) {
-		this.transactions = dbHandle.getTransactionItems(this.id);
-		this.transactions.trimToSize();
-	}
+  // public void lookupTransactionItems(DBase dbHandle) {
+  //  this.transactions = dbHandle.getTransactionItems(this.id);
+  //  this.transactions.trimToSize();
+  // }
 
 	public void addItem(Item newItem) {
 		this.transactions.add(newItem);
@@ -124,7 +115,7 @@ public class Transaction extends Base {
 	            break;
 	        }
 		}
-		
+
 		this.subTotal = new BigDecimal(0);
 		this.tax = new BigDecimal(0);
 		for(Item item : this.transactions) {
@@ -153,8 +144,16 @@ public class Transaction extends Base {
 	    return this.cashier;
 	}
 
+	public void setCashier(User cashier) {
+	  this.cashier = cashier;
+	}
+
 	public Customer getCustomer() {
 		return this.customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public Item getLastItem() {

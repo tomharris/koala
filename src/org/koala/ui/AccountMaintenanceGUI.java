@@ -80,10 +80,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes jTextField
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getFirstNameTextField() {
 		if (firstNameTextField == null) {
 			firstNameTextField = new JTextField();
@@ -92,10 +92,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return firstNameTextField;
 	}
 	/**
-	 * This method initializes jTextField1	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes jTextField1
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getLastNameTextField() {
 		if (lastNameTextField == null) {
 			lastNameTextField = new JTextField();
@@ -104,10 +104,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return lastNameTextField;
 	}
 	/**
-	 * This method initializes jTextField2	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes jTextField2
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getBalanceTextField() {
 		if (balanceTextField == null) {
 			balanceTextField = new JTextField();
@@ -117,10 +117,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jCheckBox	
-	 * 	
-	 * @return javax.swing.JCheckBox	
-	 */    
+	 * This method initializes jCheckBox
+	 *
+	 * @return javax.swing.JCheckBox
+	 */
 	private JCheckBox getCompCheckBox() {
 		if (compCheckBox == null) {
 			compCheckBox = new JCheckBox();
@@ -128,23 +128,23 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return compCheckBox;
 	}
 	/**
-	 * This method initializes jComboBox	
-	 * 	
-	 * @return javax.swing.JComboBox	
-	 */    
+	 * This method initializes jComboBox
+	 *
+	 * @return javax.swing.JComboBox
+	 */
 
 	private JComboBox getCustomerComboBox() {
 		if (customerComboBox == null) {
 	        if(currentUser == null)
 	            customerComboBox = new JComboBox();
 	        else {
-	            customerComboBox = new JComboBox(currentUser.getAllCustomers().toArray());
+	            customerComboBox = new JComboBox(Customer.findAll().toArray());
 	        }
 
 		    customerComboBox.insertItemAt("<<NEW CUSTOMER>>", 0);
 		    customerComboBox.setSelectedIndex(0);
-		    customerComboBox.addItemListener(new java.awt.event.ItemListener() { 
-            	public void itemStateChanged(java.awt.event.ItemEvent evt) {    
+		    customerComboBox.addItemListener(new java.awt.event.ItemListener() {
+            	public void itemStateChanged(java.awt.event.ItemEvent evt) {
             		customerComboBoxItemStateChanged(evt);
             	}
             });
@@ -171,10 +171,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getCustomerBoxPanel() {
 		if (customerBoxPanel == null) {
 			customerBoxPanel = new JPanel();
@@ -184,10 +184,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return customerBoxPanel;
 	}
 	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getUpdateButton() {
 		if (updateButton == null) {
 			updateButton = new JButton();
@@ -205,7 +205,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		//defaults for new user
 		int customerid = 0;
-		
+
 	    if(customerComboBox.getSelectedIndex() != 0) { //if modify
 	    	customerid = ((Customer)customerComboBox.getSelectedItem()).getId();
 	    }
@@ -221,24 +221,24 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	    	return;
 	    }
 
-	    if(renewCheckBox.isSelected())
-			renewAmount = balanceAmount;
-		else
-			renewAmount = new BigDecimal(0);
+	  if(renewCheckBox.isSelected()) {
+	    renewAmount = balanceAmount;
+	  }
+		else {
+		  renewAmount = new BigDecimal(0);
+		}
 
-	    Customer newCustomer = new Customer(customerid,
-	    		balanceAmount, lastNameTextField.getText(),
-	            firstNameTextField.getText(), compCheckBox.isSelected(), 
-	            renewAmount, noteTextArea.getText());
-	
+      Customer customer = new Customer();
+	    customer.setId(customerid);
+	    customer.setBalance(balanceAmount);
+	    customer.setLastName(lastNameTextField.getText());
+	    customer.setFirstName(firstNameTextField.getText());
+	    customer.setComplementary(compCheckBox.isSelected());
+	    customer.setRenewAmount(renewAmount);
+	    customer.setNote(noteTextArea.getText());
+
 	    try {
-		    if(customerComboBox.getSelectedIndex() == 0) { //create
-		    	currentUser.addCustomer(newCustomer);
-		    }
-		    else {
-		    	currentUser.updateCustomer(newCustomer);
-		    	customerComboBox.removeItem(customerComboBox.getSelectedItem());
-		    }
+	      customer.save();
 	    }
 	    catch (EntryAlreadyExistsException e) {
 	        JOptionPane.showMessageDialog(this,
@@ -246,12 +246,13 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	                "Customer exists",
 	                JOptionPane.PLAIN_MESSAGE);
 	    }
-	    catch (ItemNotFoundException e) {
-	        DriverGUI.printError(e);
-	    }
-	
+
 	    //update combobox
-	    customerComboBox.addItem(newCustomer);
+	    if(customerComboBox.getSelectedIndex() != 0) { //updating an existing user
+	    	customerComboBox.removeItem(customerComboBox.getSelectedItem());
+	    }
+
+	    customerComboBox.addItem(customer);
 	    customerComboBox.repaint();
 	    customerComboBox.requestFocus();
 	    customerComboBox.setSelectedIndex(0); //first item; new customer
@@ -259,10 +260,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton1
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getDeleteButton() {
 		if (deleteButton == null) {
 			deleteButton = new JButton();
@@ -278,18 +279,20 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {
-	    if(customerComboBox.getSelectedIndex() == 0)
-	        return;
+    if(customerComboBox.getSelectedIndex() == 0) {
+      return;
+    }
 
-        currentUser.removeCustomer((Customer)customerComboBox.getSelectedItem());
-        customerComboBox.removeItemAt(customerComboBox.getSelectedIndex());
+    Customer customer = ((Customer)customerComboBox.getSelectedItem());
+    customer.destroy();
+    customerComboBox.removeItemAt(customerComboBox.getSelectedIndex());
 	}
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getCompPanel() {
 		if (compPanel == null) {
 			compPanel = new JPanel();
@@ -302,10 +305,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return compPanel;
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getButtonPanel() {
 		if (buttonPanel == null) {
 			buttonPanel = new JPanel();
@@ -315,10 +318,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return buttonPanel;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getFirstNamePanel() {
 		if (firstNamePanel == null) {
 			firstNamePanel = new JPanel();
@@ -331,10 +334,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return firstNamePanel;
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getLastNamePanel() {
 		if (lastNamePanel == null) {
 			lastNamePanel = new JPanel();
@@ -347,10 +350,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return lastNamePanel;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getBalancePanel() {
 		if (balancePanel == null) {
 			balancePanel = new JPanel();
@@ -363,10 +366,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return balancePanel;
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getNotePanel() {
 		if (notePanel == null) {
 			noteLabel = new JLabel();
@@ -379,10 +382,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return notePanel;
 	}
 	/**
-	 * This method initializes jTextArea	
-	 * 	
-	 * @return javax.swing.JTextArea	
-	 */    
+	 * This method initializes jTextArea
+	 *
+	 * @return javax.swing.JTextArea
+	 */
 	private NoteTextArea getNoteTextArea() {
 		if (noteTextArea == null) {
 			noteTextArea = new NoteTextArea();
@@ -393,9 +396,9 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
 	 */
 	private JPanel getRenewPanel() {
 		if (renewPanel == null) {
@@ -409,9 +412,9 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jCheckBox	
-	 * 	
-	 * @return javax.swing.JCheckBox	
+	 * This method initializes jCheckBox
+	 *
+	 * @return javax.swing.JCheckBox
 	 */
 	private JCheckBox getRenewCheckBox() {
 		if (renewCheckBox == null) {
@@ -440,7 +443,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
 
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
@@ -449,7 +452,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJContentPane() {
@@ -465,10 +468,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return jContentPane;
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getWestPanel() {
 		if (westPanel == null) {
 			westPanel = new JPanel();
@@ -477,10 +480,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return westPanel;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getEastPanel() {
 		if (eastPanel == null) {
 			eastPanel = new JPanel();
@@ -489,10 +492,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return eastPanel;
 	}
 	/**
-	 * This method initializes jPanel2	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel2
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getSouthPanel() {
 		if (southPanel == null) {
 			southPanel = new JPanel();
@@ -501,10 +504,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return southPanel;
 	}
 	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBackButton() {
 		if (backButton == null) {
 			backButton = new JButton();
@@ -520,10 +523,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getNorthPanel() {
 		if (northPanel == null) {
 			northPanel = new JPanel();
@@ -531,10 +534,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
 		return northPanel;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getCenterPanel() {
 		if (centerPanel == null) {
 			centerPanel = new JPanel();

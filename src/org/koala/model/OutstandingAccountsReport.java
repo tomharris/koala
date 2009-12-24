@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.math.BigDecimal;
 
 import org.koala.DBase;
+import org.koala.model.Customer;
 
 public class OutstandingAccountsReport extends Report {
 	private ArrayList<Customer> customers;
@@ -28,7 +29,7 @@ public class OutstandingAccountsReport extends Report {
 	}
 
     protected final void loadResources() {
-		customers = dbHandle.getAllCustomers();
+		customers = Customer.findAll();
     }
 
 	public final void doReport() {

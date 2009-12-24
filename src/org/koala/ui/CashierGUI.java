@@ -10,6 +10,7 @@ import org.koala.model.Customer;
 import org.koala.model.CashCustomer;
 import org.koala.model.Item;
 import org.koala.exception.ItemNotFoundException;
+import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.ui.widget.ItemTable;
 
 import java.math.BigDecimal;
@@ -486,7 +487,7 @@ public class CashierGUI extends DriverGUI {
             if(currentUser.isTransactionStarted()) {
                 saleButtonActionPerformed(evt);
                 //after we make the transaction, we need to refresh the info
-                currentCustomer = currentUser.getCustomer(currentCustomer.getId());
+                currentCustomer = Customer.find(currentCustomer.getId());
             }
 
 	        if(currentCustomer.getBalance().compareTo(BigDecimal.ZERO) < 0)
@@ -501,13 +502,13 @@ public class CashierGUI extends DriverGUI {
     		switch(result) {
     			case JOptionPane.OK_OPTION:
     				currentCustomer.setBalance(BigDecimal.ZERO);
-    				currentUser.updateCustomer(currentCustomer); //this handles the transaction log
+    				currentCustomer.save(); //this handles the transaction log
     				DriverGUI.backGui();
     			case JOptionPane.CANCEL_OPTION:
     			    break;
     		}
         }
-        catch (ItemNotFoundException e) {
+        catch (EntryAlreadyExistsException e) {
             DriverGUI.printError(e);
         }
     }

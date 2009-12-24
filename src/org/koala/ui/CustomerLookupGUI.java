@@ -80,7 +80,7 @@ public class CustomerLookupGUI extends DriverGUI {
 	        if(currentUser == null)
 	            customerComboBox = new JComboBox();
 	        else
-	            customerComboBox = new JComboBox(currentUser.getAllCustomers().toArray());
+	            customerComboBox = new JComboBox(Customer.findAll().toArray());
 		}
 		customerComboBox.setPreferredSize(new java.awt.Dimension(200,20));
 		return customerComboBox;
@@ -121,7 +121,7 @@ public class CustomerLookupGUI extends DriverGUI {
 
 	private void selectCustomerButtonActionPerformed(ActionEvent evt) {
 	    //get the customer again to be sure it is in a current state
-        currentCustomer = currentUser.getCustomer(((Customer)customerComboBox.getSelectedItem()).getId());
+        currentCustomer = Customer.find(((Customer)customerComboBox.getSelectedItem()).getId());
 
 	    DriverGUI.nextGui(new CashierGUI());
 	}

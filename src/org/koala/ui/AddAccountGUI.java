@@ -215,20 +215,20 @@ public class AddAccountGUI extends DriverGUI {
 	    }
 
 	    try {
-	        currentUser.addCustomer(new Customer(0,
-	        		balanceAmount, lastNameTextField.getText().trim(),
-	        		firstNameTextField.getText().trim(),
-	                compCheckBox.isSelected(), BigDecimal.ZERO,
-	                noteTextArea.getText().trim()));
+	      Customer customer = new Customer();
+	      customer.setBalance(balanceAmount);
+  	    customer.setLastName(lastNameTextField.getText());
+  	    customer.setFirstName(firstNameTextField.getText());
+  	    customer.setComplementary(compCheckBox.isSelected());
+  	    customer.setRenewAmount(BigDecimal.ZERO);
+  	    customer.setNote(noteTextArea.getText());
+        customer.save();
 	    }
 	    catch (EntryAlreadyExistsException e) {
 	        JOptionPane.showMessageDialog(this,
 	                "This customer already exists!",
 	                "Customer exists",
 	                JOptionPane.PLAIN_MESSAGE);
-	    }
-	    catch (ItemNotFoundException e) {
-	        DriverGUI.printError(e);
 	    }
 
 	    DriverGUI.backGui();

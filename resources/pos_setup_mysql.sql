@@ -31,6 +31,7 @@ CREATE TABLE `customers` (
   `lastname` varchar(32) NOT NULL default '',
   `comp` tinyint(3) unsigned NOT NULL default '0',
   `renewamount` decimal(10,2) NOT NULL default '0.00',
+  `note` varchar(255) NOT NULL default '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -75,20 +76,6 @@ LOCK TABLES `users` WRITE;
 INSERT INTO `users` VALUES (1,'admin',MD5('pos'),3,'pos','admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `notes`
---
-
-DROP TABLE IF EXISTS `notes`;
-CREATE TABLE `notes` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `customer_id` int(10) unsigned NOT NULL default '0',
-  `note` varchar(255) NOT NULL default '',
-  PRIMARY KEY  (`id`),
-  KEY `notes_customerid_fkey` (`customer_id`),
-  CONSTRAINT `notes_customerid_fkey` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `transactions`

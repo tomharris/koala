@@ -15,7 +15,8 @@ import java.math.BigDecimal;
 
 import javax.swing.*;
 
-import org.koala.exception.ItemNotFoundException;
+import org.koala.model.Customer;
+import org.koala.exception.EntryAlreadyExistsException;
 
 public class AddToAccountGUI extends DriverGUI {
 	public static final long serialVersionUID = DriverGUI.serialVersionUID;
@@ -104,10 +105,10 @@ public class AddToAccountGUI extends DriverGUI {
 	    currentCustomer.setBalance(currentCustomer.getBalance().add(addAmount));
 
 	    try {
-	        currentUser.updateCustomer(currentCustomer);
-	        currentCustomer = currentUser.getCustomer(currentCustomer.getId()); //refresh
+	        currentCustomer.save();
+	        currentCustomer = Customer.find(currentCustomer.getId()); //refresh
 	    }
-	    catch (ItemNotFoundException e) {
+	    catch (EntryAlreadyExistsException e) {
 	        DriverGUI.printError(e);
 	    }
 

@@ -273,50 +273,38 @@ public class User extends Base {
     }
   }
 
-  public void addCustomer(Customer customer) throws EntryAlreadyExistsException, ItemNotFoundException {
-      customer = dbHandle.addCustomer(customer);
-    if(customer.isComplementary())
-      this.addItem(Item.COMP_ACCOUNT_SKU, -1, customer);
-    else
-      this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
-    this.doTransaction();
-  }
+  // public void addCustomer(Customer customer) throws EntryAlreadyExistsException, ItemNotFoundException {
+  //     customer = dbHandle.addCustomer(customer);
+  //   if(customer.isComplementary())
+  //     this.addItem(Item.COMP_ACCOUNT_SKU, -1, customer);
+  //   else
+  //     this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
+  //   this.doTransaction();
+  // }
 
-  public void updateCustomer(Customer customer) throws ItemNotFoundException {
-    Customer oldCustomer = dbHandle.getCustomer(customer.getId());
-    BigDecimal balanceAdded = customer.getBalance().subtract(oldCustomer.getBalance());
-
-    if(balanceAdded.compareTo(BigDecimal.ZERO) > 0) { //amount > 0
-      BigDecimal balance = customer.getBalance();
-      customer.setBalance(balanceAdded); //the transaction log only needs to show the amount added
-
-      //remove items in the transaction prior to adding money
-      this.removeAllItems();
-      this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
-      this.doTransaction();
-            customer.setBalance(balance);
-        }
-        else if(balanceAdded.negate().equals(oldCustomer.getBalance())) { //cashout
-          customer.setBalance(oldCustomer.getBalance()); //show in the transaction log that all money was removed
-          this.addItem(Item.CASHOUT_SKU, -1, customer);
-          this.doTransaction();
-          this.removeAllItems();
-          customer.setBalance(BigDecimal.ZERO);
-        }
-        dbHandle.updateCustomer(customer);
-  }
-
-  public void removeCustomer(Customer remCustomer) {
-        dbHandle.removeCustomer(remCustomer);
-  }
-
-  public Customer getCustomer(int customerid) {
-        return dbHandle.getCustomer(customerid);
-  }
-
-  public ArrayList<Customer> getAllCustomers() {
-        return dbHandle.getAllCustomers();
-  }
+  // public void updateCustomer(Customer customer) throws ItemNotFoundException {
+  //   Customer oldCustomer = dbHandle.getCustomer(customer.getId());
+  //   BigDecimal balanceAdded = customer.getBalance().subtract(oldCustomer.getBalance());
+  //
+  //   if(balanceAdded.compareTo(BigDecimal.ZERO) > 0) { //amount > 0
+  //     BigDecimal balance = customer.getBalance();
+  //     customer.setBalance(balanceAdded); //the transaction log only needs to show the amount added
+  //
+  //     //remove items in the transaction prior to adding money
+  //     this.removeAllItems();
+  //     this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
+  //     this.doTransaction();
+  //           customer.setBalance(balance);
+  //       }
+  //       else if(balanceAdded.negate().equals(oldCustomer.getBalance())) { //cashout
+  //         customer.setBalance(oldCustomer.getBalance()); //show in the transaction log that all money was removed
+  //         this.addItem(Item.CASHOUT_SKU, -1, customer);
+  //         this.doTransaction();
+  //         this.removeAllItems();
+  //         customer.setBalance(BigDecimal.ZERO);
+  //       }
+  //       dbHandle.updateCustomer(customer);
+  // }
 
   //cashier level
   public void doTransaction() {
@@ -471,19 +459,27 @@ public class User extends Base {
   }
 
   public String resetDatabase() {
-      //dump the entire pos db
-      String packageName = this.getCurrentBackupMethod().createPackage();
+    //dump the entire pos db
+    String packageName = this.getCurrentBackupMethod().createPackage();
 
-      //save customers that have auto-renew accounts
-      ArrayList<Customer> renewCustomers = dbHandle.getRenewCustomers();
+    //save customers that have auto-renew accounts
+    ArrayList<Customer> customers = Customer.findAllRenewable();
 
-      //reset the DB
-      dbHandle.resetDB();
+    //reset the DB
+    dbHandle.resetDB();
 
-      //reload the renew accounts
-      dbHandle.addCustomers(renewCustomers);
+    //reload the renew accounts
+    for(Customer customer : customers) {
+      try {
+        customer.setId(0); //basically mark the record as new
+        customer.save();
+      }
+      catch(EntryAlreadyExistsException e) {
+        logger.error("Error reloading renewable customers", e);
+      }
+    }
 
-      return packageName;
+    return packageName;
   }
 
   public BackupMethod getCurrentBackupMethod() {

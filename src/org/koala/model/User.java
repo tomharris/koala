@@ -40,29 +40,6 @@ public class User extends Base {
     super();
   }
 
-  public User(User user) {
-    this.id = user.getId();
-    this.lastName = user.getLastName();
-    this.firstName = user.getFirstName();
-    this.accessLevel = user.getLevel();
-    this.userName = user.getUserName();
-    currentTransaction = null;
-
-    dbHandle = null;
-  }
-
-  public User(int id, int level, String username, String firstname, String lastname) {
-    this.id = id;
-		this.lastName = lastname;
-		this.firstName = firstname;
-    this.accessLevel = level;
-    this.userName = username;
-    currentTransaction = null;
-
-    //null is useful because this could have been a search result
-    dbHandle = null;
-  }
-
   protected void finalize() {
     this.dbHandle.finalize();
     this.dbHandle = null;
@@ -71,39 +48,47 @@ public class User extends Base {
   }
 
   public String toString() {
-      return userName;
+    return this.userName;
   }
 
   public int getId() {
-		return id;
-	}
+    return this.id;
+  }
 
-	public void setId(int id) {
-	  this.id = id;
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
   public String getLastName() {
-		return lastName;
-	}
+    return this.lastName;
+  }
 
-	public void setLastName(String lastName) {
-	  this.lastName = lastName;
-	}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-	public String getFirstName() {
-		return firstName;
-	}
+  public String getFirstName() {
+    return this.firstName;
+  }
 
-	public void setFirstName(String firstName) {
+  public void setFirstName(String firstName) {
     this.firstName = firstName;
-	}
+  }
 
   public int getLevel() {
-    return accessLevel;
+    return this.accessLevel;
+  }
+
+  public void setLevel(int level) {
+    this.accessLevel = level;
   }
 
   public String getUserName() {
-    return userName;
+    return this.userName;
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
   }
 
   public String getPassword() {
@@ -164,7 +149,12 @@ public class User extends Base {
       rs = stmt.executeQuery();
 
       if(rs.next()) {
-        user = new User(id, rs.getInt("level"), rs.getString("username"), rs.getString("firstname"), rs.getString("lastname"));
+        user = new User();
+        user.setId(id);
+        user.setLevel(rs.getInt("level"));
+        user.setUserName(rs.getString("username"));
+        user.setFirstName(rs.getString("firstname"));
+        user.setLastName(rs.getString("lastname"));
         user.setDBHandle(new DBase());
       }
 
@@ -190,9 +180,14 @@ public class User extends Base {
       rs = stmt.executeQuery();
 
       while(rs.next()) {
-        userVec.add(new User(rs.getInt("id"), access,
-          rs.getString("username"), rs.getString("firstname"),
-          rs.getString("lastname")));
+        User user = new User();
+        user.setId(rs.getInt("id"));
+        user.setLevel(access);
+        user.setUserName(rs.getString("username"));
+        user.setFirstName(rs.getString("firstname"));
+        user.setLastName(rs.getString("lastname"));
+
+        userVec.add(user);
       }
       rs.close();
       stmt.close();

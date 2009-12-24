@@ -45,10 +45,10 @@ public class UpdateUsersGUI extends DriverGUI {
 	private int userLevel = User.NONE;
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getUsernamePanel() {
 		if (usernamePanel == null) {
 			usernameLabel = new JLabel();
@@ -60,10 +60,10 @@ public class UpdateUsersGUI extends DriverGUI {
 		return usernamePanel;
 	}
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getFirstNamePanel() {
 		if (FirstNamePanel == null) {
 			firstNameLabel = new JLabel();
@@ -76,10 +76,10 @@ public class UpdateUsersGUI extends DriverGUI {
 		return FirstNamePanel;
 	}
 	/**
-	 * This method initializes firstNameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes firstNameTextField
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getFirstNameTextField() {
 		if (firstNameTextField == null) {
 			firstNameTextField = new JTextField();
@@ -88,10 +88,10 @@ public class UpdateUsersGUI extends DriverGUI {
 		return firstNameTextField;
 	}
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getLastNamePanel() {
 		if (lastNamePanel == null) {
 			lastNameLabel = new JLabel();
@@ -104,10 +104,10 @@ public class UpdateUsersGUI extends DriverGUI {
 		return lastNamePanel;
 	}
 	/**
-	 * This method initializes lastNameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes lastNameTextField
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getLastNameTextField() {
 		if (lastNameTextField == null) {
 			lastNameTextField = new JTextField();
@@ -116,16 +116,16 @@ public class UpdateUsersGUI extends DriverGUI {
 		return lastNameTextField;
 	}
 	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getUpdateButton() {
 		if (updateButton == null) {
 			updateButton = new JButton();
 			updateButton.setText("Update");
 			updateButton.setFont(BUTTON_TEXT_FONT);
-			updateButton.addActionListener(new java.awt.event.ActionListener() { 
+			updateButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 				    updateButtonActionPerformed(evt);
 				}
@@ -139,21 +139,23 @@ public class UpdateUsersGUI extends DriverGUI {
 		if(usernameComboBox.getSelectedIndex() != 0) {
 		  userid = ((User)usernameComboBox.getSelectedItem()).getId();
 		}
-		
+
 		//create user
-		User updatedUser = new User(userid, userLevel,
-				newUsernameTextField.getText(),
-				firstNameTextField.getText(),
-				lastNameTextField.getText());
+		User user = new User();
+    user.setId(userid);
+    user.setLevel(userLevel);
+    user.setUserName(newUsernameTextField.getText());
+    user.setFirstName(firstNameTextField.getText());
+    user.setLastName(lastNameTextField.getText());
 
 		String password = null;
 		if(newPasswordTextField.getText() != null && !newPasswordTextField.getText().trim().equals("")) {
-		  updatedUser.setPassword(newPasswordTextField.getText());
+		  user.setPassword(newPasswordTextField.getText());
 		}
 
 		//update db
 		try {
-			updatedUser.save();
+			user.save();
 		}
 		catch (EntryAlreadyExistsException e) {
 	    DriverGUI.printError(e);
@@ -163,16 +165,16 @@ public class UpdateUsersGUI extends DriverGUI {
 		if(usernameComboBox.getSelectedIndex() != 0) {
 		  usernameComboBox.removeItemAt(usernameComboBox.getSelectedIndex());
 		}
-		usernameComboBox.addItem(updatedUser);
+		usernameComboBox.addItem(user);
 		usernameComboBox.setSelectedIndex(0);
 		clearFields();
 	}
 
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getNewPasswordPanel() {
 		if (newPasswordPanel == null) {
 			newPasswordLabel = new JLabel();
@@ -185,10 +187,10 @@ public class UpdateUsersGUI extends DriverGUI {
 		return newPasswordPanel;
 	}
 	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton1
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JPanel getButtonPanel() {
 		if (buttonPanel == null) {
 			buttonPanel = new JPanel(new GridLayout(1,0));
@@ -200,17 +202,17 @@ public class UpdateUsersGUI extends DriverGUI {
 		return buttonPanel;
 	}
 	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes jButton1
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
 			cancelButton.setText("Back");
 			cancelButton.setFont(BUTTON_TEXT_FONT);
-			cancelButton.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent evt) { 
+			cancelButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					DriverGUI.backGui();
 				}
 			});
@@ -219,10 +221,10 @@ public class UpdateUsersGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes usernameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */    
+	 * This method initializes usernameTextField
+	 *
+	 * @return javax.swing.JTextField
+	 */
 	private JTextField getNewPasswordTextField() {
 		if (newPasswordTextField == null) {
 			newPasswordTextField = new JTextField();
@@ -231,9 +233,9 @@ public class UpdateUsersGUI extends DriverGUI {
 		return newPasswordTextField;
 	}
 	/**
-	 * This method initializes usernameComboBox	
-	 * 	
-	 * @return javax.swing.JComboBox	
+	 * This method initializes usernameComboBox
+	 *
+	 * @return javax.swing.JComboBox
 	 */
 	private JComboBox getUsernameComboBox() {
 		if (usernameComboBox == null) {
@@ -247,8 +249,8 @@ public class UpdateUsersGUI extends DriverGUI {
 		    usernameComboBox.setMaximumRowCount(5);
 		    usernameComboBox.insertItemAt("<<NEW USER>>", 0);
 		    usernameComboBox.setSelectedIndex(0);
-		    usernameComboBox.addItemListener(new java.awt.event.ItemListener() { 
-            	public void itemStateChanged(java.awt.event.ItemEvent evt) {    
+		    usernameComboBox.addItemListener(new java.awt.event.ItemListener() {
+            	public void itemStateChanged(java.awt.event.ItemEvent evt) {
             		usernameComboBoxItemStateChanged(evt);
             	}
             });
@@ -270,16 +272,16 @@ public class UpdateUsersGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes deleteButton	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes deleteButton
+	 *
+	 * @return javax.swing.JButton
 	 */
 	private JButton getDeleteButton() {
 		if (deleteButton == null) {
 			deleteButton = new JButton();
 			deleteButton.setText("Remove");
 			deleteButton.setFont(BUTTON_TEXT_FONT);
-			deleteButton.addActionListener(new java.awt.event.ActionListener() { 
+			deleteButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 				    deleteButtonActionPerformed(evt);
 				}
@@ -306,9 +308,9 @@ public class UpdateUsersGUI extends DriverGUI {
 	}
 
 	/**
-	 * This method initializes newUsernamePanel	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes newUsernamePanel
+	 *
+	 * @return javax.swing.JPanel
 	 */
 	private JPanel getNewUsernamePanel() {
 		if (newUsernamePanel == null) {
@@ -322,9 +324,9 @@ public class UpdateUsersGUI extends DriverGUI {
 		return newUsernamePanel;
 	}
 	/**
-	 * This method initializes newUsernameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes newUsernameTextField
+	 *
+	 * @return javax.swing.JTextField
 	 */
 	private JTextField getNewUsernameTextField() {
 		if (newUsernameTextField == null) {
@@ -359,7 +361,7 @@ public class UpdateUsersGUI extends DriverGUI {
 	}
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
@@ -368,7 +370,7 @@ public class UpdateUsersGUI extends DriverGUI {
 	}
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private javax.swing.JPanel getJContentPane() {
@@ -384,7 +386,7 @@ public class UpdateUsersGUI extends DriverGUI {
 			centerPane.add(getLastNamePanel());
 			centerPane.add(new JPanel());
 			centerPane.add(getNewPasswordPanel());
-			
+
 			jContentPane.add(getButtonPanel(), java.awt.BorderLayout.SOUTH);
 			jContentPane.add(centerPane, java.awt.BorderLayout.CENTER);
 		}

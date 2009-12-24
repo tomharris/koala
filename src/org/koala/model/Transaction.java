@@ -150,7 +150,7 @@ public class Transaction extends Base {
 	}
 
 	public User getCashier() {
-	    return new User(this.cashier);
+	    return this.cashier;
 	}
 
 	public Customer getCustomer() {

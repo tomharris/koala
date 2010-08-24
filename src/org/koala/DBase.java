@@ -28,127 +28,93 @@ public class DBase {
     DatabaseConnection.getInstance().disconnect();
   }
 
-  // public BigDecimal getCustomerBalanceFromTransactions(int id) {
-  //     String creditQuery = "select sum(subtotal+tax) as credits from transactions t where t.code='b' and t.customer_id=?";
-  //     String debitQuery = "select sum(subtotal+tax) as debits from transactions t where t.code='c' and t.customer_id=?";
-  //
-  //     BigDecimal balance = null;
-  //     try {
-  //       PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(creditQuery);
-  //       stmt.setInt(1, id);
-  //     ResultSet rs = stmt.executeQuery();
-  //
-  //     BigDecimal credits = null;
-  //     if(rs.next()) {
-  //       credits = rs.getBigDecimal("credits");
-  //     }
-  //     rs.close();
-  //     stmt.close();
-  //
-  //     stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(debitQuery);
-  //       stmt.setInt(1, id);
-  //     rs = stmt.executeQuery();
-  //
-  //     if(credits != null && rs.next()) {
-  //       balance = credits.subtract(rs.getBigDecimal("debits"));
-  //     }
-  //     rs.close();
-  //     stmt.close();
-  //     }
-  //     catch (SQLException e) {
-  //     logger.error("SQL error loading customer balance", e);
-  //     }
-  //
-  //     return balance;
-  // }
-  //
-  // public ArrayList<Transaction> getTransactions(Customer customer, boolean getItems) {
-  //   StringBuilder query = new StringBuilder();
-  //   int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
-  //
-  //     query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
-  //     //here are some good guesses for a default array size; on average, I think this is close
-  //   if(customer == null) { //we are getting all transaction for everyone
-  //     initialCapacity = 750;
-  //   }
-  //   else { //just the one customer
-  //     query.append("where customer_id=? ");
-  //     initialCapacity = 15;
-  //   }
-  //   query.append("order by transaction_time");
-  //   ArrayList<Transaction> transactions = new ArrayList<Transaction>(initialCapacity);
-  //
-  //     try {
-  //       PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-  //       if(customer != null) {
-  //         stmt.setInt(1, customer.getId());
-  //       }
-  //         ResultSet rs = stmt.executeQuery();
-  //
-  //         Transaction transaction = null;
-  //         while(rs.next()) {
-  //           transaction = new Transaction(rs.getInt("id"),
-  //                 User.find(rs.getInt("user_id")), customer,
-  //                 rs.getBigDecimal("subtotal"),
-  //                   rs.getBigDecimal("tax"),
-  //                   rs.getString("code"), rs.getDate("transaction_time"));
-  //
-  //           if(getItems)
-  //             transaction.lookupTransactionItems(this);
-  //
-  //           transactions.add(transaction);
-  //         }
-  //         rs.close();
-  //         stmt.close();
-  //     }
-  //     catch (SQLException e) {
-  //         logger.error("SQL error loading transactions for customer history", e);
-  //     }
-  //
-  //     transactions.trimToSize();
-  //     return transactions;
-  // }
-  //
-  // public ArrayList<Item> getTransactionItems(int transNumber) {
-  //   StringBuilder query = new StringBuilder();
-  //     query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
-  //     query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
-  //     query.append("from transaction_items ");
-  //     query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
-  //     query.append("where transaction_id=?");
-  //     ArrayList<Item> transItems = new ArrayList<Item>();
-  //
-  //     try {
-  //       PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-  //       stmt.setInt(1, transNumber);
-  //       ResultSet rs = stmt.executeQuery();
-  //
-  //       while(rs.next()) {
-  //         String name = rs.getString("name");
-  //         if(name == null)
-  //           name = rs.getString("sku"); //reasonable default I should think
-  //
-  //         BigDecimal price = rs.getBigDecimal("price");
-  //         if(price == null)
-  //           price = BigDecimal.ZERO;
-  //
-  //         BigDecimal tax = rs.getBigDecimal("tax");
-  //         if(tax == null)
-  //           tax = BigDecimal.ZERO;
-  //
-  //         transItems.add(new ForSale(rs.getString("sku"), name,
-  //             rs.getInt("quantity"), price, tax,
-  //             rs.getInt("unlimited") == 1));
-  //         }
-  //         rs.close();
-  //         stmt.close();
-  //     }
-  //     catch (SQLException e) {
-  //         logger.error("SQL error loading customer items", e);
-  //     }
-  //
-  //     return transItems;
-  // }
+  public ArrayList<Transaction> getTransactions(Customer customer, boolean getItems) {
+    StringBuilder query = new StringBuilder();
+    int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
+  
+      query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
+      //here are some good guesses for a default array size; on average, I think this is close
+    if(customer == null) { //we are getting all transaction for everyone
+      initialCapacity = 750;
+    }
+    else { //just the one customer
+      query.append("where customer_id=? ");
+      initialCapacity = 15;
+    }
+    query.append("order by transaction_time");
+    ArrayList<Transaction> transactions = new ArrayList<Transaction>(initialCapacity);
+  
+      try {
+        PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+        if(customer != null) {
+          stmt.setInt(1, customer.getId());
+        }
+          ResultSet rs = stmt.executeQuery();
+  
+          Transaction transaction = null;
+          while(rs.next()) {
+            transaction = new Transaction(rs.getInt("id"),
+                  User.find(rs.getInt("user_id")), customer,
+                  rs.getBigDecimal("subtotal"),
+                    rs.getBigDecimal("tax"),
+                    rs.getString("code"), rs.getDate("transaction_time"));
+  
+            if(getItems)
+              transaction.lookupTransactionItems(this);
+  
+            transactions.add(transaction);
+          }
+          rs.close();
+          stmt.close();
+      }
+      catch (SQLException e) {
+          logger.error("SQL error loading transactions for customer history", e);
+      }
+  
+      transactions.trimToSize();
+      return transactions;
+  }
+  
+  public ArrayList<Item> getTransactionItems(int transNumber) {
+    StringBuilder query = new StringBuilder();
+      query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
+      query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
+      query.append("from transaction_items ");
+      query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
+      query.append("where transaction_id=?");
+      ArrayList<Item> transItems = new ArrayList<Item>();
+  
+      try {
+        PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+        stmt.setInt(1, transNumber);
+        ResultSet rs = stmt.executeQuery();
+  
+        while(rs.next()) {
+          String name = rs.getString("name");
+          if(name == null)
+            name = rs.getString("sku"); //reasonable default I should think
+  
+          BigDecimal price = rs.getBigDecimal("price");
+          if(price == null)
+            price = BigDecimal.ZERO;
+  
+          BigDecimal tax = rs.getBigDecimal("tax");
+          if(tax == null)
+            tax = BigDecimal.ZERO;
+  
+          transItems.add(new ForSale(rs.getString("sku"), name,
+              rs.getInt("quantity"), price, tax,
+              rs.getInt("unlimited") == 1));
+          }
+          rs.close();
+          stmt.close();
+      }
+      catch (SQLException e) {
+          logger.error("SQL error loading customer items", e);
+      }
+  
+      return transItems;
+  }
 
   /*needs to acomplish several things:
    *  1: decrement all the items from total inventory

@@ -38,7 +38,7 @@ public class CustomerReport extends Report {
 	}
 
     protected final void loadResources() {
-        // transactions = dbHandle.getTransactions(customer, true);
+        transactions = dbHandle.getTransactions(customer, true);
     }
 
     public final void doReport() {

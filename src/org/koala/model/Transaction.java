@@ -95,10 +95,10 @@ public class Transaction extends Base {
 		this.transTime = null;
 	}
 
-  // public void lookupTransactionItems(DBase dbHandle) {
-  //  this.transactions = dbHandle.getTransactionItems(this.id);
-  //  this.transactions.trimToSize();
-  // }
+  public void lookupTransactionItems(DBase dbHandle) {
+   this.transactions = dbHandle.getTransactionItems(this.id);
+   this.transactions.trimToSize();
+  }
 
 	public void addItem(Item newItem) {
 		this.transactions.add(newItem);

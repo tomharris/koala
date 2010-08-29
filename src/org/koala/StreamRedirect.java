@@ -13,32 +13,32 @@ import java.io.*;
 import org.koala.ui.DriverGUI;
 
 public class StreamRedirect extends Thread {
-	 InputStream is;
-	 OutputStream os;
+  InputStream is;
+  OutputStream os;
 
-	 StreamRedirect(InputStream is) {
-		 this(is, null);
-	 }
+  StreamRedirect(InputStream is) {
+    this(is, null);
+  }
 
-	 StreamRedirect(InputStream input, OutputStream output) {
-		 this.is = input;
-		 this.os = output;
-	 }
+  StreamRedirect(InputStream input, OutputStream output) {
+    this.is = input;
+    this.os = output;
+  }
 
-	 public void run() {
-		 try {
-			 for(int data = is.read(); data > 0; data = is.read()) {
-			     if(os != null)
-			         os.write(data);
-			 }
-			 if(os != null) {
-			     os.flush();
-			     os.close();
-			 }
-			 is.close();
-	        }
-		 catch (IOException e) {
-			 DriverGUI.printError(e);
-		 }
-	 }
+  public void run() {
+    try {
+      for(int data = is.read(); data > 0; data = is.read()) {
+        if(os != null)
+          os.write(data);
+      }
+      if(os != null) {
+        os.flush();
+        os.close();
+      }
+      is.close();
+    }
+    catch (IOException e) {
+      DriverGUI.printError(e);
+    }
+  }
 }

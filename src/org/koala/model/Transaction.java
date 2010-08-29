@@ -7,11 +7,11 @@ package org.koala.model;
 
 /**
  * @author tom
- *	SUMARY: A transaction can be started when the customerid is given. We need
- *		another gui screen to be presented after the cashier logs in but
- *		before the CashierScreenGUI (to get the customer's name). This screen
- *		will collect the customer's name and convert that to a ID. The
- *		CashierScreenGUI will then be launched to add items to the transaction.
+ *  SUMARY: A transaction can be started when the customerid is given. We need
+ *    another gui screen to be presented after the cashier logs in but
+ *    before the CashierScreenGUI (to get the customer's name). This screen
+ *    will collect the customer's name and convert that to a ID. The
+ *    CashierScreenGUI will then be launched to add items to the transaction.
  */
 
 import java.util.ArrayList;
@@ -21,30 +21,30 @@ import java.sql.Date;
 import org.koala.DBase;
 
 public class Transaction extends Base {
-	private User cashier;
-	private Customer customer;
-	private BigDecimal subTotal;
-	private BigDecimal tax;
-	private ArrayList<Item> transactions = null;
-	private String acctCode;
-	private Date transTime;
-	private static final int initSize = 10; //initial array size; 10 sounds good
+  private User cashier;
+  private Customer customer;
+  private BigDecimal subTotal;
+  private BigDecimal tax;
+  private ArrayList<Item> transactions = null;
+  private String acctCode;
+  private Date transTime;
+  private static final int initSize = 10; //initial array size; 10 sounds good
 
-	//transaction codes
-	public static final String CODE_CASH = "a";
-	public static final String CODE_CREDITACCOUNT = "b";
-	public static final String CODE_DEBITACCOUNT = "c";
-	public static final String CODE_CLOSEACCOUNT = "d";
-	public static final String CODE_CREDITCOMPACCOUNT = "e";
-	public static final String CODE_DEBITCOMPACCOUNT = "f";
-	public static final String CODE_CLOSECOMPACCOUNT = "g";
-	public static final String CODE_INVENTORYADD = "h";
-	public static final String CODE_INVENTORYCORRECTION = "i";
+  //transaction codes
+  public static final String CODE_CASH = "a";
+  public static final String CODE_CREDITACCOUNT = "b";
+  public static final String CODE_DEBITACCOUNT = "c";
+  public static final String CODE_CLOSEACCOUNT = "d";
+  public static final String CODE_CREDITCOMPACCOUNT = "e";
+  public static final String CODE_DEBITCOMPACCOUNT = "f";
+  public static final String CODE_CLOSECOMPACCOUNT = "g";
+  public static final String CODE_INVENTORYADD = "h";
+  public static final String CODE_INVENTORYCORRECTION = "i";
 
-	/*
-	 * The idea is that you shouldnt need to create a transaction unless you already
-	 * have a item to put in it.
-	 */
+  /*
+   * The idea is that you shouldnt need to create a transaction unless you already
+   * have a item to put in it.
+   */
   // public Transaction(User cashier, Customer customer, Item newItem) {
   //  this.id = -1;
   //  this.subTotal = BigDecimal.ZERO;
@@ -83,93 +83,93 @@ public class Transaction extends Base {
     super();
   }
 
-	protected void finalize() {
-		this.transactions.clear();
-		this.transactions = null;
+  protected void finalize() {
+    this.transactions.clear();
+    this.transactions = null;
 
-		this.cashier = null;
-		this.customer = null;
-		this.subTotal = null;
-		this.tax = null;
-		this.acctCode = null;
-		this.transTime = null;
-	}
-
-  public void lookupTransactionItems(DBase dbHandle) {
-   this.transactions = dbHandle.getTransactionItems(this.id);
-   this.transactions.trimToSize();
+    this.cashier = null;
+    this.customer = null;
+    this.subTotal = null;
+    this.tax = null;
+    this.acctCode = null;
+    this.transTime = null;
   }
 
-	public void addItem(Item newItem) {
-		this.transactions.add(newItem);
-		this.subTotal = this.subTotal.add(newItem.getTotal());
-	    this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
-	    this.tax = this.tax.add(newItem.getPrice().multiply(newItem.getTaxRate()));
-	    this.tax.setScale(2, BigDecimal.ROUND_CEILING);
-	}
+  public void lookupTransactionItems(DBase dbHandle) {
+    this.transactions = dbHandle.getTransactionItems(this.id);
+    this.transactions.trimToSize();
+  }
 
-	public void removeItem(String sku) {
-		for(Item item : this.transactions) {
-	        if(item.getSku().equals(sku)) {
-	        	this.transactions.remove(item);
-	            break;
-	        }
-		}
+  public void addItem(Item newItem) {
+    this.transactions.add(newItem);
+    this.subTotal = this.subTotal.add(newItem.getTotal());
+    this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
+    this.tax = this.tax.add(newItem.getPrice().multiply(newItem.getTaxRate()));
+    this.tax.setScale(2, BigDecimal.ROUND_CEILING);
+  }
 
-		this.subTotal = new BigDecimal(0);
-		this.tax = new BigDecimal(0);
-		for(Item item : this.transactions) {
-			this.subTotal = this.subTotal.add(item.getTotal());
-			this.tax = this.tax.add(item.getPrice()).multiply(item.getTaxRate());
-	    }
-	}
+  public void removeItem(String sku) {
+    for(Item item : this.transactions) {
+      if(item.getSku().equals(sku)) {
+        this.transactions.remove(item);
+        break;
+      }
+    }
 
-	public Date getTransactionTime() {
-	    return this.transTime;
-	}
-	public BigDecimal getSubTotal() {
-	    return this.subTotal;
-	}
+    this.subTotal = new BigDecimal(0);
+    this.tax = new BigDecimal(0);
+    for(Item item : this.transactions) {
+      this.subTotal = this.subTotal.add(item.getTotal());
+      this.tax = this.tax.add(item.getPrice()).multiply(item.getTaxRate());
+    }
+  }
 
-	public BigDecimal getTax() {
-	    return this.tax;
-	}
+  public Date getTransactionTime() {
+    return this.transTime;
+  }
+  public BigDecimal getSubTotal() {
+      return this.subTotal;
+  }
 
-	//total rounded to the nearest penny
-	public BigDecimal getTotal() {
-	    return this.subTotal.add(this.tax);
-	}
+  public BigDecimal getTax() {
+      return this.tax;
+  }
 
-	public User getCashier() {
-	    return this.cashier;
-	}
+  //total rounded to the nearest penny
+  public BigDecimal getTotal() {
+    return this.subTotal.add(this.tax);
+  }
 
-	public void setCashier(User cashier) {
-	  this.cashier = cashier;
-	}
+  public User getCashier() {
+    return this.cashier;
+  }
 
-	public Customer getCustomer() {
-		return this.customer;
-	}
+  public void setCashier(User cashier) {
+    this.cashier = cashier;
+  }
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
+  public Customer getCustomer() {
+    return this.customer;
+  }
 
-	public Item getLastItem() {
-	    return this.transactions.get(this.transactions.size() - 1);
-	}
+  public void setCustomer(Customer customer) {
+    this.customer = customer;
+  }
 
-	public Item getFirstItem() {
-	    return this.transactions.get(0);
-	}
+  public Item getLastItem() {
+    return this.transactions.get(this.transactions.size() - 1);
+  }
 
-	public String getAcctCode() {
-		return this.acctCode;
-	}
+  public Item getFirstItem() {
+    return this.transactions.get(0);
+  }
 
-	//please avoid as this is VERY expensive
-	public ArrayList<Item> getAllItems() {
-	    return new ArrayList<Item>(this.transactions);
-	}
+  public String getAcctCode() {
+    return this.acctCode;
+  }
+
+  //please avoid as this is VERY expensive
+  public ArrayList<Item> getAllItems() {
+    return new ArrayList<Item>(this.transactions);
+  }
 }

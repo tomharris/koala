@@ -56,9 +56,9 @@ public class Item extends Base {
       sku.equals(Item.COMP_ACCOUNT_SKU))
       specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, customer.getBalance(), BigDecimal.ZERO, false);
     else if(sku.equals(Item.PARTIALCASH_CREDITHALF))
-        specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()).negate(), BigDecimal.ZERO, false);
+      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()).negate(), BigDecimal.ZERO, false);
     else if(sku.equals(Item.PARTIALCASH_CASHHALF))
-        specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()), BigDecimal.ZERO, false);
+      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()), BigDecimal.ZERO, false);
 
     //let the nullexception float back up
     return specialItem;
@@ -100,7 +100,7 @@ public class Item extends Base {
   }
 
   public int getQuantity() {
-      return quantity;
+    return quantity;
   }
 
   public void setQuantity(int amount) {
@@ -116,11 +116,11 @@ public class Item extends Base {
   }
 
   public BigDecimal getTaxRate() {
-      return taxRate;
+    return taxRate;
   }
 
   public boolean getUnlimited() {
-      return unlimited;
+    return unlimited;
   }
 
   public static Item findBySku(String sku) {

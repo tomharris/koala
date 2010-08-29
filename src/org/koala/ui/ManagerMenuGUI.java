@@ -9,7 +9,7 @@ package org.koala.ui;
  *
  * @author  fergus
  * TODO: add button for inventory gui
- * 	add button for addaccount
+ *  add button for addaccount
  */
 
 
@@ -18,136 +18,136 @@ import javax.swing.*;
 import org.koala.model.User;
 
 public class ManagerMenuGUI extends DriverGUI {
-	public static final long serialVersionUID = DriverGUI.serialVersionUID;
+  public static final long serialVersionUID = DriverGUI.serialVersionUID;
 
-    /** Creates new form ManagerMenuGUI */
-    public ManagerMenuGUI() {
-        initComponents();
-        this.setSize(375,475);
-        this.setTitle(APP_NAME);
-    }
+  /** Creates new form ManagerMenuGUI */
+  public ManagerMenuGUI() {
+    initComponents();
+    this.setSize(375,475);
+    this.setTitle(APP_NAME);
+  }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-      */
-    private void initComponents() {
-        accountMaintenanceButton = new JButton();
-        updateInventoryButton = new JButton();
-        managerOptionsPanel = new JPanel();
-        managerOptionsLabel = new JLabel();
-        cashierScreenButton = new JButton();
-        cashierMaintenanceButton = new JButton();
-        backupManagerButton = new JButton();
-        financialReportButton = new JButton();
-        accountsReportButton = new JButton();
-        logoutButton = new JButton();
+  /** This method is called from within the constructor to
+   * initialize the form.
+    */
+  private void initComponents() {
+    accountMaintenanceButton = new JButton();
+    updateInventoryButton = new JButton();
+    managerOptionsPanel = new JPanel();
+    managerOptionsLabel = new JLabel();
+    cashierScreenButton = new JButton();
+    cashierMaintenanceButton = new JButton();
+    backupManagerButton = new JButton();
+    financialReportButton = new JButton();
+    accountsReportButton = new JButton();
+    logoutButton = new JButton();
 
-        getContentPane().setLayout(new java.awt.GridLayout(9, 0));
+    getContentPane().setLayout(new java.awt.GridLayout(9, 0));
 
-        managerOptionsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER));
+    managerOptionsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER));
 
-        managerOptionsLabel.setFont(new java.awt.Font("Dialog", 1, 30));
-        managerOptionsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        managerOptionsLabel.setText("Manager Options:");
-        managerOptionsPanel.add(managerOptionsLabel);
+    managerOptionsLabel.setFont(new java.awt.Font("Dialog", 1, 30));
+    managerOptionsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+    managerOptionsLabel.setText("Manager Options:");
+    managerOptionsPanel.add(managerOptionsLabel);
 
-        getContentPane().add(managerOptionsPanel);
+    getContentPane().add(managerOptionsPanel);
 
-        cashierScreenButton.setFont(BUTTON_TEXT_FONT);
-        cashierScreenButton.setText("Cashier Screen");
-        cashierScreenButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.nextGui(new CustomerLookupGUI());
-            }
-        });
+    cashierScreenButton.setFont(BUTTON_TEXT_FONT);
+    cashierScreenButton.setText("Cashier Screen");
+    cashierScreenButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        DriverGUI.nextGui(new CustomerLookupGUI());
+      }
+    });
 
-        getContentPane().add(cashierScreenButton);
+    getContentPane().add(cashierScreenButton);
 
-        cashierMaintenanceButton.setFont(BUTTON_TEXT_FONT);
-        cashierMaintenanceButton.setText("Cashier Management");
-        cashierMaintenanceButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.nextGui(new UpdateUsersGUI(User.CASHIER));
-            }
-        });
+    cashierMaintenanceButton.setFont(BUTTON_TEXT_FONT);
+    cashierMaintenanceButton.setText("Cashier Management");
+    cashierMaintenanceButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        DriverGUI.nextGui(new UpdateUsersGUI(User.CASHIER));
+      }
+    });
 
-        getContentPane().add(cashierMaintenanceButton);
+    getContentPane().add(cashierMaintenanceButton);
 
-        updateInventoryButton.setFont(BUTTON_TEXT_FONT);
-        updateInventoryButton.setText("Inventory Management");
-        updateInventoryButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.nextGui(new UpdateInventoryGUI());
-            }
-        });
+    updateInventoryButton.setFont(BUTTON_TEXT_FONT);
+    updateInventoryButton.setText("Inventory Management");
+    updateInventoryButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        DriverGUI.nextGui(new UpdateInventoryGUI());
+      }
+    });
 
-        getContentPane().add(updateInventoryButton);
+    getContentPane().add(updateInventoryButton);
 
-        accountMaintenanceButton.setFont(BUTTON_TEXT_FONT);
-        accountMaintenanceButton.setText("Customers Management");
-        accountMaintenanceButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.nextGui(new AccountMaintenanceGUI());
-            }
-        });
+    accountMaintenanceButton.setFont(BUTTON_TEXT_FONT);
+    accountMaintenanceButton.setText("Customers Management");
+    accountMaintenanceButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        DriverGUI.nextGui(new AccountMaintenanceGUI());
+      }
+    });
 
-        getContentPane().add(accountMaintenanceButton);
+    getContentPane().add(accountMaintenanceButton);
 
-        backupManagerButton.setFont(BUTTON_TEXT_FONT);
-        backupManagerButton.setText("Backup Management");
-        backupManagerButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.nextGui(new BackupManagerGUI());
-            }
-        });
+    backupManagerButton.setFont(BUTTON_TEXT_FONT);
+    backupManagerButton.setText("Backup Management");
+    backupManagerButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        DriverGUI.nextGui(new BackupManagerGUI());
+      }
+    });
 
-        getContentPane().add(backupManagerButton);
+    getContentPane().add(backupManagerButton);
 
-        financialReportButton.setFont(BUTTON_TEXT_FONT);
-        financialReportButton.setText("Financial Report");
-        financialReportButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	showModelGui(new ReportGUI(currentUser.financialReport()));
-            }
-        });
+    financialReportButton.setFont(BUTTON_TEXT_FONT);
+    financialReportButton.setText("Financial Report");
+    financialReportButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        showModelGui(new ReportGUI(currentUser.financialReport()));
+      }
+    });
 
-        getContentPane().add(financialReportButton);
+    getContentPane().add(financialReportButton);
 
-        accountsReportButton.setFont(BUTTON_TEXT_FONT);
-        accountsReportButton.setText("Outstanding Accts Report");
-        accountsReportButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	showModelGui(new ReportGUI(currentUser.outstandingAccountsReport()));
-            }
-        });
+    accountsReportButton.setFont(BUTTON_TEXT_FONT);
+    accountsReportButton.setText("Outstanding Accts Report");
+    accountsReportButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        showModelGui(new ReportGUI(currentUser.outstandingAccountsReport()));
+      }
+    });
 
-        getContentPane().add(accountsReportButton);
+    getContentPane().add(accountsReportButton);
 
-        logoutButton.setFont(BUTTON_TEXT_FONT);
-		if(currentUser.getLevel() > User.MANAGER)
-			logoutButton.setText("Back");
-		else
-			logoutButton.setText("Log Out");
-        logoutButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            		DriverGUI.backGui();
-            }
-        });
+    logoutButton.setFont(BUTTON_TEXT_FONT);
+    if(currentUser.getLevel() > User.MANAGER)
+      logoutButton.setText("Back");
+    else
+      logoutButton.setText("Log Out");
+      logoutButton.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          DriverGUI.backGui();
+        }
+      });
 
-        getContentPane().add(logoutButton);
+      getContentPane().add(logoutButton);
 
-        pack();
+      pack();
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ManagerMenuGUI().setVisible(true);
-            }
-        });
+      java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+          new ManagerMenuGUI().setVisible(true);
+        }
+      });
     }
 
     // Variables declaration

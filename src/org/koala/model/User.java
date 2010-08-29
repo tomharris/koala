@@ -308,69 +308,69 @@ public class User extends Base {
 
   //cashier level
   public void doTransaction() {
-        dbHandle.doTransaction(currentTransaction);
+    dbHandle.doTransaction(currentTransaction);
 
-      //print receipt here
-      currentTransaction = null; //byebye; gc will clean up sometime
+    //print receipt here
+    currentTransaction = null; //byebye; gc will clean up sometime
   }
 
   public void addItem(String sku, int quantity, Customer customer) throws ItemNotFoundException {
-      Item currentItem = Item.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
-      if(currentItem == null) {
-          currentItem = Item.findBySku(sku);
-          if(currentItem == null)
-              throw new ItemNotFoundException("add Item");
+    Item currentItem = Item.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
+    if(currentItem == null) {
+      currentItem = Item.findBySku(sku);
+      if(currentItem == null)
+        throw new ItemNotFoundException("add Item");
 
-          currentItem.setQuantity(quantity);
-      }
+      currentItem.setQuantity(quantity);
+    }
 
-      if(currentTransaction == null) {
-        currentTransaction = new Transaction();
-        currentTransaction.setCashier(this);
-        currentTransaction.setCustomer(customer);
-        currentTransaction.addItem(currentItem);
-      }
-      else {
-        currentTransaction.addItem(currentItem);
-      }
+    if(currentTransaction == null) {
+      currentTransaction = new Transaction();
+      currentTransaction.setCashier(this);
+      currentTransaction.setCustomer(customer);
+      currentTransaction.addItem(currentItem);
+    }
+    else {
+      currentTransaction.addItem(currentItem);
+    }
   }
 
   //we just dont do a inventory lookup
   public void addSpecialItem(Item item, Customer customer) throws ItemNotFoundException {
-      if(item == null) {
-        throw new ItemNotFoundException("add Special item");
-      }
+    if(item == null) {
+      throw new ItemNotFoundException("add Special item");
+    }
 
-      if(currentTransaction == null) {
-        currentTransaction = new Transaction();
-        currentTransaction.setCashier(this);
-        currentTransaction.setCustomer(customer);
-        currentTransaction.addItem(item);
-      }
-      else {
-        currentTransaction.addItem(item);
-      }
+    if(currentTransaction == null) {
+      currentTransaction = new Transaction();
+      currentTransaction.setCashier(this);
+      currentTransaction.setCustomer(customer);
+      currentTransaction.addItem(item);
+    }
+    else {
+      currentTransaction.addItem(item);
+    }
   }
 
   public void doPartialCashTransaction(Customer customer) {
-      //cash half needs to be first, otherwise we lose the transaction total
-      Item cashHalf = Item.createSpecialItem(Item.PARTIALCASH_CASHHALF, customer, currentTransaction);
-      currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
-      doTransaction();
+    //cash half needs to be first, otherwise we lose the transaction total
+    Item cashHalf = Item.createSpecialItem(Item.PARTIALCASH_CASHHALF, customer, currentTransaction);
+    currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
+    doTransaction();
 
-      currentTransaction = new Transaction();
-      currentTransaction.setCashier(this);
-      currentTransaction.setCustomer(new CashCustomer());
-      currentTransaction.addItem(cashHalf);
-      doTransaction();
+    currentTransaction = new Transaction();
+    currentTransaction.setCashier(this);
+    currentTransaction.setCustomer(new CashCustomer());
+    currentTransaction.addItem(cashHalf);
+    doTransaction();
   }
 
   public void removeItem(String sku) {
-      currentTransaction.removeItem(sku);
+    currentTransaction.removeItem(sku);
   }
 
   public void removeAllItems() {
-      currentTransaction = null; //gc will take care of it
+    currentTransaction = null; //gc will take care of it
   }
 
   public boolean isTransactionStarted() {
@@ -378,53 +378,53 @@ public class User extends Base {
   }
 
   public BigDecimal getTransactionSubTotal() {
-      if(currentTransaction == null)
-        return null;
+    if(currentTransaction == null)
+      return null;
 
-      return currentTransaction.getSubTotal().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getSubTotal().setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public BigDecimal getTransactionTotal() {
-      if(currentTransaction == null)
-        return null;
+    if(currentTransaction == null)
+      return null;
 
-      return currentTransaction.getTotal().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getTotal().setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public BigDecimal getTransactionTax() {
-      if(currentTransaction == null)
+    if(currentTransaction == null)
       return null;
 
-      return currentTransaction.getTax().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getTax().setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public Item getLastItem() {
-      if(currentTransaction == null)
+    if(currentTransaction == null)
       return null;
 
-      return currentTransaction.getLastItem();
+    return currentTransaction.getLastItem();
   }
 
   //expensive OMG
   public ArrayList<Item> getCurrentTransactionItems() {
-      return currentTransaction.getAllItems();
+    return currentTransaction.getAllItems();
   }
 
   public Report customerReport(Customer customer) {
-      return new CustomerReport(dbHandle, customer);
+    return new CustomerReport(dbHandle, customer);
   }
 
   //manager level
   public void endOfDayReports() {
-      //are we even doing this?
+    //are we even doing this?
   }
 
   public Report financialReport() {
-      return new FinancialReport(dbHandle);
+    return new FinancialReport(dbHandle);
   }
 
   public Report outstandingAccountsReport() {
-      return new OutstandingAccountsReport(dbHandle);
+    return new OutstandingAccountsReport(dbHandle);
   }
 
   /* stuff to think about

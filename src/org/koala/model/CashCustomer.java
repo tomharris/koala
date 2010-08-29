@@ -11,7 +11,7 @@ package org.koala.model;
 import java.math.BigDecimal;
 
 public class CashCustomer extends Customer {
-  
+
   public CashCustomer() {
     super();
     this.setBalance(BigDecimal.ZERO);
@@ -20,7 +20,7 @@ public class CashCustomer extends Customer {
     this.setComplementary(false);
     this.setRenewAmount(BigDecimal.ZERO);
   }
-  
+
   public void save() {
     // no-op. We never want to persist this object.
   }

@@ -31,9 +31,9 @@ public class DBase {
   public ArrayList<Transaction> getTransactions(Customer customer, boolean getItems) {
     StringBuilder query = new StringBuilder();
     int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
-  
-      query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
-      //here are some good guesses for a default array size; on average, I think this is close
+
+    query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
+    //here are some good guesses for a default array size; on average, I think this is close
     if(customer == null) { //we are getting all transaction for everyone
       initialCapacity = 750;
     }
@@ -43,77 +43,77 @@ public class DBase {
     }
     query.append("order by transaction_time");
     ArrayList<Transaction> transactions = new ArrayList<Transaction>(initialCapacity);
-  
-      try {
-        PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-        if(customer != null) {
-          stmt.setInt(1, customer.getId());
-        }
-          ResultSet rs = stmt.executeQuery();
-  
-          Transaction transaction = null;
-          while(rs.next()) {
-            transaction = new Transaction(rs.getInt("id"),
-                  User.find(rs.getInt("user_id")), customer,
-                  rs.getBigDecimal("subtotal"),
-                    rs.getBigDecimal("tax"),
-                    rs.getString("code"), rs.getDate("transaction_time"));
-  
-            if(getItems)
-              transaction.lookupTransactionItems(this);
-  
-            transactions.add(transaction);
-          }
-          rs.close();
-          stmt.close();
+
+    try {
+      PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      if(customer != null) {
+        stmt.setInt(1, customer.getId());
       }
-      catch (SQLException e) {
-          logger.error("SQL error loading transactions for customer history", e);
+      ResultSet rs = stmt.executeQuery();
+
+      Transaction transaction = null;
+      while(rs.next()) {
+        transaction = new Transaction(rs.getInt("id"),
+              User.find(rs.getInt("user_id")), customer,
+              rs.getBigDecimal("subtotal"),
+                rs.getBigDecimal("tax"),
+                rs.getString("code"), rs.getDate("transaction_time"));
+
+        if(getItems)
+          transaction.lookupTransactionItems(this);
+
+        transactions.add(transaction);
       }
-  
-      transactions.trimToSize();
-      return transactions;
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+        logger.error("SQL error loading transactions for customer history", e);
+    }
+
+    transactions.trimToSize();
+    return transactions;
   }
-  
+
   public ArrayList<Item> getTransactionItems(int transNumber) {
     StringBuilder query = new StringBuilder();
-      query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
-      query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
-      query.append("from transaction_items ");
-      query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
-      query.append("where transaction_id=?");
-      ArrayList<Item> transItems = new ArrayList<Item>();
-  
-      try {
-        PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-        stmt.setInt(1, transNumber);
-        ResultSet rs = stmt.executeQuery();
-  
-        while(rs.next()) {
-          String name = rs.getString("name");
-          if(name == null)
-            name = rs.getString("sku"); //reasonable default I should think
-  
-          BigDecimal price = rs.getBigDecimal("price");
-          if(price == null)
-            price = BigDecimal.ZERO;
-  
-          BigDecimal tax = rs.getBigDecimal("tax");
-          if(tax == null)
-            tax = BigDecimal.ZERO;
-  
-          transItems.add(new ForSale(rs.getString("sku"), name,
-              rs.getInt("quantity"), price, tax,
-              rs.getInt("unlimited") == 1));
-          }
-          rs.close();
-          stmt.close();
+    query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
+    query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
+    query.append("from transaction_items ");
+    query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
+    query.append("where transaction_id=?");
+    ArrayList<Item> transItems = new ArrayList<Item>();
+
+    try {
+      PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      stmt.setInt(1, transNumber);
+      ResultSet rs = stmt.executeQuery();
+
+      while(rs.next()) {
+        String name = rs.getString("name");
+        if(name == null)
+          name = rs.getString("sku"); //reasonable default I should think
+
+        BigDecimal price = rs.getBigDecimal("price");
+        if(price == null)
+          price = BigDecimal.ZERO;
+
+        BigDecimal tax = rs.getBigDecimal("tax");
+        if(tax == null)
+          tax = BigDecimal.ZERO;
+
+        transItems.add(new ForSale(rs.getString("sku"), name,
+          rs.getInt("quantity"), price, tax,
+          rs.getInt("unlimited") == 1));
       }
-      catch (SQLException e) {
-          logger.error("SQL error loading customer items", e);
-      }
-  
-      return transItems;
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error loading customer items", e);
+    }
+
+    return transItems;
   }
 
   /*needs to acomplish several things:
@@ -149,29 +149,29 @@ public class DBase {
   private void decrementInventory(Transaction transaction) throws SQLException {
     //check to see if the transaction is special
     if(Item.isSpecial(transaction.getFirstItem().getSku()))
-        return;
+      return;
 
     ArrayList<Item> items = transaction.getAllItems();
       PreparedStatement stmt;
       String decQuery = "update inventory set quantity=quantity-? where sku=?";
 
       try {
-          stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(decQuery);
+        stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(decQuery);
 
-          for(Item item : items) {
-              if(item.getUnlimited() || Item.isSpecial(item.getSku()) )
-                  continue; //skip if its unlimited or special
+        for(Item item : items) {
+            if(item.getUnlimited() || Item.isSpecial(item.getSku()) )
+                continue; //skip if its unlimited or special
 
-              stmt.setInt(1, item.getQuantity());
-              stmt.setString(2, item.getSku());
-              stmt.executeUpdate();
-          }
+            stmt.setInt(1, item.getQuantity());
+            stmt.setString(2, item.getSku());
+            stmt.executeUpdate();
+        }
 
-          stmt.close();
+        stmt.close();
       }
       catch (SQLException e) {
-      logger.error("SQL error decrementing item count in inventory", e);
-      throw e;
+        logger.error("SQL error decrementing item count in inventory", e);
+        throw e;
       }
   }
 
@@ -186,32 +186,32 @@ public class DBase {
     query.append(DatabaseConnection.getInstance().getProfile().getCurrentTimeCmd());
     query.append(", ?, ?, ?, ?, ?)");
 
-      try {
-          stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
 
-          stmt.setString(1, TransAction.getAcctCode());
-          stmt.setInt(2, TransAction.getCashier().getId());
-          if(TransAction.getCustomer() == null || TransAction.getCustomer() instanceof CashCustomer) {
-            stmt.setNull(3, java.sql.Types.INTEGER);
-          }
-          else {
-            stmt.setInt(3, TransAction.getCustomer().getId());
-          }
-          stmt.setBigDecimal(4, TransAction.getSubTotal());
-          stmt.setBigDecimal(5, TransAction.getTax());
-          stmt.executeUpdate();
-
-          //get the auto inc field of the row just inserted
-          autoIncKey = getAutoIncKey("transactions", "id");
-
-          stmt.close();
+      stmt.setString(1, TransAction.getAcctCode());
+      stmt.setInt(2, TransAction.getCashier().getId());
+      if(TransAction.getCustomer() == null || TransAction.getCustomer() instanceof CashCustomer) {
+        stmt.setNull(3, java.sql.Types.INTEGER);
       }
-      catch (SQLException e) {
+      else {
+        stmt.setInt(3, TransAction.getCustomer().getId());
+      }
+      stmt.setBigDecimal(4, TransAction.getSubTotal());
+      stmt.setBigDecimal(5, TransAction.getTax());
+      stmt.executeUpdate();
+
+      //get the auto inc field of the row just inserted
+      autoIncKey = getAutoIncKey("transactions", "id");
+
+      stmt.close();
+    }
+    catch (SQLException e) {
       logger.error("SQL error recording transaction totals", e);
       throw e;
-      }
+    }
 
-      return autoIncKey;
+    return autoIncKey;
   }
 
   /*
@@ -227,101 +227,101 @@ public class DBase {
 
     ArrayList<Item> items = TransAction.getAllItems();
 
-      try {
-        stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-        for(Item item : items) {
-              stmt.setInt(1, transID);
-              stmt.setString(2, item.getSku());
-              stmt.setInt(3, item.getQuantity());
-              stmt.setBigDecimal(4, item.getPrice());
-              stmt.executeUpdate();
-          }
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      for(Item item : items) {
+            stmt.setInt(1, transID);
+            stmt.setString(2, item.getSku());
+            stmt.setInt(3, item.getQuantity());
+            stmt.setBigDecimal(4, item.getPrice());
+            stmt.executeUpdate();
+        }
 
-          stmt.close();
+        stmt.close();
       }
       catch (SQLException e) {
-      logger.error("SQL error recording transaction items", e);
+        logger.error("SQL error recording transaction items", e);
         throw e;
       }
   }
 
   //debit the transaction total from a customer's account
   private void debitAccount(Transaction transaction) throws SQLException {
-      //check for cash transaction
-      if(transaction.getCustomer() == null || transaction.getCustomer() instanceof CashCustomer) {
-        return;
-      }
+    //check for cash transaction
+    if(transaction.getCustomer() == null || transaction.getCustomer() instanceof CashCustomer) {
+      return;
+    }
 
-      //check to see if the transaction is special;
-      // its not that allowing these is 'bad', but rather redundent
-      //
-      //We use first item because the last may be a correction due
-      // to an over spending (which would be special). We would
-      // still need to debit the account in that case.
-      if(Item.isSpecial(transaction.getFirstItem().getSku()))
-        return;
+    //check to see if the transaction is special;
+    // its not that allowing these is 'bad', but rather redundent
+    //
+    //We use first item because the last may be a correction due
+    // to an over spending (which would be special). We would
+    // still need to debit the account in that case.
+    if(Item.isSpecial(transaction.getFirstItem().getSku()))
+      return;
 
     PreparedStatement stmt;
     String query = "update customers set balance=? where id=?";
 
-      try {
-          stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
-          stmt.setBigDecimal(1, transaction.getCustomer().getBalance().subtract(transaction.getTotal()));
-          stmt.setInt(2, transaction.getCustomer().getId());
-          stmt.executeUpdate();
-          stmt.close();
-      }
-      catch (SQLException e) {
+    try {
+        stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
+        stmt.setBigDecimal(1, transaction.getCustomer().getBalance().subtract(transaction.getTotal()));
+        stmt.setInt(2, transaction.getCustomer().getId());
+        stmt.executeUpdate();
+        stmt.close();
+    }
+    catch (SQLException e) {
       logger.error("SQL error debiting cutomer account", e);
       throw e;
-      }
+    }
   }
 
   public void clearDB() {
-      ArrayList<String> tables = new ArrayList<String>(6);
-      tables.add("transaction_items");
-      tables.add("transactions");
-      tables.add("notes");
-      tables.add("customers");
-      tables.add("users");
-      tables.add("inventory");
+    ArrayList<String> tables = new ArrayList<String>(6);
+    tables.add("transaction_items");
+    tables.add("transactions");
+    tables.add("notes");
+    tables.add("customers");
+    tables.add("users");
+    tables.add("inventory");
 
-      this.dropTables(tables);
+    this.dropTables(tables);
   }
 
   public void resetDB() {
-      ArrayList<String> tables = new ArrayList<String>(4);
-      tables.add("transaction_items");
-      tables.add("transactions");
-      tables.add("notes");
-      tables.add("customers");
+    ArrayList<String> tables = new ArrayList<String>(4);
+    tables.add("transaction_items");
+    tables.add("transactions");
+    tables.add("notes");
+    tables.add("customers");
 
-      this.dropTables(tables);
+    this.dropTables(tables);
   }
 
   private void dropTables(ArrayList<String> tables) {
     Statement stmt;
 
+    try {
+      DatabaseConnection.getInstance().getConnection().setAutoCommit(false);
+
+      stmt = DatabaseConnection.getInstance().getConnection().createStatement();
+      for(String table : tables)
+        stmt.executeUpdate("delete from " + table);
+      stmt.close();
+
+      DatabaseConnection.getInstance().getConnection().commit();
+      DatabaseConnection.getInstance().getConnection().setAutoCommit(true);
+    }
+    catch (SQLException e) {
       try {
-        DatabaseConnection.getInstance().getConnection().setAutoCommit(false);
-
-          stmt = DatabaseConnection.getInstance().getConnection().createStatement();
-          for(String table : tables)
-            stmt.executeUpdate("delete from " + table);
-          stmt.close();
-
-          DatabaseConnection.getInstance().getConnection().commit();
-          DatabaseConnection.getInstance().getConnection().setAutoCommit(true);
+        DatabaseConnection.getInstance().getConnection().rollback();
       }
-      catch (SQLException e) {
-        try {
-          DatabaseConnection.getInstance().getConnection().rollback();
-        }
-        catch(SQLException ex) {
-          logger.error("Rollback failed.", ex);
-        }
-        logger.error("SQL error dropping tables: Transaction is being rolled back", e);
+      catch(SQLException ex) {
+        logger.error("Rollback failed.", ex);
       }
+      logger.error("SQL error dropping tables: Transaction is being rolled back", e);
+    }
   }
 
   private int getAutoIncKey(String tableName, String autoIncField) {

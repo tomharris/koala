@@ -39,6 +39,7 @@ public class DriverGUI extends javax.swing.JFrame {
   public static final long serialVersionUID = 20080523;
 
   public static void main(String[] args) {
+
     //load config file
     DriverGUI.initConfig();
 

@@ -10,16 +10,16 @@ package org.koala.model;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 import org.koala.DatabaseConnection;
+import org.koala.Money;
 import org.koala.exception.EntryAlreadyExistsException;
 
 public class Customer extends Base {
   private String firstName, lastName;
-  private BigDecimal balance;
-  private BigDecimal renewAmount;
+  private Money balance;
+  private Money renewAmount;
   private boolean comp;
   private String note; //some textual info that we need to keep
 
@@ -45,13 +45,12 @@ public class Customer extends Base {
     this.firstName = firstName;
   }
 
-  public BigDecimal getBalance() {
+  public Money getBalance() {
     return balance;
   }
 
-  public void setBalance(BigDecimal amount) {
+  public void setBalance(Money amount) {
     this.balance = amount;
-    this.balance.setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public boolean isComplementary() {
@@ -62,13 +61,12 @@ public class Customer extends Base {
     this.comp = value;
   }
 
-  public BigDecimal getRenewAmount() {
+  public Money getRenewAmount() {
     return renewAmount;
   }
 
-  public void setRenewAmount(BigDecimal amount) {
+  public void setRenewAmount(Money amount) {
     this.renewAmount = amount;
-    this.renewAmount.setScale(2, BigDecimal.ROUND_CEILING);
   }
 
   public String getNote() {
@@ -100,9 +98,9 @@ public class Customer extends Base {
         customer.setId(id);
         customer.setFirstName(rs.getString("firstname"));
         customer.setLastName(rs.getString("lastname"));
-        customer.setBalance(rs.getBigDecimal("balance"));
+        customer.setBalance(new Money(rs.getBigDecimal("balance")));
         customer.setComplementary(rs.getInt("comp") == 1);
-        customer.setRenewAmount(rs.getBigDecimal("renewamount"));
+        customer.setRenewAmount(new Money(rs.getBigDecimal("renewamount")));
         customer.setNote(rs.getString("note"));
       }
       rs.close();
@@ -131,9 +129,9 @@ public class Customer extends Base {
         customer.setId(rs.getInt("id"));
         customer.setFirstName(rs.getString("firstname"));
         customer.setLastName(rs.getString("lastname"));
-        customer.setBalance(rs.getBigDecimal("balance"));
+        customer.setBalance(new Money(rs.getBigDecimal("balance")));
         customer.setComplementary(rs.getInt("comp") == 1);
-        customer.setRenewAmount(rs.getBigDecimal("renewamount"));
+        customer.setRenewAmount(new Money(rs.getBigDecimal("renewamount")));
         customer.setNote(rs.getString("note"));
 
         customers.add(customer);
@@ -163,9 +161,9 @@ public class Customer extends Base {
         customer.setId(rs.getInt("id"));
         customer.setFirstName(rs.getString("firstname"));
         customer.setLastName(rs.getString("lastname"));
-        customer.setBalance(rs.getBigDecimal("renewamount")); // set the balance as the renewed amount
+        customer.setBalance(new Money(rs.getBigDecimal("renewamount"))); // set the balance as the renewed amount
         customer.setComplementary(true); //always true for renewable accounts
-        customer.setRenewAmount(rs.getBigDecimal("renewamount"));
+        customer.setRenewAmount(new Money(rs.getBigDecimal("renewamount")));
         customer.setNote(rs.getString("note"));
 
         customers.add(customer);
@@ -222,9 +220,9 @@ public class Customer extends Base {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
       stmt.setString(1, this.getFirstName());
       stmt.setString(2, this.getLastName());
-      stmt.setBigDecimal(3, this.getBalance());
+      stmt.setBigDecimal(3, this.getBalance().getAmount());
       stmt.setInt(4, this.isComplementary() ? 1 : 0);
-      stmt.setBigDecimal(5, this.getRenewAmount());
+      stmt.setBigDecimal(5, this.getRenewAmount().getAmount());
       stmt.setString(6, this.getNote());
       stmt.executeUpdate();
       stmt.close();
@@ -247,11 +245,11 @@ public class Customer extends Base {
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-      stmt.setBigDecimal(1, this.getBalance());
+      stmt.setBigDecimal(1, this.getBalance().getAmount());
       stmt.setString(2, this.getFirstName());
       stmt.setString(3, this.getLastName());
       stmt.setInt(4, this.isComplementary() ? 1 : 0);
-      stmt.setBigDecimal(5, this.getRenewAmount());
+      stmt.setBigDecimal(5, this.getRenewAmount().getAmount());
       stmt.setString(6, this.getNote());
       stmt.setInt(7, this.getId());
       stmt.executeUpdate();

@@ -11,10 +11,10 @@ package org.koala.ui;
 
 
 import java.awt.GridLayout;
-import java.math.BigDecimal;
 
 import javax.swing.*;
 
+import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
 
@@ -86,9 +86,9 @@ public class AddToAccountGUI extends DriverGUI {
       return;
     }
 
-    BigDecimal addAmount = null;
+    Money addAmount = null;
     try {
-      addAmount = new BigDecimal(amountTextField.getText().trim());
+      addAmount = new Money(amountTextField.getText().trim());
     }
     catch(NumberFormatException e) {
       //log later?
@@ -96,13 +96,13 @@ public class AddToAccountGUI extends DriverGUI {
       return;
     }
 
-    if(addAmount.compareTo(BigDecimal.ZERO) < 0) {
+    if(addAmount.isZero()) {
       amountTextField.setText("");
       amountTextField.requestFocus();
       return;
     }
 
-    currentCustomer.setBalance(currentCustomer.getBalance().add(addAmount));
+    currentCustomer.setBalance(currentCustomer.getBalance().plus(addAmount));
 
     try {
       currentCustomer.save();

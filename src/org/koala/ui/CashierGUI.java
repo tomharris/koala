@@ -6,14 +6,13 @@ import java.awt.*;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.model.CashCustomer;
 import org.koala.model.Item;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.ui.widget.ItemTable;
-
-import java.math.BigDecimal;
 
 /**
  * Created on April 1, 2007, 2:34 PM
@@ -403,7 +402,7 @@ public class CashierGUI extends DriverGUI {
     if(!(currentCustomer instanceof CashCustomer) &&
       currentUser.getTransactionTotal().compareTo(currentCustomer.getBalance()) > 0) { //TransactionTotal > Balance
 
-      if(additionalFundsRequiredPopup(currentUser.getTransactionTotal().subtract(currentCustomer.getBalance()))) {
+      if(additionalFundsRequiredPopup(currentUser.getTransactionTotal().minus(currentCustomer.getBalance()))) {
         currentUser.doPartialCashTransaction(currentCustomer);
         currentUser.removeAllItems();
 
@@ -492,7 +491,7 @@ public class CashierGUI extends DriverGUI {
         currentCustomer = Customer.find(currentCustomer.getId());
       }
 
-      if(currentCustomer.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+      if(currentCustomer.getBalance().isZero()) {
         return;
       }
 
@@ -505,7 +504,7 @@ public class CashierGUI extends DriverGUI {
 
       switch(result) {
         case JOptionPane.OK_OPTION:
-          currentCustomer.setBalance(BigDecimal.ZERO);
+          currentCustomer.setBalance(Money.ZERO);
           currentCustomer.save(); //this handles the transaction log
           DriverGUI.backGui();
         case JOptionPane.CANCEL_OPTION:
@@ -569,7 +568,7 @@ public class CashierGUI extends DriverGUI {
       //taxTextField.setText(currentUser.getTransactionTax().toString());
       this.totalLabel.setText("$" + currentUser.getTransactionTotal().toString());
       if(currentCustomer.getId() != 0) {
-        this.balanceLabel.setText("$" + currentCustomer.getBalance().subtract(currentUser.getTransactionTotal()).toString());
+        this.balanceLabel.setText("$" + currentCustomer.getBalance().minus(currentUser.getTransactionTotal()).toString());
       }
     }
     catch (NullPointerException e) {
@@ -582,7 +581,7 @@ public class CashierGUI extends DriverGUI {
    *
    * @return boolean: true if approved
    */
-    private boolean additionalFundsRequiredPopup(BigDecimal val) {
+    private boolean additionalFundsRequiredPopup(Money val) {
       int result = JOptionPane.showConfirmDialog(this,
         "Cash Payment Due: $" + val.toString(),
         "Cash Due",

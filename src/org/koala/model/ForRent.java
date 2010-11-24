@@ -8,13 +8,14 @@ package org.koala.model;
  */
 
 import java.util.Date;
-import java.math.BigDecimal;
+
+import org.koala.Money;
 
 public class ForRent extends Item {
 	Date checkedOut, due;
 
-	public ForRent(String Sku, String Name, BigDecimal Value) {
-		super(Sku, Name, 0, Value, new BigDecimal(0), false);
+	public ForRent(String sku, String name, Money value) {
+		super(sku, name, 0, value, Money.ZERO, false);
 	}
 
 	public Date getDueDate() {
@@ -30,8 +31,8 @@ public class ForRent extends Item {
 		return checkedOut;
 	}
 
-	public void setCheckedOutDate(Date CheckedOutDate) {
+	public void setCheckedOutDate(Date checkedOutDate) {
 		//maybe add a check for 'CheckedOutDate > today'
-		checkedOut = CheckedOutDate;
+		checkedOut = checkedOutDate;
 	}
 }

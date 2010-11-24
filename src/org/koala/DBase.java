@@ -53,14 +53,18 @@ public class DBase {
 
       Transaction transaction = null;
       while(rs.next()) {
-        transaction = new Transaction(rs.getInt("id"),
-              User.find(rs.getInt("user_id")), customer,
-              rs.getBigDecimal("subtotal"),
-                rs.getBigDecimal("tax"),
-                rs.getString("code"), rs.getDate("transaction_time"));
+        transaction = new Transaction();
+        transaction.setId(rs.getInt("id"));
+        transaction.setCashier(User.find(rs.getInt("user_id")));
+        transaction.setCustomer(customer);
+        transaction.setSubTotal(new Money(rs.getBigDecimal("subtotal")));
+        transaction.setTax(new Money(rs.getBigDecimal("tax")));
+        transaction.setCode(rs.getString("code"));
+        transaction.setTransactionTime(rs.getDate("transaction_time"));
 
-        if(getItems)
+        if(getItems) {
           transaction.lookupTransactionItems(this);
+        }
 
         transactions.add(transaction);
       }
@@ -68,7 +72,7 @@ public class DBase {
       stmt.close();
     }
     catch (SQLException e) {
-        logger.error("SQL error loading transactions for customer history", e);
+      logger.error("SQL error loading transactions for customer history", e);
     }
 
     transactions.trimToSize();
@@ -95,15 +99,19 @@ public class DBase {
           name = rs.getString("sku"); //reasonable default I should think
 
         BigDecimal price = rs.getBigDecimal("price");
-        if(price == null)
+        if(price == null) {
           price = BigDecimal.ZERO;
+        }
 
         BigDecimal tax = rs.getBigDecimal("tax");
-        if(tax == null)
+        if(tax == null) {
           tax = BigDecimal.ZERO;
+        }
 
         transItems.add(new ForSale(rs.getString("sku"), name,
-          rs.getInt("quantity"), price, tax,
+          rs.getInt("quantity"),
+          new Money(price),
+          new Money(tax),
           rs.getInt("unlimited") == 1));
       }
       rs.close();
@@ -197,8 +205,8 @@ public class DBase {
       else {
         stmt.setInt(3, TransAction.getCustomer().getId());
       }
-      stmt.setBigDecimal(4, TransAction.getSubTotal());
-      stmt.setBigDecimal(5, TransAction.getTax());
+      stmt.setBigDecimal(4, TransAction.getSubTotal().getAmount());
+      stmt.setBigDecimal(5, TransAction.getTax().getAmount());
       stmt.executeUpdate();
 
       //get the auto inc field of the row just inserted
@@ -233,7 +241,7 @@ public class DBase {
             stmt.setInt(1, transID);
             stmt.setString(2, item.getSku());
             stmt.setInt(3, item.getQuantity());
-            stmt.setBigDecimal(4, item.getPrice());
+            stmt.setBigDecimal(4, item.getPrice().getAmount());
             stmt.executeUpdate();
         }
 
@@ -266,7 +274,7 @@ public class DBase {
 
     try {
         stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
-        stmt.setBigDecimal(1, transaction.getCustomer().getBalance().subtract(transaction.getTotal()));
+        stmt.setBigDecimal(1, transaction.getCustomer().getBalance().minus(transaction.getTotal()).getAmount());
         stmt.setInt(2, transaction.getCustomer().getId());
         stmt.executeUpdate();
         stmt.close();

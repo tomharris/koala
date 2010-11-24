@@ -11,6 +11,7 @@ package org.koala.ui;
 
 import javax.swing.*;
 
+import org.koala.Money;
 import org.koala.model.ForRent;
 import org.koala.model.ForSale;
 import org.koala.model.Item;
@@ -18,7 +19,6 @@ import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
 import java.awt.*;
-import java.math.BigDecimal;
 
 public class UpdateInventoryGUI extends DriverGUI {
   private static final String quantityDefaultLabel = "Quantity: ";
@@ -340,11 +340,11 @@ public class UpdateInventoryGUI extends DriverGUI {
         invAddRadio.setSelected(true);
         int quant = Integer.parseInt(quantityAddTextField.getText());
 
-        BigDecimal price = null;
-        BigDecimal tax = null;
+        Money price = null;
+        Money tax = null;
         try {
-          price = new BigDecimal(priceTextField.getText().trim());
-          tax = new BigDecimal(taxTextField.getText().trim());
+          price = new Money(priceTextField.getText().trim());
+          tax = new Money(taxTextField.getText().trim());
         }
         catch(NumberFormatException e) {
           //log later?
@@ -360,7 +360,7 @@ public class UpdateInventoryGUI extends DriverGUI {
         if(!quantityAddTextField.getText().equals("") && !(quant <= 0)) {
           //build transaction item
           currentUser.addSpecialItem(
-            new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, BigDecimal.ZERO, BigDecimal.ZERO, false), null);
+            new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, Money.ZERO, Money.ZERO, false), null);
           currentUser.doTransaction(); //somehow this triggers two transactions FIX
 
           //add to inv
@@ -380,11 +380,11 @@ public class UpdateInventoryGUI extends DriverGUI {
           else
             quant = Integer.parseInt(quantityAddTextField.getText());
 
-          BigDecimal price = null;
-          BigDecimal tax = null;
+          Money price = null;
+          Money tax = null;
           try {
-            price = new BigDecimal(priceTextField.getText().trim());
-            tax = new BigDecimal(taxTextField.getText().trim());
+            price = new Money(priceTextField.getText().trim());
+            tax = new Money(taxTextField.getText().trim());
           }
           catch(NumberFormatException e) {
             //log later?
@@ -401,7 +401,7 @@ public class UpdateInventoryGUI extends DriverGUI {
           if(!quantityAddTextField.getText().equals("") && !(quant <= 0)) {
             //build transaction item
             currentUser.addSpecialItem(
-              new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, BigDecimal.ZERO, BigDecimal.ZERO, false), null);
+              new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, Money.ZERO, Money.ZERO, false), null);
             currentUser.doTransaction();
           }
         }
@@ -412,11 +412,11 @@ public class UpdateInventoryGUI extends DriverGUI {
           else
             quant = Integer.parseInt(quantityUpdateTextField.getText());
 
-          BigDecimal price = null;
-          BigDecimal tax = null;
+          Money price = null;
+          Money tax = null;
           try {
-            price = new BigDecimal(priceTextField.getText().trim());
-            tax = new BigDecimal(taxTextField.getText().trim());
+            price = new Money(priceTextField.getText().trim());
+            tax = new Money(taxTextField.getText().trim());
           }
           catch(NumberFormatException e) {
             //log later?
@@ -433,7 +433,7 @@ public class UpdateInventoryGUI extends DriverGUI {
             //build transaction item
             currentUser.addSpecialItem(
               new Item(Item.INVENTORYCORRECTION_SKU, newItem.getSku(),
-              quant - currentItem.getQuantity(), BigDecimal.ZERO, BigDecimal.ZERO, false), null);
+              quant - currentItem.getQuantity(), Money.ZERO, Money.ZERO, false), null);
             currentUser.doTransaction();
           }
         }

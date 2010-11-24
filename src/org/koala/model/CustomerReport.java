@@ -12,8 +12,8 @@ package org.koala.model;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.sql.Date;
-import java.math.BigDecimal;
 
+import org.koala.Money;
 import org.koala.DBase;
 
 public class CustomerReport extends Report {
@@ -44,9 +44,9 @@ public class CustomerReport extends Report {
   public final void doReport() {
     ArrayList<Item> transItems = null;
     Date currentDay = null;
-    BigDecimal totalSpent = BigDecimal.ZERO;
-    BigDecimal totalAdded = BigDecimal.ZERO;
-    BigDecimal totalRefunded = BigDecimal.ZERO;
+    Money totalSpent = Money.ZERO;
+    Money totalAdded = Money.ZERO;
+    Money totalRefunded = Money.ZERO;
     SimpleDateFormat todayFormat = new SimpleDateFormat("EEE MMM dd yyyy 'at' h:mm a");
 
     report.append("Purchase history for customer: ");
@@ -72,15 +72,15 @@ public class CustomerReport extends Report {
       }
 
       if(transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CREDITCOMPACCOUNT)) {
-        totalAdded = totalAdded.add(transaction.getTotal());
+        totalAdded = totalAdded.plus(transaction.getTotal());
         report.append("Total spent at this visit: $0.00\n\n");
       }
       else if(transaction.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CLOSECOMPACCOUNT)) {
-        totalRefunded = totalRefunded.add(transaction.getTotal());
+        totalRefunded = totalRefunded.plus(transaction.getTotal());
         report.append("Total spent at this visit: $0.00\n\n");
       }
       else {
-        totalSpent = totalSpent.add(transaction.getTotal());
+        totalSpent = totalSpent.plus(transaction.getTotal());
         report.append("Total spent at this visit: ");
         report.append(Report.currencyFormat.format(transaction.getTotal()));
         report.append("\n\n");

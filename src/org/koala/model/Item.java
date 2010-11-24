@@ -9,16 +9,17 @@ package org.koala.model;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.koala.DatabaseConnection;
+import org.koala.Money;
 
 public class Item extends Base {
   protected String sku;
   protected String invName;
-  protected BigDecimal price, taxRate;
+  protected Money price;
+  protected Money taxRate;
   protected int quantity;
   protected boolean unlimited;
 
@@ -35,17 +36,15 @@ public class Item extends Base {
   public static final String INVENTORYADD_SKU = "inventoryadd";
   public static final String INVENTORYCORRECTION_SKU = "inventorycorrection";
 
-  public Item(String Sku, String Name, int Quantity, BigDecimal Price, BigDecimal TaxRate, boolean Unlimited) {
+  public Item(String sku, String name, int quantity, Money price, Money taxRate, boolean unlimited) {
     //purhaps some checking on the sku format?
-    this.sku = Sku;
-    this.invName = Name;
+    this.sku = sku;
+    this.invName = name;
 
-    this.quantity = Quantity;
-    this.price = Price;
-    this.price.setScale(2, BigDecimal.ROUND_CEILING);
-    this.taxRate = TaxRate;
-    this.taxRate.setScale(2, BigDecimal.ROUND_CEILING);
-    this.unlimited = Unlimited;
+    this.quantity = quantity;
+    this.price = price;
+    this.taxRate = taxRate;
+    this.unlimited = unlimited;
   }
 
   public static final Item createSpecialItem(String sku, Customer customer, Transaction transaction) {
@@ -54,11 +53,11 @@ public class Item extends Base {
     if(sku.equals(Item.CASHOUT_SKU) ||
       sku.equals(Item.NEW_ACCOUNT_SKU) ||
       sku.equals(Item.COMP_ACCOUNT_SKU))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, customer.getBalance(), BigDecimal.ZERO, false);
+      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, customer.getBalance(), Money.ZERO, false);
     else if(sku.equals(Item.PARTIALCASH_CREDITHALF))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()).negate(), BigDecimal.ZERO, false);
+      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().minus(customer.getBalance()).negate(), Money.ZERO, false);
     else if(sku.equals(Item.PARTIALCASH_CASHHALF))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().subtract(customer.getBalance()), BigDecimal.ZERO, false);
+      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().minus(customer.getBalance()), Money.ZERO, false);
 
     //let the nullexception float back up
     return specialItem;
@@ -103,19 +102,19 @@ public class Item extends Base {
     return quantity;
   }
 
-  public void setQuantity(int amount) {
-    quantity = amount;
+  public void setQuantity(int quantity) {
+    this.quantity = quantity;
   }
 
-  public BigDecimal getPrice() {
+  public Money getPrice() {
     return price;
   }
 
-  public BigDecimal getTotal() {
-    return price.multiply(new BigDecimal(quantity));
+  public Money getTotal() {
+    return price.times(quantity);
   }
 
-  public BigDecimal getTaxRate() {
+  public Money getTaxRate() {
     return taxRate;
   }
 
@@ -130,14 +129,14 @@ public class Item extends Base {
 
     String specialName = Item.getSpecialItemName(sku);
     if(specialName != null) {
-      return new Item(sku, specialName, 0, BigDecimal.ZERO, BigDecimal.ZERO, false);
+      return new Item(sku, specialName, 0, Money.ZERO, Money.ZERO, false);
     }
 
     boolean rentable = false, unlimited = false;
     String name = null;
     int quantity = 0;
-    BigDecimal price = null;
-    BigDecimal taxRate = null;
+    Money price = null;
+    Money taxRate = null;
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -148,8 +147,8 @@ public class Item extends Base {
         rentable = (rs.getInt("rentable") == 1);
         name = rs.getString("name");
         quantity = rs.getInt("quantity");
-        price = rs.getBigDecimal("price");
-        taxRate = rs.getBigDecimal("tax");
+        price = new Money(rs.getBigDecimal("price"));
+        taxRate = new Money(rs.getBigDecimal("tax"));
         unlimited = (rs.getInt("unlimited") == 1);
       }
       else {
@@ -186,8 +185,8 @@ public class Item extends Base {
         boolean rentable = (rs.getInt("rentable") == 1);
         String name = rs.getString("name");
         int quantity = rs.getInt("quantity");
-        BigDecimal price = rs.getBigDecimal("price");
-        BigDecimal taxRate = rs.getBigDecimal("tax");
+        Money price = new Money(rs.getBigDecimal("price"));
+        Money taxRate = new Money(rs.getBigDecimal("tax"));
         boolean unlimited = (rs.getInt("unlimited") == 1);
 
         if(rentable) {
@@ -219,8 +218,8 @@ public class Item extends Base {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
       stmt.setString(1, this.getName());
       stmt.setInt(2, this.getQuantity());
-      stmt.setBigDecimal(3, this.getPrice());
-      stmt.setBigDecimal(4, this.getTaxRate());
+      stmt.setBigDecimal(3, this.getPrice().getAmount());
+      stmt.setBigDecimal(4, this.getTaxRate().getAmount());
       stmt.setInt(5, (this.getUnlimited() ? 1 : 0));
       stmt.setInt(6, (this instanceof ForRent ? 1 : 0));
       stmt.setString(7, this.getSku());
@@ -245,8 +244,8 @@ public class Item extends Base {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
       stmt.setString(1, this.getName());
       stmt.setInt(2, this.getQuantity());
-      stmt.setBigDecimal(3, this.getPrice());
-      stmt.setBigDecimal(4, this.getTaxRate());
+      stmt.setBigDecimal(3, this.getPrice().getAmount());
+      stmt.setBigDecimal(4, this.getTaxRate().getAmount());
       stmt.setInt(5, (this.getUnlimited() ? 1 : 0));
       stmt.setInt(6, (this instanceof ForRent ? 1 : 0));
       stmt.setInt(7, this.getId());

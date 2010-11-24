@@ -8,17 +8,17 @@ package org.koala.model;
  *
  */
 
-import java.math.BigDecimal;
+import org.koala.Money;
 
 public class CashCustomer extends Customer {
 
   public CashCustomer() {
     super();
-    this.setBalance(BigDecimal.ZERO);
+    this.setBalance(Money.ZERO);
     this.setFirstName("Cash");
     this.setLastName("Cash");
     this.setComplementary(false);
-    this.setRenewAmount(BigDecimal.ZERO);
+    this.setRenewAmount(Money.ZERO);
   }
 
   public void save() {

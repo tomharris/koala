@@ -12,7 +12,6 @@ package org.koala.model;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 import org.koala.*;
@@ -377,25 +376,25 @@ public class User extends Base {
     return currentTransaction != null;
   }
 
-  public BigDecimal getTransactionSubTotal() {
+  public Money getTransactionSubTotal() {
     if(currentTransaction == null)
       return null;
 
-    return currentTransaction.getSubTotal().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getSubTotal();
   }
 
-  public BigDecimal getTransactionTotal() {
+  public Money getTransactionTotal() {
     if(currentTransaction == null)
       return null;
 
-    return currentTransaction.getTotal().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getTotal();
   }
 
-  public BigDecimal getTransactionTax() {
+  public Money getTransactionTax() {
     if(currentTransaction == null)
       return null;
 
-    return currentTransaction.getTax().setScale(2, BigDecimal.ROUND_CEILING);
+    return currentTransaction.getTax();
   }
 
   public Item getLastItem() {

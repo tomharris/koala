@@ -12,9 +12,9 @@ package org.koala.model;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
-import java.math.BigDecimal;
 
 import org.koala.DBase;
+import org.koala.Money;
 
 public class FinancialReport extends Report {
   private ArrayList<Transaction> transactionsBundle = null;
@@ -42,17 +42,17 @@ public class FinancialReport extends Report {
 
     //for each days total
     int accountsNumber = 0;
-    BigDecimal cashForAccounts = BigDecimal.ZERO;
-    BigDecimal cashSales = BigDecimal.ZERO;
-    BigDecimal accountSales = BigDecimal.ZERO;
-    BigDecimal accountRefunds =BigDecimal.ZERO;
+    Money cashForAccounts = Money.ZERO;
+    Money cashSales = Money.ZERO;
+    Money accountSales = Money.ZERO;
+    Money accountRefunds = Money.ZERO;
 
     //for the weeks total
     int accountsNumberTotal = 0;
-    BigDecimal cashForAccountsTotal = BigDecimal.ZERO;
-    BigDecimal cashSalesTotal = BigDecimal.ZERO;
-    BigDecimal accountSalesTotal = BigDecimal.ZERO;
-    BigDecimal accountRefundsTotal = BigDecimal.ZERO;
+    Money cashForAccountsTotal = Money.ZERO;
+    Money cashSalesTotal = Money.ZERO;
+    Money accountSalesTotal = Money.ZERO;
+    Money accountRefundsTotal = Money.ZERO;
 
     report.append("Financial Report for CDL SnackShop\n\n");
     report.append("Daily Sales:\n");
@@ -85,10 +85,10 @@ public class FinancialReport extends Report {
 
         //zero out totals
         accountsNumber = 0;
-        cashForAccounts = BigDecimal.ZERO;
-        cashSales = BigDecimal.ZERO;
-        accountSales = BigDecimal.ZERO;
-        accountRefunds = BigDecimal.ZERO;
+        cashForAccounts = Money.ZERO;
+        cashSales = Money.ZERO;
+        accountSales = Money.ZERO;
+        accountRefunds = Money.ZERO;
 
         //print day header from currentDay
         report.append("\n");
@@ -100,16 +100,16 @@ public class FinancialReport extends Report {
       // catagorys: cash for accounts, cash sales, account sales,
       //  account refunds, ...
       if(currentTrans.getAcctCode().equals(Transaction.CODE_CASH)) {
-          cashSales = cashSales.add(currentTrans.getTotal());
-          cashSalesTotal = cashSalesTotal.add(currentTrans.getTotal());
+          cashSales = cashSales.plus(currentTrans.getTotal());
+          cashSalesTotal = cashSalesTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_DEBITACCOUNT)) {
-          accountSales = accountSales.add(currentTrans.getTotal());
-          accountSalesTotal = accountSalesTotal.add(currentTrans.getTotal());
+          accountSales = accountSales.plus(currentTrans.getTotal());
+          accountSalesTotal = accountSalesTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT)) {
-          accountRefunds = accountRefunds.add(currentTrans.getTotal());
-          accountRefundsTotal = accountRefundsTotal.add(currentTrans.getTotal());
+          accountRefunds = accountRefunds.plus(currentTrans.getTotal());
+          accountRefundsTotal = accountRefundsTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
         //this works because a new account will be the only item in a transaction
@@ -118,8 +118,8 @@ public class FinancialReport extends Report {
          accountsNumberTotal++;
         }
 
-        cashForAccounts = cashForAccounts.add(currentTrans.getTotal());
-        cashForAccountsTotal = cashForAccountsTotal.add(currentTrans.getTotal());
+        cashForAccounts = cashForAccounts.plus(currentTrans.getTotal());
+        cashForAccountsTotal = cashForAccountsTotal.plus(currentTrans.getTotal());
       }
     }
 

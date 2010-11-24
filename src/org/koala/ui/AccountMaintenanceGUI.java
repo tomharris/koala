@@ -16,12 +16,11 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JCheckBox;
 
+import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;
-
-import java.math.BigDecimal;
 
 public class AccountMaintenanceGUI extends DriverGUI {
   public static final long serialVersionUID = DriverGUI.serialVersionUID;
@@ -164,7 +163,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
     lastNameTextField.setText(selectedCust.getLastName());
     balanceTextField.setText(selectedCust.getBalance().toString());
     noteTextArea.setText(selectedCust.getNote());
-    renewCheckBox.setSelected(selectedCust.getRenewAmount().floatValue() > 0);
+    renewCheckBox.setSelected(selectedCust.getRenewAmount().isPlus());
     compCheckBox.setSelected(selectedCust.isComplementary() || renewCheckBox.isSelected());
     compCheckBox.setEnabled(!renewCheckBox.isSelected());
   }
@@ -209,10 +208,10 @@ public class AccountMaintenanceGUI extends DriverGUI {
       customerid = ((Customer)customerComboBox.getSelectedItem()).getId();
     }
 
-    BigDecimal renewAmount = null;
-    BigDecimal balanceAmount = null;
+    Money renewAmount = null;
+    Money balanceAmount = null;
     try {
-      balanceAmount = new BigDecimal(balanceTextField.getText().trim());
+      balanceAmount = new Money(balanceTextField.getText().trim());
     }
     catch(NumberFormatException e) {
       //log later?
@@ -224,7 +223,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
       renewAmount = balanceAmount;
     }
     else {
-      renewAmount = new BigDecimal(0);
+      renewAmount = Money.ZERO;
     }
 
     Customer customer = new Customer();

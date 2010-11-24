@@ -9,9 +9,9 @@ package org.koala.model;
  */
 
 import java.util.ArrayList;
-import java.math.BigDecimal;
 
 import org.koala.DBase;
+import org.koala.Money;
 import org.koala.model.Customer;
 
 public class OutstandingAccountsReport extends Report {
@@ -35,12 +35,12 @@ public class OutstandingAccountsReport extends Report {
   public final void doReport() {
     int numberCustomers = 0;
     StringBuilder sbCustomers = new StringBuilder();
-    BigDecimal balanceTotal = BigDecimal.ZERO;
+    Money balanceTotal = Money.ZERO;
 
     for(Customer customer : customers) {
-      if(customer.getBalance().floatValue() > 0 && !customer.isComplementary()) {
+      if(customer.getBalance().isPlus() && !customer.isComplementary()) {
         numberCustomers++;
-        balanceTotal = balanceTotal.add(customer.getBalance());
+        balanceTotal = balanceTotal.plus(customer.getBalance());
 
         sbCustomers.append(customer.toString());
         sbCustomers.append(" (");

@@ -7,10 +7,10 @@ package org.koala.model;
  * @author tom
  */
 
-import java.math.BigDecimal;
+import org.koala.Money;
 
 public class ForSale extends Item {
-	public ForSale(String Sku, String Name, int Quantity, BigDecimal Price, BigDecimal TaxRate, boolean Unlimited) {
-		super(Sku, Name, Quantity, Price, TaxRate, Unlimited);
+	public ForSale(String sku, String name, int quantity, Money price, Money taxRate, boolean unlimited) {
+		super(sku, name, quantity, price, taxRate, unlimited);
 	}
 }

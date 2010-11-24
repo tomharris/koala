@@ -12,13 +12,13 @@ package org.koala.ui;
 
 import javax.swing.*;
 
+import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;
 
 import java.awt.*;
-import java.math.BigDecimal;
 
 public class AddAccountGUI extends DriverGUI {
   public static final long serialVersionUID = DriverGUI.serialVersionUID;
@@ -204,9 +204,9 @@ public class AddAccountGUI extends DriverGUI {
   }
 
   private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    BigDecimal balanceAmount = null;
+    Money balanceAmount = null;
     try {
-      balanceAmount = new BigDecimal(amountTextField.getText().trim());
+      balanceAmount = new Money(amountTextField.getText().trim());
     }
     catch(NumberFormatException e) {
       //log later?
@@ -220,7 +220,7 @@ public class AddAccountGUI extends DriverGUI {
       customer.setLastName(lastNameTextField.getText());
       customer.setFirstName(firstNameTextField.getText());
       customer.setComplementary(compCheckBox.isSelected());
-      customer.setRenewAmount(BigDecimal.ZERO);
+      customer.setRenewAmount(Money.ZERO);
       customer.setNote(noteTextArea.getText());
       customer.save();
     }

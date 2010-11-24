@@ -15,7 +15,7 @@ package org.koala.model;
  */
 
 import java.util.ArrayList;
-import java.math.BigDecimal;
+import org.koala.Money;
 import java.sql.Date;
 
 import org.koala.DBase;
@@ -23,11 +23,11 @@ import org.koala.DBase;
 public class Transaction extends Base {
   private User cashier;
   private Customer customer;
-  private BigDecimal subTotal;
-  private BigDecimal tax;
+  private Money subTotal;
+  private Money tax;
   private ArrayList<Item> transactions = null;
-  private String acctCode;
-  private Date transTime;
+  private String code;
+  private Date transactionTime;
   private static final int initSize = 10; //initial array size; 10 sounds good
 
   //transaction codes
@@ -91,8 +91,8 @@ public class Transaction extends Base {
     this.customer = null;
     this.subTotal = null;
     this.tax = null;
-    this.acctCode = null;
-    this.transTime = null;
+    this.code = null;
+    this.transactionTime = null;
   }
 
   public void lookupTransactionItems(DBase dbHandle) {
@@ -102,10 +102,8 @@ public class Transaction extends Base {
 
   public void addItem(Item newItem) {
     this.transactions.add(newItem);
-    this.subTotal = this.subTotal.add(newItem.getTotal());
-    this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
-    this.tax = this.tax.add(newItem.getPrice().multiply(newItem.getTaxRate()));
-    this.tax.setScale(2, BigDecimal.ROUND_CEILING);
+    this.subTotal = this.subTotal.plus(newItem.getTotal());
+    this.tax = this.tax.plus(newItem.getPrice().times(newItem.getTaxRate()));
   }
 
   public void removeItem(String sku) {
@@ -116,28 +114,49 @@ public class Transaction extends Base {
       }
     }
 
-    this.subTotal = new BigDecimal(0);
-    this.tax = new BigDecimal(0);
+    this.subTotal = Money.ZERO; 
+    this.tax = Money.ZERO;
     for(Item item : this.transactions) {
-      this.subTotal = this.subTotal.add(item.getTotal());
-      this.tax = this.tax.add(item.getPrice()).multiply(item.getTaxRate());
+      this.subTotal = this.subTotal.plus(item.getTotal());
+      this.tax = this.tax.plus(item.getPrice()).times(item.getTaxRate());
     }
   }
 
-  public Date getTransactionTime() {
-    return this.transTime;
-  }
-  public BigDecimal getSubTotal() {
-      return this.subTotal;
+  public int getId() {
+    return this.id;
   }
 
-  public BigDecimal getTax() {
-      return this.tax;
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public Date getTransactionTime() {
+    return this.transactionTime;
+  }
+
+  public void setTransactionTime(Date transactionTime) {
+    this.transactionTime = transactionTime;
+  }
+
+  public Money getSubTotal() {
+    return this.subTotal;
+  }
+
+  public void setSubTotal(Money subTotal) {
+    this.subTotal = subTotal;
+  }
+
+  public Money getTax() {
+    return this.tax;
+  }
+
+  public void setTax(Money tax) {
+    this.tax = tax;
   }
 
   //total rounded to the nearest penny
-  public BigDecimal getTotal() {
-    return this.subTotal.add(this.tax);
+  public Money getTotal() {
+    return this.subTotal.plus(this.tax);
   }
 
   public User getCashier() {
@@ -164,8 +183,16 @@ public class Transaction extends Base {
     return this.transactions.get(0);
   }
 
+  public String getCode() {
+    return this.code;
+  }
+
+  public void setCode(String code) {
+    this.code = code;
+  }
+
   public String getAcctCode() {
-    return this.acctCode;
+    return this.getCode();
   }
 
   //please avoid as this is VERY expensive

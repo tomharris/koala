@@ -358,7 +358,7 @@ public final class Money implements Comparable<Money> {
   * always be suitable for display to an end user.
   */
   public String toString(){
-    return fAmount.toPlainString() + " " + fCurrency.getSymbol();
+    return fAmount.toPlainString();
   }
 
   /**

@@ -35,7 +35,7 @@ public class UpdateInventoryGUI extends DriverGUI {
   private JLabel skuLabel = null;
   private JTextField skuTextField = null;
   private JPanel quantityPanel = null;
-  private JTextField quantityUpdateTextField = null;
+  private JTextField quantityTextField = null;
   private JPanel descPanel = null;
   private JLabel descLabel = null;
   private JTextField descTextField = null;
@@ -56,14 +56,9 @@ public class UpdateInventoryGUI extends DriverGUI {
   private JButton removeButton = null;
   private JPanel quantityUpdatePanel = null;
   private JPanel quantityAddPanel = null;
-  private JTextField quantityAddTextField = null;
   private JPanel quantityLabelPanel = null;
   private JLabel quantityLabel = null;
-  private JRadioButton invAddRadio = null;
-  private JRadioButton invUpdateRadio = null;
-  private ButtonGroup invRadioGroup;
-  private JLabel quantityAddLabel = null;
-  private JLabel quantityUpdateLabel = null;
+  private JLabel quantityAmountLabel = null;
 
   /**
    * This method initializes jPanel
@@ -166,12 +161,11 @@ public class UpdateInventoryGUI extends DriverGUI {
     }
 
     Item invItem = null;
-      invItem = Item.findBySku(skuTextField.getText());
+    invItem = Item.findBySku(skuTextField.getText());
 
     //fill in the textboxes
     if(invItem != null && !invItem.getSku().equals("")) {
-      quantityAddTextField.setText("");
-      quantityUpdateTextField.setText(new Integer(invItem.getQuantity()).toString());
+      quantityTextField.setText(new Integer(invItem.getQuantity()).toString());
       quantityLabel.setText(quantityDefaultLabel + "(current: " + new Integer(invItem.getQuantity()).toString() + ")");
       descTextField.setText(invItem.getName());
       priceTextField.setText(invItem.getPrice().toString());
@@ -201,11 +195,7 @@ public class UpdateInventoryGUI extends DriverGUI {
       quantityPanel = new JPanel();
       quantityPanel.setPreferredSize(new java.awt.Dimension(275,75));
       quantityPanel.setLayout(flowLayout1);
-      quantityPanel.add(getQuantityAddPanel(), null);
-      quantityPanel.add(getQuantityUpdatePanel(), null);
-      invRadioGroup = new ButtonGroup();
-      invRadioGroup.add(invAddRadio);
-      invRadioGroup.add(invUpdateRadio);
+      quantityPanel.add(getQuantityAmountPanel(), null);
     }
     return quantityPanel;
   }
@@ -215,12 +205,11 @@ public class UpdateInventoryGUI extends DriverGUI {
    * @return javax.swing.JTextField
    */
   private JTextField getQuantityTextField() {
-    if (quantityUpdateTextField == null) {
-      quantityUpdateTextField = new JTextField();
-      quantityUpdateTextField.setEnabled(false);
-      quantityUpdateTextField.setPreferredSize(TEXTAREA_SIZE);
+    if (quantityTextField == null) {
+      quantityTextField = new JTextField();
+      quantityTextField.setPreferredSize(TEXTAREA_SIZE);
     }
-    return quantityUpdateTextField;
+    return quantityTextField;
   }
   /**
    * This method initializes jPanel
@@ -332,122 +321,67 @@ public class UpdateInventoryGUI extends DriverGUI {
     //update db
     Item newItem = null;
 
-    try {
-      Item currentItem = Item.findBySku(skuTextField.getText().trim());
+    Item currentItem = Item.findBySku(skuTextField.getText().trim());
 
-      if(currentItem == null) {
-        //check that quantity isnt empty
-        invAddRadio.setSelected(true);
-        int quant = Integer.parseInt(quantityAddTextField.getText());
-
-        Money price = null;
-        Money tax = null;
-        try {
-          price = new Money(priceTextField.getText().trim());
-          tax = new Money(taxTextField.getText().trim());
-        }
-        catch(NumberFormatException e) {
-          //log later?
-          priceTextField.setText("");
-          taxTextField.setText("");
-          return;
-        }
-
-        //make inv item
-        newItem = new ForSale(skuTextField.getText(), descTextField.getText(),
-                    quant, price, tax, unlimitedCheckBox.isSelected());
-
-        if(!quantityAddTextField.getText().equals("") && !(quant <= 0)) {
-          //build transaction item
-          currentUser.addSpecialItem(
-            new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, Money.ZERO, Money.ZERO, false), null);
-          currentUser.doTransaction(); //somehow this triggers two transactions FIX
-
-          //add to inv
-          try {
-            newItem.save();
-          }
-          catch (EntryAlreadyExistsException e) {
-            DriverGUI.printError(e);
-          }
-        }
+    if(currentItem == null) {
+      //check that quantity isnt empty
+      int quant = 0;
+      if(!unlimitedCheckBox.isSelected()) {
+        quant = Integer.parseInt(quantityTextField.getText());
       }
-      else {
-        if(invAddRadio.isSelected()) {
-          int quant = 0;
-          if(quantityAddTextField.getText().equals(""))
-            quant = currentItem.getQuantity();
-          else
-            quant = Integer.parseInt(quantityAddTextField.getText());
 
-          Money price = null;
-          Money tax = null;
-          try {
-            price = new Money(priceTextField.getText().trim());
-            tax = new Money(taxTextField.getText().trim());
-          }
-          catch(NumberFormatException e) {
-            //log later?
-            priceTextField.setText("");
-            taxTextField.setText("");
-            return;
-          }
+      Money price = null;
+      Money tax = null;
+      try {
+        price = new Money(priceTextField.getText().trim());
+        tax = new Money(taxTextField.getText().trim());
+      }
+      catch(NumberFormatException e) {
+        //log later?
+        priceTextField.setText("");
+        taxTextField.setText("");
+        return;
+      }
 
-          //make inv item
-          newItem = new ForSale(skuTextField.getText(), descTextField.getText(),
-            quant + currentItem.getQuantity(), price, tax,
-            unlimitedCheckBox.isSelected());
+      //make inv item
+      newItem = new ForSale(skuTextField.getText(), descTextField.getText(), quant, price, tax, unlimitedCheckBox.isSelected());
 
-          if(!quantityAddTextField.getText().equals("") && !(quant <= 0)) {
-            //build transaction item
-            currentUser.addSpecialItem(
-              new Item(Item.INVENTORYADD_SKU, newItem.getSku(), quant, Money.ZERO, Money.ZERO, false), null);
-            currentUser.doTransaction();
-          }
-        }
-        else {
-          int quant = 0;
-          if(!quantityUpdateTextField.isEnabled() || quantityUpdateTextField.getText().equals(""))
-            quant = currentItem.getQuantity();
-          else
-            quant = Integer.parseInt(quantityUpdateTextField.getText());
-
-          Money price = null;
-          Money tax = null;
-          try {
-            price = new Money(priceTextField.getText().trim());
-            tax = new Money(taxTextField.getText().trim());
-          }
-          catch(NumberFormatException e) {
-            //log later?
-            priceTextField.setText("");
-            taxTextField.setText("");
-            return;
-          }
-
-          //make inv item
-          newItem = new ForSale(skuTextField.getText(), descTextField.getText(),
-            quant, price, tax, unlimitedCheckBox.isSelected());
-
-          if(!quantityUpdateTextField.getText().equals("") && !(quant <= 0)) {
-            //build transaction item
-            currentUser.addSpecialItem(
-              new Item(Item.INVENTORYCORRECTION_SKU, newItem.getSku(),
-              quant - currentItem.getQuantity(), Money.ZERO, Money.ZERO, false), null);
-            currentUser.doTransaction();
-          }
-        }
-
-        try {
-          newItem.save();
-        }
-        catch (EntryAlreadyExistsException e) {
-          DriverGUI.printError(e);
-        }
+      try {
+        newItem.save();
+      }
+      catch (EntryAlreadyExistsException e) {
+        DriverGUI.printError(e);
       }
     }
-    catch (ItemNotFoundException e) {
-      DriverGUI.printError(e);
+    else {
+      int quant = 0;
+      if(!quantityTextField.isEnabled() || quantityTextField.getText().equals(""))
+        quant = currentItem.getQuantity();
+      else
+        quant = Integer.parseInt(quantityTextField.getText());
+
+      Money price = null;
+      Money tax = null;
+      try {
+        price = new Money(priceTextField.getText().trim());
+        tax = new Money(taxTextField.getText().trim());
+      }
+      catch(NumberFormatException e) {
+        //log later?
+        priceTextField.setText("");
+        taxTextField.setText("");
+        return;
+      }
+
+      //make inv item
+      newItem = new ForSale(skuTextField.getText(), descTextField.getText(), quant, price, tax, unlimitedCheckBox.isSelected());
+
+      try {
+        newItem.save();
+      }
+      catch (EntryAlreadyExistsException e) {
+        DriverGUI.printError(e);
+      }
     }
 
     clearFields();
@@ -457,8 +391,7 @@ public class UpdateInventoryGUI extends DriverGUI {
 
   private void clearFields() {
     skuTextField.setText("");
-    quantityUpdateTextField.setText("");
-    quantityAddTextField.setText("");
+    quantityTextField.setText("");
     descTextField.setText("");
     priceTextField.setText("");
     taxTextField.setText("");
@@ -529,10 +462,7 @@ public class UpdateInventoryGUI extends DriverGUI {
   }
 
   private void unlimitedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {
-    invAddRadio.setEnabled(!unlimitedCheckBox.isSelected());
-    invUpdateRadio.setEnabled(!unlimitedCheckBox.isSelected());
-    quantityAddTextField.setEnabled(!unlimitedCheckBox.isSelected() && invAddRadio.isSelected());
-    quantityUpdateTextField.setEnabled(!unlimitedCheckBox.isSelected() && invUpdateRadio.isSelected());
+    quantityTextField.setEnabled(!unlimitedCheckBox.isSelected());
   }
 
   /**
@@ -592,45 +522,17 @@ public class UpdateInventoryGUI extends DriverGUI {
    *
    * @return javax.swing.JPanel
    */
-  private JPanel getQuantityUpdatePanel() {
+  private JPanel getQuantityAmountPanel() {
     if (quantityUpdatePanel == null) {
-      quantityUpdateLabel = new JLabel();
-      quantityUpdateLabel.setText("Update Inventory: ");
+      quantityAmountLabel = new JLabel();
+      quantityAmountLabel.setText("Amount: ");
       quantityUpdatePanel = new JPanel();
-      quantityUpdatePanel.add(getInvUpdateRadio(), null);
-      quantityUpdatePanel.add(quantityUpdateLabel, null);
+      quantityUpdatePanel.add(quantityAmountLabel, null);
       quantityUpdatePanel.add(getQuantityTextField(), null);
     }
     return quantityUpdatePanel;
   }
-  /**
-   * This method initializes jPanel
-   *
-   * @return javax.swing.JPanel
-   */
-  private JPanel getQuantityAddPanel() {
-    if (quantityAddPanel == null) {
-      quantityAddLabel = new JLabel();
-      quantityAddLabel.setText("Add to Inventory: ");
-      quantityAddPanel = new JPanel();
-      quantityAddPanel.add(getInvAddRadio(), null);
-      quantityAddPanel.add(quantityAddLabel, null);
-      quantityAddPanel.add(getQuantityAddTextField(), null);
-    }
-    return quantityAddPanel;
-  }
-  /**
-   * This method initializes jTextField
-   *
-   * @return javax.swing.JTextField
-   */
-  private JTextField getQuantityAddTextField() {
-    if (quantityAddTextField == null) {
-      quantityAddTextField = new JTextField();
-      quantityAddTextField.setPreferredSize(TEXTAREA_SIZE);
-    }
-    return quantityAddTextField;
-  }
+
   /**
    * This method initializes jPanel
    *
@@ -649,39 +551,7 @@ public class UpdateInventoryGUI extends DriverGUI {
     }
     return quantityLabelPanel;
   }
-  /**
-   * This method initializes jRadioButton
-   *
-   * @return javax.swing.JRadioButton
-   */
-  private JRadioButton getInvAddRadio() {
-    if (invAddRadio == null) {
-      invAddRadio = new JRadioButton();
-      invAddRadio.setSelected(true);
-      invAddRadio.addChangeListener(new javax.swing.event.ChangeListener() {
-        public void stateChanged(javax.swing.event.ChangeEvent e) {
-          quantityAddTextField.setEnabled(invAddRadio.isSelected());
-        }
-      });
-    }
-    return invAddRadio;
-  }
-  /**
-   * This method initializes jRadioButton1
-   *
-   * @return javax.swing.JRadioButton
-   */
-  private JRadioButton getInvUpdateRadio() {
-    if (invUpdateRadio == null) {
-      invUpdateRadio = new JRadioButton();
-      invUpdateRadio.addChangeListener(new javax.swing.event.ChangeListener() {
-        public void stateChanged(javax.swing.event.ChangeEvent e) {
-          quantityUpdateTextField.setEnabled(invUpdateRadio.isSelected());
-        }
-      });
-    }
-    return invUpdateRadio;
-  }
+
   public static void main(String[] args) {
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {

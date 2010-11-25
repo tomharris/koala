@@ -303,7 +303,7 @@ public class UpdateInventoryGUI extends DriverGUI {
   private JButton getUpdateButton() {
     if (updateButton == null) {
       updateButton = new JButton();
-      updateButton.setText("Update");
+      updateButton.setText("Save");
       updateButton.setFont(BUTTON_TEXT_FONT);
       updateButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -315,73 +315,39 @@ public class UpdateInventoryGUI extends DriverGUI {
   }
 
   private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    if(skuTextField.getText().equals(""))
+    if(skuTextField.getText().equals("")) {
       return;
+    }
 
-    //update db
-    Item newItem = null;
+    Item item = Item.findBySku(skuTextField.getText().trim());
 
-    Item currentItem = Item.findBySku(skuTextField.getText().trim());
+    if(item == null) {
+      item = new ForSale();
+    }
 
-    if(currentItem == null) {
-      //check that quantity isnt empty
-      int quant = 0;
-      if(!unlimitedCheckBox.isSelected()) {
-        quant = Integer.parseInt(quantityTextField.getText());
-      }
-
-      Money price = null;
-      Money tax = null;
-      try {
-        price = new Money(priceTextField.getText().trim());
-        tax = new Money(taxTextField.getText().trim());
-      }
-      catch(NumberFormatException e) {
-        //log later?
-        priceTextField.setText("");
-        taxTextField.setText("");
-        return;
-      }
-
-      //make inv item
-      newItem = new ForSale(skuTextField.getText(), descTextField.getText(), quant, price, tax, unlimitedCheckBox.isSelected());
-
-      try {
-        newItem.save();
-      }
-      catch (EntryAlreadyExistsException e) {
-        DriverGUI.printError(e);
-      }
+    if(unlimitedCheckBox.isSelected()) {
+      item.setQuantity(0);
     }
     else {
-      int quant = 0;
-      if(!quantityTextField.isEnabled() || quantityTextField.getText().equals(""))
-        quant = currentItem.getQuantity();
-      else
-        quant = Integer.parseInt(quantityTextField.getText());
+      item.setQuantity(Integer.parseInt(quantityTextField.getText()));
+    }
 
-      Money price = null;
-      Money tax = null;
-      try {
-        price = new Money(priceTextField.getText().trim());
-        tax = new Money(taxTextField.getText().trim());
-      }
-      catch(NumberFormatException e) {
-        //log later?
-        priceTextField.setText("");
-        taxTextField.setText("");
-        return;
-      }
+    try {
+      item.setPrice(new Money(priceTextField.getText().trim()));
+      item.setTaxRate(new Money(taxTextField.getText().trim()));
+    }
+    catch(NumberFormatException e) {
+      //log later?
+      priceTextField.setText("");
+      taxTextField.setText("");
+      return;
+    }
 
-      //make inv item
-      newItem = new ForSale(skuTextField.getText(), descTextField.getText(), quant, price, tax, unlimitedCheckBox.isSelected());
-
-      try {
-        newItem.save();
-      }
-      catch (EntryAlreadyExistsException e) {
-        DriverGUI.printError(e);
-      }
+    try {
+      item.save();
+    }
+    catch (EntryAlreadyExistsException e) {
+      DriverGUI.printError(e);
     }
 
     clearFields();
@@ -438,7 +404,7 @@ public class UpdateInventoryGUI extends DriverGUI {
     if (unlimitedPanel == null) {
       unlimitedLabel = new JLabel();
       unlimitedPanel = new JPanel();
-      unlimitedLabel.setText("   Unlimited: ");
+      unlimitedLabel.setText("Unlimited: ");
       unlimitedPanel.add(unlimitedLabel, null);
       unlimitedPanel.add(getUnlimitedCheckBox(), null);
     }

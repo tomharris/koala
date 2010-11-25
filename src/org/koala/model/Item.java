@@ -36,6 +36,9 @@ public class Item extends Base {
   public static final String INVENTORYADD_SKU = "inventoryadd";
   public static final String INVENTORYCORRECTION_SKU = "inventorycorrection";
 
+  public Item() {
+  }
+
   public Item(String sku, String name, int quantity, Money price, Money taxRate, boolean unlimited) {
     //purhaps some checking on the sku format?
     this.sku = sku;
@@ -110,6 +113,10 @@ public class Item extends Base {
     return price;
   }
 
+  public void setPrice(Money price) {
+    this.price = price;
+  }
+
   public Money getTotal() {
     return price.times(quantity);
   }
@@ -118,8 +125,16 @@ public class Item extends Base {
     return taxRate;
   }
 
+  public void setTaxRate(Money taxRate) {
+    this.taxRate = taxRate;
+  }
+
   public boolean getUnlimited() {
     return unlimited;
+  }
+
+  public void setUnlimited(boolean unlimited) {
+    this.unlimited = unlimited;
   }
 
   public static Item findBySku(String sku) {

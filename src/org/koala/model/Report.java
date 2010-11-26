@@ -14,11 +14,9 @@ import java.io.PrintStream;
 import java.text.NumberFormat;
 
 import org.koala.ui.DriverGUI;
-import org.koala.DBase;
 
 abstract public class Report {
   protected StringBuilder report;
-  protected DBase dbHandle;
   private final String PRINTDEVICE = Config.getConfig().getValue("print_device");
 
   protected static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
@@ -31,14 +29,12 @@ abstract public class Report {
   protected static final String FRIDAY = "Fri";
   protected static final String SATURDAY = "Sat";
 
-  public Report(DBase dbHandle) {
+  public Report() {
     //put report template in string
     this.report = new StringBuilder();
-    this.dbHandle = dbHandle;
   }
 
   protected void finalize() {
-  	this.dbHandle = null;
   	this.report = null;
   }
 

@@ -16,12 +16,9 @@ import org.koala.model.Config;
  */
 abstract public class BackupMethod {
 
-	protected DBase dbHandle;
-
 	private static Logger logger = Logger.getLogger(BackupMethod.class);
 
-	public BackupMethod(DBase dbHandle) {
-		this.dbHandle = dbHandle;
+	public BackupMethod() {
 	}
 
 	abstract public ArrayList<String> getBackupPackageNames();

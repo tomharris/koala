@@ -10,15 +10,14 @@ package org.koala.model;
 
 import java.util.ArrayList;
 
-import org.koala.DBase;
 import org.koala.Money;
 import org.koala.model.Customer;
 
 public class OutstandingAccountsReport extends Report {
   private ArrayList<Customer> customers;
 
-  public OutstandingAccountsReport(DBase dbHandle) {
-    super(dbHandle);
+  public OutstandingAccountsReport() {
+    super();
     loadResources();
   }
 

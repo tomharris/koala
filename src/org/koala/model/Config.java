@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.regex.*;
 
 import org.apache.log4j.Logger;
-import org.koala.DBase;
 
 public class Config {
   private HashMap<String, String> config;

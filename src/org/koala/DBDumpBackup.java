@@ -19,8 +19,8 @@ public class DBDumpBackup extends BackupMethod {
 
 	private static Logger logger = Logger.getLogger(DBDumpBackup.class);
 
-	public DBDumpBackup(DBase dbHandle) {
-		super(dbHandle);
+	public DBDumpBackup() {
+		super();
 	}
 
 	public ArrayList<String> getBackupPackageNames() {

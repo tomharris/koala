@@ -20,7 +20,6 @@ import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
 public class User extends Base {
-  private DBase dbHandle;
   private int id; //non-neg if valid
   private String userName;
   private String password;
@@ -41,8 +40,6 @@ public class User extends Base {
   }
 
   protected void finalize() {
-    this.dbHandle.finalize();
-    this.dbHandle = null;
     this.userName = null;
     this.currentTransaction = null;
   }
@@ -127,15 +124,6 @@ public class User extends Base {
     return User.find(user_id);
   }
 
-  public void logout() {
-    this.dbHandle.finalize();
-    this.dbHandle = null;
-  }
-
-  public void setDBHandle(DBase dbHandle) {
-    this.dbHandle = dbHandle;
-  }
-
   public static User find(int id) {
     PreparedStatement stmt;
     ResultSet rs;
@@ -155,7 +143,6 @@ public class User extends Base {
         user.setUserName(rs.getString("username"));
         user.setFirstName(rs.getString("firstname"));
         user.setLastName(rs.getString("lastname"));
-        user.setDBHandle(new DBase());
       }
 
       rs.close();
@@ -273,40 +260,6 @@ public class User extends Base {
     }
   }
 
-  // public void addCustomer(Customer customer) throws EntryAlreadyExistsException, ItemNotFoundException {
-  //     customer = dbHandle.addCustomer(customer);
-  //   if(customer.isComplementary())
-  //     this.addItem(Item.COMP_ACCOUNT_SKU, -1, customer);
-  //   else
-  //     this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
-  //   this.doTransaction();
-  // }
-
-  // public void updateCustomer(Customer customer) throws ItemNotFoundException {
-  //   Customer oldCustomer = dbHandle.getCustomer(customer.getId());
-  //   BigDecimal balanceAdded = customer.getBalance().subtract(oldCustomer.getBalance());
-  //
-  //   if(balanceAdded.compareTo(BigDecimal.ZERO) > 0) { //amount > 0
-  //     BigDecimal balance = customer.getBalance();
-  //     customer.setBalance(balanceAdded); //the transaction log only needs to show the amount added
-  //
-  //     //remove items in the transaction prior to adding money
-  //     this.removeAllItems();
-  //     this.addItem(Item.NEW_ACCOUNT_SKU, -1, customer);
-  //     this.doTransaction();
-  //           customer.setBalance(balance);
-  //       }
-  //       else if(balanceAdded.negate().equals(oldCustomer.getBalance())) { //cashout
-  //         customer.setBalance(oldCustomer.getBalance()); //show in the transaction log that all money was removed
-  //         this.addItem(Item.CASHOUT_SKU, -1, customer);
-  //         this.doTransaction();
-  //         this.removeAllItems();
-  //         customer.setBalance(BigDecimal.ZERO);
-  //       }
-  //       dbHandle.updateCustomer(customer);
-  // }
-
-  //cashier level
   public void doTransaction() {
     currentTransaction.commit();
 
@@ -411,7 +364,7 @@ public class User extends Base {
   }
 
   public Report customerReport(Customer customer) {
-    return new CustomerReport(dbHandle, customer);
+    return new CustomerReport(customer);
   }
 
   //manager level
@@ -420,11 +373,11 @@ public class User extends Base {
   }
 
   public Report financialReport() {
-    return new FinancialReport(dbHandle);
+    return new FinancialReport();
   }
 
   public Report outstandingAccountsReport() {
-    return new OutstandingAccountsReport(dbHandle);
+    return new OutstandingAccountsReport();
   }
 
   /* stuff to think about
@@ -465,14 +418,14 @@ public class User extends Base {
     String methodType = Config.getConfig().getValue("db_backup_method");
 
     if(methodType.equals("dump")) {
-      method = new DBDumpBackup(this.dbHandle);
+      method = new DBDumpBackup();
     }
     else if(methodType.equals("internal")) { //TODO: this is just a working name
 
     }
     else {
       logger.warn("Config value db_backup_method is not set to a valid type. Defaulting to 'dump'");
-      method = new DBDumpBackup(this.dbHandle);
+      method = new DBDumpBackup();
     }
 
     return method;

@@ -14,14 +14,13 @@ import java.util.ArrayList;
 import java.sql.Date;
 
 import org.koala.Money;
-import org.koala.DBase;
 
 public class CustomerReport extends Report {
   private ArrayList<Transaction> transactions;
   private Customer customer;
 
-  public CustomerReport(DBase dbHandle, Customer customer) {
-    super(dbHandle);
+  public CustomerReport(Customer customer) {
+    super();
     this.customer = customer;
     loadResources();
   }

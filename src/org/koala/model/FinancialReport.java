@@ -13,14 +13,13 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 
-import org.koala.DBase;
 import org.koala.Money;
 
 public class FinancialReport extends Report {
   private ArrayList<Transaction> transactionsBundle = null;
 
-    public FinancialReport(DBase dbHandle) {
-        super(dbHandle);
+    public FinancialReport() {
+        super();
         loadResources();
     }
 
@@ -152,9 +151,6 @@ public class FinancialReport extends Report {
   }
 
   protected final void loadResources() {
-    //load stuff from dbase:
-    // all transactions
-
     transactionsBundle = Transaction.getAll(null);
   }
 }

@@ -339,7 +339,7 @@ public class Transaction extends Base {
       DatabaseConnection.getInstance().getConnection().setAutoCommit(false); //enables sql transaction
 
       Item.decrementInventory(this);
-      this.create();
+      this.save();
       commitItems();
       
       // debit the customer's account (reload account to be sure data is fresh)

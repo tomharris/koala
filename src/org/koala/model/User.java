@@ -358,37 +358,6 @@ public class User extends Base {
     return currentTransaction.getLastItem();
   }
 
-  //expensive OMG
-  public ArrayList<Item> getCurrentTransactionItems() {
-    return currentTransaction.getItems();
-  }
-
-  public Report customerReport(Customer customer) {
-    return new CustomerReport(customer);
-  }
-
-  //manager level
-  public void endOfDayReports() {
-    //are we even doing this?
-  }
-
-  public Report financialReport() {
-    return new FinancialReport();
-  }
-
-  public Report outstandingAccountsReport() {
-    return new OutstandingAccountsReport();
-  }
-
-  /* stuff to think about
-   * 1. check to see if any cashiers are logged in
-   * 2. tell manager of any still logged in; best to log them out; optionaly force
-   * 3. prevent ONLY cashiers from logging in
-   */
-  public void lockTerminals() {
-      //TODO
-  }
-
   public String resetDatabase() {
     //dump the entire pos db
     String packageName = this.getCurrentBackupMethod().createPackage();

@@ -107,7 +107,7 @@ public class ManagerMenuGUI extends DriverGUI {
     financialReportButton.setText("Financial Report");
     financialReportButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        showModelGui(new ReportGUI(currentUser.financialReport()));
+        showModelGui(new ReportGUI(new FinancialReport()));
       }
     });
 
@@ -117,7 +117,7 @@ public class ManagerMenuGUI extends DriverGUI {
     accountsReportButton.setText("Outstanding Accts Report");
     accountsReportButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        showModelGui(new ReportGUI(currentUser.outstandingAccountsReport()));
+        showModelGui(new ReportGUI(new OutstandingAccountsReport()));
       }
     });
 

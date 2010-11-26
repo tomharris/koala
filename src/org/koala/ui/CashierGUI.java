@@ -154,7 +154,7 @@ public class CashierGUI extends DriverGUI {
       this.customerHistoryButton.setText("History");
       this.customerHistoryButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-          DriverGUI.showModelGui(new ReportGUI(currentUser.customerReport(currentCustomer)));
+          DriverGUI.showModelGui(new ReportGUI(new CustomerReport(currentCustomer)));
         }
       });
 

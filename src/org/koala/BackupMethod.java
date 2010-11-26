@@ -1,7 +1,8 @@
 package org.koala;
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
+
+import org.koala.model.Base;
 import org.koala.model.Config;
 
 /*
@@ -32,15 +33,8 @@ abstract public class BackupMethod {
 	}
 
 	public boolean restorePackage(String packageName) throws Exception {
-		this.dbHandle.clearDB();
-		this.dbHandle.finalize();
-		try {
-			this.dbHandle = new DBase();
-		}
-		catch (Exception e) {
-			logger.error("Error connecting to Database", e);
-		    throw new Exception("Error connecting to Database");
-		}
+		Base.clearDB();
+
 		return this.loadPackage(packageName);
 	}
 }

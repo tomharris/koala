@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.koala.*;
+import org.koala.model.Base;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
@@ -443,7 +444,7 @@ public class User extends Base {
     ArrayList<Customer> customers = Customer.findAllRenewable();
 
     //reset the DB
-    dbHandle.resetDB();
+    Base.resetDB();
 
     //reload the renew accounts
     for(Customer customer : customers) {

@@ -113,9 +113,9 @@ public class FinancialReport extends Report {
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
         //this works because a new account will be the only item in a transaction
-        if(dbHandle.getTransactionItems(currentTrans.getId()).get(0).getSku().equals(Item.NEW_ACCOUNT_SKU)) {
-         accountsNumber++;
-         accountsNumberTotal++;
+        if(currentTrans.getAllItems().get(0).getSku().equals(Item.NEW_ACCOUNT_SKU)) {
+          accountsNumber++;
+          accountsNumberTotal++;
         }
 
         cashForAccounts = cashForAccounts.plus(currentTrans.getTotal());
@@ -155,6 +155,6 @@ public class FinancialReport extends Report {
     //load stuff from dbase:
     // all transactions
 
-    transactionsBundle = dbHandle.getTransactions(null, false);
+    transactionsBundle = Transaction.getAll(null);
   }
 }

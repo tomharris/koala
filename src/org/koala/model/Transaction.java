@@ -14,13 +14,17 @@ package org.koala.model;
  *    CashierScreenGUI will then be launched to add items to the transaction.
  */
 
+import org.apache.log4j.Logger;
+import java.sql.*;
 import java.util.ArrayList;
-import org.koala.Money;
-import java.sql.Date;
+import java.math.BigDecimal;
 
-import org.koala.DBase;
+import org.koala.DatabaseConnection;
+import org.koala.Money;
 
 public class Transaction extends Base {
+  private static Logger logger = Logger.getLogger(Transaction.class);
+
   private User cashier;
   private Customer customer;
   private Money subTotal;
@@ -95,11 +99,6 @@ public class Transaction extends Base {
     this.transactionTime = null;
   }
 
-  public void lookupTransactionItems(DBase dbHandle) {
-    this.transactions = dbHandle.getTransactionItems(this.id);
-    this.transactions.trimToSize();
-  }
-
   public void addItem(Item newItem) {
     this.transactions.add(newItem);
     this.subTotal = this.subTotal.plus(newItem.getTotal());
@@ -114,7 +113,7 @@ public class Transaction extends Base {
       }
     }
 
-    this.subTotal = Money.ZERO; 
+    this.subTotal = Money.ZERO;
     this.tax = Money.ZERO;
     for(Item item : this.transactions) {
       this.subTotal = this.subTotal.plus(item.getTotal());
@@ -195,8 +194,96 @@ public class Transaction extends Base {
     return this.getCode();
   }
 
-  //please avoid as this is VERY expensive
+  public static ArrayList<Transaction> getAll(Customer customer) {
+    StringBuilder query = new StringBuilder();
+    int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
+
+    query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
+    //here are some good guesses for a default array size; on average, I think this is close
+    if(customer == null) { //we are getting all transaction for everyone
+      initialCapacity = 750;
+    }
+    else { //just the one customer
+      query.append("where customer_id=? ");
+      initialCapacity = 15;
+    }
+    query.append("order by transaction_time");
+    ArrayList<Transaction> transactions = new ArrayList<Transaction>(initialCapacity);
+
+    try {
+      PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      if(customer != null) {
+        stmt.setInt(1, customer.getId());
+      }
+      ResultSet rs = stmt.executeQuery();
+
+      Transaction transaction = null;
+      while(rs.next()) {
+        transaction = new Transaction();
+        transaction.setId(rs.getInt("id"));
+        transaction.setCashier(User.find(rs.getInt("user_id")));
+        transaction.setCustomer(customer);
+        transaction.setSubTotal(new Money(rs.getBigDecimal("subtotal")));
+        transaction.setTax(new Money(rs.getBigDecimal("tax")));
+        transaction.setCode(rs.getString("code"));
+        transaction.setTransactionTime(rs.getDate("transaction_time"));
+
+        transactions.add(transaction);
+      }
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error loading transactions for customer history", e);
+    }
+
+    transactions.trimToSize();
+    return transactions;
+  }
+
   public ArrayList<Item> getAllItems() {
-    return new ArrayList<Item>(this.transactions);
+    StringBuilder query = new StringBuilder();
+    query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
+    query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
+    query.append("from transaction_items ");
+    query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
+    query.append("where transaction_id=?");
+    ArrayList<Item> transItems = new ArrayList<Item>();
+
+    try {
+      PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
+      stmt.setInt(1, this.id);
+      ResultSet rs = stmt.executeQuery();
+
+      while(rs.next()) {
+        String name = rs.getString("name");
+        if(name == null)
+          name = rs.getString("sku"); //reasonable default I should think
+
+        BigDecimal price = rs.getBigDecimal("price");
+        if(price == null) {
+          price = BigDecimal.ZERO;
+        }
+
+        BigDecimal tax = rs.getBigDecimal("tax");
+        if(tax == null) {
+          tax = BigDecimal.ZERO;
+        }
+
+        transItems.add(new ForSale(rs.getString("sku"), name,
+          rs.getInt("quantity"),
+          new Money(price),
+          new Money(tax),
+          rs.getInt("unlimited") == 1));
+      }
+      rs.close();
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error loading customer items", e);
+    }
+
+    transItems.trimToSize();
+    return transItems;
   }
 }

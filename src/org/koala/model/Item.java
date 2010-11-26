@@ -287,4 +287,34 @@ public class Item extends Base {
       logger.error("SQL error removing inventory item", e);
     }
   }
+  
+  //decrement the inventory if applicable
+  public static void decrementInventory(Transaction transaction) throws SQLException {
+    //check to see if the transaction is special
+    if(Item.isSpecial(transaction.getFirstItem().getSku()))
+      return;
+
+    ArrayList<Item> items = transaction.getAllItems();
+      PreparedStatement stmt;
+      String decQuery = "update inventory set quantity=quantity-? where sku=?";
+
+      try {
+        stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(decQuery);
+
+        for(Item item : items) {
+            if(item.getUnlimited() || Item.isSpecial(item.getSku()) )
+                continue; //skip if its unlimited or special
+
+            stmt.setInt(1, item.getQuantity());
+            stmt.setString(2, item.getSku());
+            stmt.executeUpdate();
+        }
+
+        stmt.close();
+      }
+      catch (SQLException e) {
+        logger.error("SQL error decrementing item count in inventory", e);
+        throw e;
+      }
+  }
 }

@@ -307,7 +307,7 @@ public class User extends Base {
 
   //cashier level
   public void doTransaction() {
-    dbHandle.doTransaction(currentTransaction);
+    currentTransaction.commit();
 
     //print receipt here
     currentTransaction = null; //byebye; gc will clean up sometime
@@ -355,13 +355,13 @@ public class User extends Base {
     //cash half needs to be first, otherwise we lose the transaction total
     Item cashHalf = Item.createSpecialItem(Item.PARTIALCASH_CASHHALF, customer, currentTransaction);
     currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
-    doTransaction();
+    currentTransaction.commit();
 
     currentTransaction = new Transaction();
     currentTransaction.setCashier(this);
     currentTransaction.setCustomer(new CashCustomer());
     currentTransaction.addItem(cashHalf);
-    doTransaction();
+    currentTransaction.commit();
   }
 
   public void removeItem(String sku) {
@@ -406,7 +406,7 @@ public class User extends Base {
 
   //expensive OMG
   public ArrayList<Item> getCurrentTransactionItems() {
-    return currentTransaction.getAllItems();
+    return currentTransaction.getItems();
   }
 
   public Report customerReport(Customer customer) {

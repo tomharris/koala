@@ -34,4 +34,22 @@ abstract public class BackupMethod {
 
 		return this.loadPackage(packageName);
 	}
+
+	public static BackupMethod getCurrentBackupMethod() {
+    BackupMethod method = null;
+    String methodType = Config.getConfig().getValue("db_backup_method");
+
+    if(methodType.equals("dump")) {
+      method = new DBDumpBackup();
+    }
+    else if(methodType.equals("internal")) { //TODO: this is just a working name
+
+    }
+    else {
+      logger.warn("Config value db_backup_method is not set to a valid type. Defaulting to 'dump'");
+      method = new DBDumpBackup();
+    }
+
+    return method;
+  }
 }

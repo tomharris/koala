@@ -10,6 +10,7 @@ import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.model.CashCustomer;
 import org.koala.model.Item;
+import org.koala.model.CustomerReport;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.ui.widget.ItemTable;

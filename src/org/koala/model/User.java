@@ -48,14 +48,6 @@ public class User extends Base {
     return this.userName;
   }
 
-  public int getId() {
-    return this.id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
   public String getLastName() {
     return this.lastName;
   }
@@ -288,23 +280,6 @@ public class User extends Base {
     }
   }
 
-  //we just dont do a inventory lookup
-  public void addSpecialItem(Item item, Customer customer) throws ItemNotFoundException {
-    if(item == null) {
-      throw new ItemNotFoundException("add Special item");
-    }
-
-    if(currentTransaction == null) {
-      currentTransaction = new Transaction();
-      currentTransaction.setCashier(this);
-      currentTransaction.setCustomer(customer);
-      currentTransaction.addItem(item);
-    }
-    else {
-      currentTransaction.addItem(item);
-    }
-  }
-
   public void doPartialCashTransaction(Customer customer) {
     //cash half needs to be first, otherwise we lose the transaction total
     Item cashHalf = Item.createSpecialItem(Item.PARTIALCASH_CASHHALF, customer, currentTransaction);
@@ -356,48 +331,6 @@ public class User extends Base {
       return null;
 
     return currentTransaction.getLastItem();
-  }
-
-  public String resetDatabase() {
-    //dump the entire pos db
-    String packageName = this.getCurrentBackupMethod().createPackage();
-
-    //save customers that have auto-renew accounts
-    ArrayList<Customer> customers = Customer.findAllRenewable();
-
-    //reset the DB
-    Base.resetDB();
-
-    //reload the renew accounts
-    for(Customer customer : customers) {
-      try {
-        customer.setId(0); //basically mark the record as new
-        customer.save();
-      }
-      catch(EntryAlreadyExistsException e) {
-        logger.error("Error reloading renewable customers", e);
-      }
-    }
-
-    return packageName;
-  }
-
-  public BackupMethod getCurrentBackupMethod() {
-    BackupMethod method = null;
-    String methodType = Config.getConfig().getValue("db_backup_method");
-
-    if(methodType.equals("dump")) {
-      method = new DBDumpBackup();
-    }
-    else if(methodType.equals("internal")) { //TODO: this is just a working name
-
-    }
-    else {
-      logger.warn("Config value db_backup_method is not set to a valid type. Defaulting to 'dump'");
-      method = new DBDumpBackup();
-    }
-
-    return method;
   }
 
   //we just check to see if that user is in our database

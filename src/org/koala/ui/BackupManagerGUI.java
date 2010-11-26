@@ -4,10 +4,13 @@ import javax.swing.*;
 
 import org.apache.log4j.Logger;
 import org.koala.BackupMethod;
-import org.koala.model.User;
+import org.koala.model.Base;
+import org.koala.model.Customer;
+import org.koala.exception.EntryAlreadyExistsException;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
 
 /*
  * Created on Feb 21, 2006
@@ -34,7 +37,7 @@ public class BackupManagerGUI extends DriverGUI {
   private JLabel messageLabel = null;
   private JButton resetButton = null;
 
-  private static Logger logger = Logger.getLogger(User.class);
+  private static Logger logger = Logger.getLogger(BackupManagerGUI.class);
 
   /**
    * This method initializes jPanel
@@ -76,7 +79,7 @@ public class BackupManagerGUI extends DriverGUI {
    */
   private JList getBackupsList() {
     if (backupsList == null) {
-      backupsList = new JList(currentUser.getCurrentBackupMethod().getBackupPackageNames().toArray());
+      backupsList = new JList(BackupMethod.getCurrentBackupMethod().getBackupPackageNames().toArray());
     }
 
     backupsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -108,7 +111,7 @@ public class BackupManagerGUI extends DriverGUI {
   void doRestore(java.awt.event.ActionEvent evt) {
     boolean result = false;
     try {
-      result = currentUser.getCurrentBackupMethod().restorePackage((String)backupsList.getSelectedValue());
+      result = BackupMethod.getCurrentBackupMethod().restorePackage((String)backupsList.getSelectedValue());
     }
     catch (Exception e) {
       logger.error("Error connecting to Database", e);
@@ -142,7 +145,7 @@ public class BackupManagerGUI extends DriverGUI {
       String packageName = null;
       BackupMethod backupMethod = null;
 
-      backupMethod = currentUser.getCurrentBackupMethod();
+      backupMethod = BackupMethod.getCurrentBackupMethod();
       packageName = backupMethod.createPackage();
 
       if(packageName != null && backupMethod != null) {
@@ -221,10 +224,27 @@ public class BackupManagerGUI extends DriverGUI {
     }
 
     private void doReset(java.awt.event.ActionEvent evt) {
-      String packageName = null;
+      //dump the entire pos db
+      String packageName = BackupMethod.getCurrentBackupMethod().createPackage();
 
-      packageName = currentUser.resetDatabase();
-      backupsList.setListData(currentUser.getCurrentBackupMethod().getBackupPackageNames().toArray());
+      //save customers that have auto-renew accounts
+      ArrayList<Customer> customers = Customer.findAllRenewable();
+
+      //reset the DB
+      Base.resetDB();
+
+      //reload the renew accounts
+      for(Customer customer : customers) {
+        try {
+          customer.setId(0); //basically mark the record as new
+          customer.save();
+        }
+        catch(EntryAlreadyExistsException e) {
+          logger.error("Error reloading renewable customers", e);
+        }
+      }
+
+      backupsList.setListData(BackupMethod.getCurrentBackupMethod().getBackupPackageNames().toArray());
 
       if(packageName != null) {
         messageLabel.setText("Database Reset Successful!");

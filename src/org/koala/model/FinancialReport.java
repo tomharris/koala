@@ -73,13 +73,13 @@ public class FinancialReport extends Report {
         report.append("\tNumber of accounts created: ");
         report.append(accountsNumber);
         report.append("\n\tCash collected for account creation: ");
-        report.append(Report.currencyFormat.format(cashForAccounts));
+        report.append(cashForAccounts.formattedString());
         report.append("\n\tIncome from cash sales: ");
-        report.append(Report.currencyFormat.format(cashSales));
+        report.append(cashSales.formattedString());
         report.append("\n\tIncome from account sales: ");
-        report.append(Report.currencyFormat.format(accountSales));
+        report.append(accountSales.formattedString());
         report.append("\n\tCash Refunded from accounts: ");
-        report.append(Report.currencyFormat.format(accountRefunds));
+        report.append(accountRefunds.formattedString());
         report.append("\n");
 
         //zero out totals
@@ -126,13 +126,13 @@ public class FinancialReport extends Report {
     report.append("\tNumber of accounts created: ");
     report.append(accountsNumber);
     report.append("\n\tCash collected for account creation: ");
-    report.append(Report.currencyFormat.format(cashForAccounts));
+    report.append(cashForAccounts.formattedString());
     report.append("\n\tIncome from cash sales: ");
-    report.append(Report.currencyFormat.format(cashSales));
+    report.append(cashSales.formattedString());
     report.append("\n\tIncome from account sales: ");
-    report.append(Report.currencyFormat.format(accountSales));
+    report.append(accountSales.formattedString());
     report.append("\n\tCash Refunded from accounts: ");
-    report.append(Report.currencyFormat.format(accountRefunds));
+    report.append(accountRefunds.formattedString());
     report.append("\n");
 
     //print end of period totals
@@ -140,13 +140,13 @@ public class FinancialReport extends Report {
     report.append("\tNumber of accounts created: ");
     report.append(accountsNumberTotal);
     report.append("\n\tCash collected for account creation: ");
-    report.append(Report.currencyFormat.format(cashForAccountsTotal));
+    report.append(cashForAccountsTotal.formattedString());
     report.append("\n\tIncome from cash sales: ");
-    report.append(Report.currencyFormat.format(cashSalesTotal));
+    report.append(cashSalesTotal.formattedString());
     report.append("\n\tIncome from account sales: ");
-    report.append(Report.currencyFormat.format(accountSalesTotal));
+    report.append(accountSalesTotal.formattedString());
     report.append("\n\tCash Refunded from accounts: ");
-    report.append(Report.currencyFormat.format(accountRefundsTotal));
+    report.append(accountRefundsTotal.formattedString());
     report.append("\n");
   }
 

@@ -350,15 +350,12 @@ public final class Money implements Comparable<Money> {
     return times(-1);
   }
 
-  /**
-  * Returns
-  * {@link #getAmount()}.getPlainString() + space + {@link #getCurrency()}.getSymbol().
-  *
-  * <P>The return value uses the runtime's <em>default locale</em>, and will not
-  * always be suitable for display to an end user.
-  */
   public String toString(){
     return fAmount.toPlainString();
+  }
+
+  public String formattedString() {
+    return java.text.NumberFormat.getCurrencyInstance().format(this.getAmount());
   }
 
   /**

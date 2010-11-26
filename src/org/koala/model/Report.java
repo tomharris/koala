@@ -11,15 +11,12 @@ package org.koala.model;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.text.NumberFormat;
 
 import org.koala.ui.DriverGUI;
 
 abstract public class Report {
   protected StringBuilder report;
   private final String PRINTDEVICE = Config.getConfig().getValue("print_device");
-
-  protected static final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
 
   protected static final String SUNDAY = "Sun";
   protected static final String MONDAY = "Mon";
@@ -35,7 +32,7 @@ abstract public class Report {
   }
 
   protected void finalize() {
-  	this.report = null;
+    this.report = null;
   }
 
   abstract protected void loadResources();
@@ -43,7 +40,7 @@ abstract public class Report {
   abstract public void doReport();
 
   public boolean isPrintable() {
-  	return false;
+    return false;
   }
 
   //report should be done by now
@@ -52,24 +49,22 @@ abstract public class Report {
   }
 
   public final void print() {
-    try
-    {
-        //open printer as if it were a file
-        FileOutputStream os = new FileOutputStream(PRINTDEVICE);
-        //wrap stream in "friendly" PrintStream
-        PrintStream ps = new PrintStream(os);
+    try {
+      //open printer as if it were a file
+      FileOutputStream os = new FileOutputStream(PRINTDEVICE);
+      //wrap stream in "friendly" PrintStream
+      PrintStream ps = new PrintStream(os);
 
-        //print report here
-        ps.println(this.report.toString());
-        //print a form feed
-        ps.print("\f");
+      //print report here
+      ps.println(this.report.toString());
+      //print a form feed
+      ps.print("\f");
 
-        //flush buffer and close
-        ps.close();
+      //flush buffer and close
+      ps.close();
     }
-    catch (Exception e)
-    {
-    	DriverGUI.printError(e);
+    catch (Exception e) {
+      DriverGUI.printError(e);
     }
   }
 }

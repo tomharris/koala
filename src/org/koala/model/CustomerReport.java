@@ -66,7 +66,7 @@ public class CustomerReport extends Report {
         report.append("\t");
         report.append(item.getName());
         report.append("\t");
-        report.append(Report.currencyFormat.format(item.getPrice().abs()));
+        report.append(item.getPrice().abs().formattedString());
         report.append("\n");
       }
 
@@ -81,7 +81,7 @@ public class CustomerReport extends Report {
       else {
         totalSpent = totalSpent.plus(transaction.getTotal());
         report.append("Total spent at this visit: ");
-        report.append(Report.currencyFormat.format(transaction.getTotal()));
+        report.append(transaction.getTotal().formattedString());
         report.append("\n\n");
       }
     }
@@ -90,12 +90,12 @@ public class CustomerReport extends Report {
     report.append("\nTotal visits made: ");
     report.append(transactions.size());
     report.append("\nTotal added to accout: ");
-    report.append(Report.currencyFormat.format(totalAdded));
+    report.append(totalAdded.formattedString());
     report.append("\nTotal spent: ");
-    report.append(Report.currencyFormat.format(totalSpent));
+    report.append(totalSpent.formattedString());
     report.append("\nTotal refunded: ");
-    report.append(Report.currencyFormat.format(totalRefunded));
+    report.append(totalRefunded.formattedString());
     report.append("\nBalance Remaining: ");
-    report.append(Report.currencyFormat.format(customer.getBalance()));
+    report.append(customer.getBalance().formattedString());
   }
 }

@@ -43,7 +43,7 @@ public class OutstandingAccountsReport extends Report {
 
         sbCustomers.append(customer.toString());
         sbCustomers.append(" (");
-        sbCustomers.append(Report.currencyFormat.format(customer.getBalance()));
+        sbCustomers.append(customer.getBalance().formattedString());
         sbCustomers.append(")\n");
       }
     }

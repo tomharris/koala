@@ -9,7 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.model.CashCustomer;
-import org.koala.model.Item;
+import org.koala.model.InventoryItem;
+import org.koala.model.TransactionItem;
 import org.koala.model.CustomerReport;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.exception.EntryAlreadyExistsException;
@@ -278,7 +279,7 @@ public class CashierGUI extends DriverGUI {
       skuLabel.setText("Item: ");
       this.skuPanel.add(skuLabel);
 
-      this.skuComboBox = new JComboBox(Item.findAll().toArray());
+      this.skuComboBox = new JComboBox(InventoryItem.findAll().toArray());
 
       //this.skuTextField.setMinimumSize(TEXTAREA_SIZE);
       //this.skuTextField.setPreferredSize(TEXTAREA_SIZE);
@@ -429,10 +430,10 @@ public class CashierGUI extends DriverGUI {
   }
 
   private void skuEnterButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    Item currentItem = null;
+    TransactionItem currentItem = null;
 
     try { //quantity is one for now because we dont yet have a field for that
-      currentUser.addItem(((Item)skuComboBox.getSelectedItem()).getSku(), 1, currentCustomer);
+      currentUser.addItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku(), 1, currentCustomer);
       currentItem = currentUser.getLastItem();
     }
     catch (ItemNotFoundException e) {
@@ -467,8 +468,8 @@ public class CashierGUI extends DriverGUI {
   private void voidItemButtonActionPerformed(java.awt.event.ActionEvent evt) {
     DefaultTableModel model = (DefaultTableModel) this.itemTable.getModel();
     for(int i=0; i < model.getRowCount(); i++) {
-      if(model.getValueAt(i, 0).equals(((Item)skuComboBox.getSelectedItem()).getSku())) {
-        currentUser.removeItem(((Item)skuComboBox.getSelectedItem()).getSku());
+      if(model.getValueAt(i, 0).equals(((InventoryItem)skuComboBox.getSelectedItem()).getSku())) {
+        currentUser.removeItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku());
         model.removeRow(i);
         //update fields
         refreshTotals();

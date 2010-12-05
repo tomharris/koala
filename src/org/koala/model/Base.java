@@ -66,33 +66,32 @@ abstract public class Base {
     ArrayList<String> tables = new ArrayList<String>(6);
     tables.add("transaction_items");
     tables.add("transactions");
-    tables.add("notes");
     tables.add("customers");
     tables.add("users");
     tables.add("inventory");
 
-    dropTables(tables);
+    clearTables(tables);
   }
 
   public static void resetDB() {
     ArrayList<String> tables = new ArrayList<String>(4);
     tables.add("transaction_items");
     tables.add("transactions");
-    tables.add("notes");
     tables.add("customers");
 
-    dropTables(tables);
+    clearTables(tables);
   }
 
-  private static void dropTables(ArrayList<String> tables) {
+  private static void clearTables(ArrayList<String> tables) {
     Statement stmt;
 
     try {
       DatabaseConnection.getInstance().getConnection().setAutoCommit(false);
 
       stmt = DatabaseConnection.getInstance().getConnection().createStatement();
-      for(String table : tables)
-        stmt.executeUpdate("delete from " + table);
+      for(String table : tables) {
+        stmt.executeUpdate("truncate table " + table);
+      }
       stmt.close();
 
       DatabaseConnection.getInstance().getConnection().commit();
@@ -105,7 +104,7 @@ abstract public class Base {
       catch(SQLException ex) {
         logger.error("Rollback failed.", ex);
       }
-      logger.error("SQL error dropping tables: Transaction is being rolled back", e);
+      logger.error("SQL error clearing tables: Transaction is being rolled back", e);
     }
   }
 

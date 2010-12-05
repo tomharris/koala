@@ -11,28 +11,36 @@ import java.util.Date;
 
 import org.koala.Money;
 
-public class ForRent extends Item {
-	Date checkedOut, due;
+public class ForRent extends InventoryItem {
+  Date checkedOut, dueDate;
 
-	public ForRent(String sku, String name, Money value) {
-		super(sku, name, 0, value, Money.ZERO, false);
-	}
+  public ForRent() {
+    super();
+  }
 
-	public Date getDueDate() {
-		return due;
-	}
+  public ForRent(String sku, String name, Money price, Money taxRate) {
+    super();
+    this.sku = sku;
+    this.name = name;
+    this.price = price;
+    this.taxRate = taxRate;
+  }
 
-	public void setDueDate(Date Due) {
-		//maybe add a check for 'Due > today'
-		due = Due;
-	}
+  public Date getDueDate() {
+    return this.dueDate;
+  }
 
-	public Date getCheckedOutDate() {
-		return checkedOut;
-	}
+  public void setDueDate(Date dueDate) {
+    //maybe add a check for 'Due > today'
+    this.dueDate = dueDate;
+  }
 
-	public void setCheckedOutDate(Date checkedOutDate) {
-		//maybe add a check for 'CheckedOutDate > today'
-		checkedOut = checkedOutDate;
-	}
+  public Date getCheckedOutDate() {
+    return this.checkedOut;
+  }
+
+  public void setCheckedOutDate(Date checkedOutDate) {
+    //maybe add a check for 'CheckedOutDate > today'
+    this.checkedOut = checkedOutDate;
+  }
 }

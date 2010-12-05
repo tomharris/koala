@@ -28,11 +28,10 @@ public class Transaction extends Base {
   private User cashier;
   private Customer customer;
   private Money subTotal;
-  private Money tax;
-  private ArrayList<Item> items = null;
+  private Money taxTotal;
+  private ArrayList<TransactionItem> items = null;
   private String code;
   private Date transactionTime;
-  private static final int initSize = 10; //initial array size; 10 sounds good
 
   //transaction codes
   public static final String CODE_CASH = "a";
@@ -42,46 +41,6 @@ public class Transaction extends Base {
   public static final String CODE_CREDITCOMPACCOUNT = "e";
   public static final String CODE_DEBITCOMPACCOUNT = "f";
   public static final String CODE_CLOSECOMPACCOUNT = "g";
-  public static final String CODE_INVENTORYADD = "h";
-  public static final String CODE_INVENTORYCORRECTION = "i";
-
-  /*
-   * The idea is that you shouldnt need to create a transaction unless you already
-   * have a item to put in it.
-   */
-  // public Transaction(User cashier, Customer customer, Item newItem) {
-  //  this.id = -1;
-  //  this.subTotal = BigDecimal.ZERO;
-  //     this.subTotal.setScale(2, BigDecimal.ROUND_CEILING);
-  //     this.tax = BigDecimal.ZERO;
-  //     this.tax.setScale(2, BigDecimal.ROUND_CEILING);
-  //
-  //     this.cashier = cashier;
-  //     this.customer = customer;
-  //     if(newItem == null) {
-  //      this.items = null;
-  //     }
-  //     else {
-  //      this.items = new ArrayList<Item>(initSize);
-  //      addItem(newItem);
-  //      if(newItem.getSku().equals(Item.NEW_ACCOUNT_SKU))
-  //        this.acctCode = Transaction.CODE_CREDITACCOUNT;
-  //      else if(newItem.getSku().equals(Item.COMP_ACCOUNT_SKU))
-  //        this.acctCode = Transaction.CODE_CREDITCOMPACCOUNT;
-  //      else if(newItem.getSku().equals(Item.CASHOUT_SKU))
-  //        this.acctCode = Transaction.CODE_CLOSEACCOUNT;
-  //      else if(newItem.getSku().equals(Item.INVENTORYADD_SKU))
-  //        this.acctCode = Transaction.CODE_INVENTORYADD;
-  //      else if(newItem.getSku().equals(Item.INVENTORYCORRECTION_SKU))
-  //        this.acctCode = Transaction.CODE_INVENTORYCORRECTION;
-  //      else if(customer != null && customer.isComplementary())
-  //        this.acctCode = Transaction.CODE_DEBITCOMPACCOUNT;
-  //      else if(customer != null && customer.getId() != 0)
-  //        this.acctCode = Transaction.CODE_DEBITACCOUNT;
-  //      else
-  //        this.acctCode = Transaction.CODE_CASH;
-  //     }
-  // }
 
   public Transaction() {
     super();
@@ -94,39 +53,9 @@ public class Transaction extends Base {
     this.cashier = null;
     this.customer = null;
     this.subTotal = null;
-    this.tax = null;
+    this.taxTotal = null;
     this.code = null;
     this.transactionTime = null;
-  }
-
-  public void addItem(Item newItem) {
-    this.items.add(newItem);
-    this.subTotal = this.subTotal.plus(newItem.getTotal());
-    this.tax = this.tax.plus(newItem.getPrice().times(newItem.getTaxRate()));
-  }
-
-  public void removeItem(String sku) {
-    for(Item item : this.items) {
-      if(item.getSku().equals(sku)) {
-        this.items.remove(item);
-        break;
-      }
-    }
-
-    this.subTotal = Money.ZERO;
-    this.tax = Money.ZERO;
-    for(Item item : this.items) {
-      this.subTotal = this.subTotal.plus(item.getTotal());
-      this.tax = this.tax.plus(item.getPrice()).times(item.getTaxRate());
-    }
-  }
-
-  public int getId() {
-    return this.id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
   }
 
   public Date getTransactionTime() {
@@ -145,17 +74,17 @@ public class Transaction extends Base {
     this.subTotal = subTotal;
   }
 
-  public Money getTax() {
-    return this.tax;
+  public Money getTaxTotal() {
+    return this.taxTotal;
   }
 
-  public void setTax(Money tax) {
-    this.tax = tax;
+  public void setTaxTotal(Money taxTotal) {
+    this.taxTotal = taxTotal;
   }
 
   //total rounded to the nearest penny
   public Money getTotal() {
-    return this.subTotal.plus(this.tax);
+    return this.subTotal.plus(this.taxTotal);
   }
 
   public User getCashier() {
@@ -174,11 +103,11 @@ public class Transaction extends Base {
     this.customer = customer;
   }
 
-  public Item getLastItem() {
+  public TransactionItem getLastItem() {
     return this.items.get(this.items.size() - 1);
   }
 
-  public Item getFirstItem() {
+  public TransactionItem getFirstItem() {
     return this.items.get(0);
   }
 
@@ -194,25 +123,42 @@ public class Transaction extends Base {
     return this.getCode();
   }
 
-  public ArrayList<Item> getItems() {
-    return new ArrayList<Item>(this.items);
+  public ArrayList<TransactionItem> getItems() {
+    return new ArrayList<TransactionItem>(this.items);
+  }
+
+  public void addItem(TransactionItem newItem) {
+    this.items.add(newItem);
+    this.subTotal = this.subTotal.plus(newItem.getTotal());
+    this.taxTotal = this.taxTotal.plus(newItem.getPrice().times(newItem.getTaxRate()));
+  }
+
+  public void removeItem(String sku) {
+    for(TransactionItem item : this.items) {
+      if(item.getSku().equals(sku)) {
+        this.items.remove(item);
+        break;
+      }
+    }
+
+    this.subTotal = Money.ZERO;
+    this.taxTotal = Money.ZERO;
+    for(TransactionItem item : this.items) {
+      this.subTotal = this.subTotal.plus(item.getTotal());
+      this.taxTotal = this.taxTotal.plus(item.getPrice()).times(item.getTaxRate());
+    }
   }
 
   public static ArrayList<Transaction> getAll(Customer customer) {
     StringBuilder query = new StringBuilder();
-    int initialCapacity = 10; //initial array capacity; 10 is the default for arraylist
 
-    query.append("select id, transaction_time, user_id, subtotal, tax, code from transactions ");
-    //here are some good guesses for a default array size; on average, I think this is close
-    if(customer == null) { //we are getting all transaction for everyone
-      initialCapacity = 750;
-    }
-    else { //just the one customer
+    query.append("select id, transaction_time, user_id, subtotal, taxtotal, code from transactions ");
+    if(customer != null) {
       query.append("where customer_id=? ");
-      initialCapacity = 15;
     }
+
     query.append("order by transaction_time");
-    ArrayList<Transaction> transactions = new ArrayList<Transaction>(initialCapacity);
+    ArrayList<Transaction> transactions = new ArrayList<Transaction>();
 
     try {
       PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
@@ -228,7 +174,7 @@ public class Transaction extends Base {
         transaction.setCashier(User.find(rs.getInt("user_id")));
         transaction.setCustomer(customer);
         transaction.setSubTotal(new Money(rs.getBigDecimal("subtotal")));
-        transaction.setTax(new Money(rs.getBigDecimal("tax")));
+        transaction.setTaxTotal(new Money(rs.getBigDecimal("taxtotal")));
         transaction.setCode(rs.getString("code"));
         transaction.setTransactionTime(rs.getDate("transaction_time"));
 
@@ -245,14 +191,12 @@ public class Transaction extends Base {
     return transactions;
   }
 
-  public ArrayList<Item> getAllItems() {
+  public ArrayList<TransactionItem> getAllItems() {
     StringBuilder query = new StringBuilder();
-    query.append("select transaction_items.sku, inventory.name, transaction_items.quantity, ");
-    query.append("transaction_items.price, inventory.tax, inventory.unlimited ");
+    query.append("select sku, name, quantity, price, tax_rate ");
     query.append("from transaction_items ");
-    query.append("left outer join inventory on inventory.sku=transaction_items.sku ");
     query.append("where transaction_id=?");
-    ArrayList<Item> transItems = new ArrayList<Item>();
+    ArrayList<TransactionItem> items = new ArrayList<TransactionItem>();
 
     try {
       PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
@@ -260,25 +204,22 @@ public class Transaction extends Base {
       ResultSet rs = stmt.executeQuery();
 
       while(rs.next()) {
-        String name = rs.getString("name");
-        if(name == null)
-          name = rs.getString("sku"); //reasonable default I should think
-
         BigDecimal price = rs.getBigDecimal("price");
         if(price == null) {
           price = BigDecimal.ZERO;
         }
 
-        BigDecimal tax = rs.getBigDecimal("tax");
-        if(tax == null) {
-          tax = BigDecimal.ZERO;
+        BigDecimal taxRate = rs.getBigDecimal("tax_rate");
+        if(taxRate == null) {
+          taxRate = BigDecimal.ZERO;
         }
 
-        transItems.add(new ForSale(rs.getString("sku"), name,
-          rs.getInt("quantity"),
-          new Money(price),
-          new Money(tax),
-          rs.getInt("unlimited") == 1));
+        TransactionItem item = new TransactionItem();
+        item.setSku(rs.getString("sku"));
+        item.setName(rs.getString("name"));
+        item.setPrice(new Money(price));
+        item.setTaxRate(new Money(taxRate));
+        items.add(item);
       }
       rs.close();
       stmt.close();
@@ -287,17 +228,17 @@ public class Transaction extends Base {
       logger.error("SQL error loading customer items", e);
     }
 
-    transItems.trimToSize();
-    return transItems;
+    items.trimToSize();
+    return items;
   }
-  
+
   //store the totals for the transaction and not the individual item ammounts
   // the individual ammounts are stored in another table however
-  public void create(Transaction TransAction) throws SQLException {
+  public void create(Transaction transaction) throws SQLException {
     PreparedStatement stmt;
     int autoIncKey = -1;
     StringBuilder query = new StringBuilder();
-    query.append("insert into transactions (transaction_time, code, user_id, customer_id, subtotal, tax) ");
+    query.append("insert into transactions (transaction_time, code, user_id, customer_id, subtotal, taxtotal) ");
     query.append("VALUES(");
     query.append(DatabaseConnection.getInstance().getProfile().getCurrentTimeCmd());
     query.append(", ?, ?, ?, ?, ?)");
@@ -305,16 +246,16 @@ public class Transaction extends Base {
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
 
-      stmt.setString(1, TransAction.getAcctCode());
-      stmt.setInt(2, TransAction.getCashier().getId());
-      if(TransAction.getCustomer() == null || TransAction.getCustomer() instanceof CashCustomer) {
+      stmt.setString(1, transaction.getAcctCode());
+      stmt.setInt(2, transaction.getCashier().getId());
+      if(transaction.getCustomer() == null || transaction.getCustomer() instanceof CashCustomer) {
         stmt.setNull(3, java.sql.Types.INTEGER);
       }
       else {
-        stmt.setInt(3, TransAction.getCustomer().getId());
+        stmt.setInt(3, transaction.getCustomer().getId());
       }
-      stmt.setBigDecimal(4, TransAction.getSubTotal().getAmount());
-      stmt.setBigDecimal(5, TransAction.getTax().getAmount());
+      stmt.setBigDecimal(4, transaction.getSubTotal().getAmount());
+      stmt.setBigDecimal(5, transaction.getTaxTotal().getAmount());
       stmt.executeUpdate();
 
       //get the auto inc field of the row just inserted
@@ -327,7 +268,7 @@ public class Transaction extends Base {
       throw e;
     }
   }
-  
+
   /*needs to acomplish several things:
    *  1: decrement all the items from total inventory
    *  2: store transaction totals
@@ -338,10 +279,10 @@ public class Transaction extends Base {
     try {
       DatabaseConnection.getInstance().getConnection().setAutoCommit(false); //enables sql transaction
 
-      Item.decrementInventory(this);
+      InventoryItem.decrementInventory(this);
       this.save();
       commitItems();
-      
+
       // debit the customer's account (reload account to be sure data is fresh)
       Customer customer = Customer.find(this.getCustomer().getId());
       customer.setBalance(customer.getBalance().minus(this.getTotal()));
@@ -360,25 +301,27 @@ public class Transaction extends Base {
       logger.error("Exception recording transaction: Transaction is being rolled back", e);
     }
   }
-  
+
   /*
    * Each recept is inserted into the transaction_items table.
    * Every item will be a row in the table. Rows will be
-   * of the form [transaction_id, sku, quantity, price].
+   * of the form [transaction_id, sku, name, quantity, price, tax_rate].
    */
   private void commitItems() throws SQLException {
     PreparedStatement stmt;
     StringBuilder query = new StringBuilder();
-    query.append("insert into transaction_items (transaction_id, sku, quantity, price) ");
-    query.append("VALUES(?, ?, ?, ?)");
+    query.append("insert into transaction_items (transaction_id, sku, name, quantity, price, tax_rate) ");
+    query.append("VALUES(?, ?, ?, ?, ?, ?)");
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
-      for(Item item : this.items) {
+      for(TransactionItem item : this.items) {
         stmt.setInt(1, this.id);
         stmt.setString(2, item.getSku());
-        stmt.setInt(3, item.getQuantity());
-        stmt.setBigDecimal(4, item.getPrice().getAmount());
+        stmt.setString(3, item.getName());
+        stmt.setInt(4, item.getQuantity());
+        stmt.setBigDecimal(5, item.getPrice().getAmount());
+        stmt.setBigDecimal(6, item.getTaxRate().getAmount());
         stmt.executeUpdate();
       }
 

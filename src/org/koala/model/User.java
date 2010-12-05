@@ -260,13 +260,16 @@ public class User extends Base {
   }
 
   public void addItem(String sku, int quantity, Customer customer) throws ItemNotFoundException {
-    Item currentItem = Item.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
+    TransactionItem currentItem = TransactionItem.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
     if(currentItem == null) {
-      currentItem = Item.findBySku(sku);
-      if(currentItem == null)
-        throw new ItemNotFoundException("add Item");
+      InventoryItem inventoryItem = InventoryItem.findBySku(sku);
 
-      currentItem.setQuantity(quantity);
+      if(inventoryItem != null) {
+        currentItem = new TransactionItem(inventoryItem, quantity);
+      }
+      else {
+        throw new ItemNotFoundException("add Item");
+      }
     }
 
     if(currentTransaction == null) {
@@ -282,8 +285,8 @@ public class User extends Base {
 
   public void doPartialCashTransaction(Customer customer) {
     //cash half needs to be first, otherwise we lose the transaction total
-    Item cashHalf = Item.createSpecialItem(Item.PARTIALCASH_CASHHALF, customer, currentTransaction);
-    currentTransaction.addItem(Item.createSpecialItem(Item.PARTIALCASH_CREDITHALF, customer, currentTransaction));
+    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF, customer, currentTransaction);
+    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF, customer, currentTransaction));
     currentTransaction.commit();
 
     currentTransaction = new Transaction();
@@ -323,10 +326,10 @@ public class User extends Base {
     if(currentTransaction == null)
       return null;
 
-    return currentTransaction.getTax();
+    return currentTransaction.getTaxTotal();
   }
 
-  public Item getLastItem() {
+  public TransactionItem getLastItem() {
     if(currentTransaction == null)
       return null;
 

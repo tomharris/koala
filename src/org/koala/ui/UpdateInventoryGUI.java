@@ -14,7 +14,7 @@ import javax.swing.*;
 import org.koala.Money;
 import org.koala.model.ForRent;
 import org.koala.model.ForSale;
-import org.koala.model.Item;
+import org.koala.model.InventoryItem;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
@@ -160,8 +160,8 @@ public class UpdateInventoryGUI extends DriverGUI {
       return;
     }
 
-    Item invItem = null;
-    invItem = Item.findBySku(skuTextField.getText());
+    InventoryItem invItem = null;
+    invItem = InventoryItem.findBySku(skuTextField.getText());
 
     //fill in the textboxes
     if(invItem != null && !invItem.getSku().equals("")) {
@@ -319,7 +319,7 @@ public class UpdateInventoryGUI extends DriverGUI {
       return;
     }
 
-    Item item = Item.findBySku(skuTextField.getText().trim());
+    InventoryItem item = InventoryItem.findBySku(skuTextField.getText().trim());
 
     if(item == null) {
       item = new ForSale();
@@ -474,7 +474,7 @@ public class UpdateInventoryGUI extends DriverGUI {
       return;
     }
 
-    Item item = Item.findBySku(skuTextField.getText());
+    InventoryItem item = InventoryItem.findBySku(skuTextField.getText());
     if(item != null) {
       item.destroy();
     }

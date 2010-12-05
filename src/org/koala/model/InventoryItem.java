@@ -1,6 +1,6 @@
 package org.koala.model;
 /*
- * Created on Apr 17, 2005
+ * Created on Nov 28, 2010
  */
 
 /**
@@ -9,88 +9,33 @@ package org.koala.model;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.koala.DatabaseConnection;
 import org.koala.Money;
 
-public class Item extends Base {
+public class InventoryItem extends Base {
   protected String sku;
-  protected String invName;
+  protected String name;
   protected Money price;
   protected Money taxRate;
   protected int quantity;
   protected boolean unlimited;
 
-  private static HashMap<String, String> specialItemSkus = null;
+  private static Logger logger = Logger.getLogger(InventoryItem.class);
 
-  private static Logger logger = Logger.getLogger(User.class);
-
-  //sku codes
-  public static final String NEW_ACCOUNT_SKU = "newaccout";
-  public static final String COMP_ACCOUNT_SKU = "compaccount";
-  public static final String CASHOUT_SKU = "cashout";
-  public static final String PARTIALCASH_CREDITHALF = "partialcredithalf";
-  public static final String PARTIALCASH_CASHHALF = "partialcashhalf";
-  public static final String INVENTORYADD_SKU = "inventoryadd";
-  public static final String INVENTORYCORRECTION_SKU = "inventorycorrection";
-
-  public Item() {
-  }
-
-  public Item(String sku, String name, int quantity, Money price, Money taxRate, boolean unlimited) {
-    //purhaps some checking on the sku format?
-    this.sku = sku;
-    this.invName = name;
-
-    this.quantity = quantity;
-    this.price = price;
-    this.taxRate = taxRate;
-    this.unlimited = unlimited;
-  }
-
-  public static final Item createSpecialItem(String sku, Customer customer, Transaction transaction) {
-    Item specialItem = null;
-
-    if(sku.equals(Item.CASHOUT_SKU) ||
-      sku.equals(Item.NEW_ACCOUNT_SKU) ||
-      sku.equals(Item.COMP_ACCOUNT_SKU))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, customer.getBalance(), Money.ZERO, false);
-    else if(sku.equals(Item.PARTIALCASH_CREDITHALF))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().minus(customer.getBalance()).negate(), Money.ZERO, false);
-    else if(sku.equals(Item.PARTIALCASH_CASHHALF))
-      specialItem = new Item(sku, Item.getSpecialItemName(sku), 1, transaction.getTotal().minus(customer.getBalance()), Money.ZERO, false);
-
-    //let the nullexception float back up
-    return specialItem;
-  }
-
-  public static final String getSpecialItemName(String sku) {
-    if(specialItemSkus == null) {
-      specialItemSkus = new HashMap<String, String>(7);
-      specialItemSkus.put(Item.CASHOUT_SKU, "Customer Cashout");
-      specialItemSkus.put(Item.NEW_ACCOUNT_SKU, "New Customer Account");
-      specialItemSkus.put(Item.COMP_ACCOUNT_SKU, "New Comp Customer Account");
-      specialItemSkus.put(Item.PARTIALCASH_CREDITHALF, "Credit Adjustment for Partial Cash");
-      specialItemSkus.put(Item.PARTIALCASH_CASHHALF, "Cash Adjustment for Partial Cash");
-      specialItemSkus.put(Item.INVENTORYADD_SKU, "Add Items to Inventory");
-      specialItemSkus.put(Item.INVENTORYCORRECTION_SKU, "Corrected Inventory Count");
-    }
-
-    return specialItemSkus.get(sku);
-  }
-
-  public static boolean isSpecial(String sku) {
-    return Item.getSpecialItemName(sku) != null;
-  }
-
-  public boolean isSpecial() {
-    return Item.getSpecialItemName(this.sku) != null;
+  public InventoryItem() {
+    super();
+    this.sku = "";
+    this.name = "";
+    this.price = Money.ZERO;
+    this.taxRate = Money.ZERO;
+    this.quantity = 0;
+    this.unlimited = false;
   }
 
   public String toString() {
-    return invName;
+    return name;
   }
 
   public String getSku() {
@@ -98,7 +43,7 @@ public class Item extends Base {
   }
 
   public String getName() {
-    return invName;
+    return name;
   }
 
   public int getQuantity() {
@@ -137,15 +82,10 @@ public class Item extends Base {
     this.unlimited = unlimited;
   }
 
-  public static Item findBySku(String sku) {
+  public static InventoryItem findBySku(String sku) {
     PreparedStatement stmt;
     ResultSet rs;
     String query = "select rentable, name, quantity, price, tax, unlimited from inventory where sku=?";
-
-    String specialName = Item.getSpecialItemName(sku);
-    if(specialName != null) {
-      return new Item(sku, specialName, 0, Money.ZERO, Money.ZERO, false);
-    }
 
     boolean rentable = false, unlimited = false;
     String name = null;
@@ -163,7 +103,7 @@ public class Item extends Base {
         name = rs.getString("name");
         quantity = rs.getInt("quantity");
         price = new Money(rs.getBigDecimal("price"));
-        taxRate = new Money(rs.getBigDecimal("tax"));
+        taxRate = new Money(rs.getBigDecimal("tax_rate"));
         unlimited = (rs.getInt("unlimited") == 1);
       }
       else {
@@ -178,18 +118,18 @@ public class Item extends Base {
     }
 
     if(rentable) {
-      return new ForRent(sku, name, price);
+      return new ForRent(sku, name, price, taxRate);
     }
 
     return new ForSale(sku, name, quantity, price, taxRate, unlimited);
   }
 
-  public static ArrayList<Item> findAll() {
+  public static ArrayList<InventoryItem> findAll() {
     PreparedStatement stmt;
     ResultSet rs;
-    String query = "select sku, rentable, name, quantity, price, tax, unlimited from inventory";
+    String query = "select sku, rentable, name, quantity, price, tax_rate, unlimited from inventory";
 
-    ArrayList<Item> items = new ArrayList<Item>();
+    ArrayList<InventoryItem> items = new ArrayList<InventoryItem>();
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -201,11 +141,11 @@ public class Item extends Base {
         String name = rs.getString("name");
         int quantity = rs.getInt("quantity");
         Money price = new Money(rs.getBigDecimal("price"));
-        Money taxRate = new Money(rs.getBigDecimal("tax"));
+        Money taxRate = new Money(rs.getBigDecimal("tax_rate"));
         boolean unlimited = (rs.getInt("unlimited") == 1);
 
         if(rentable) {
-          items.add(new ForRent(sku, name, price));
+          items.add(new ForRent(sku, name, price, taxRate));
         }
         else {
           items.add(new ForSale(sku, name, quantity, price, taxRate, unlimited));
@@ -226,7 +166,7 @@ public class Item extends Base {
   public void create() {
     PreparedStatement stmt;
     StringBuilder query = new StringBuilder();
-    query.append("insert into inventory (name, quantity, price, tax, unlimited, rentable, sku) ");
+    query.append("insert into inventory (name, quantity, price, tax_rate, unlimited, rentable, sku) ");
     query.append("VALUES(?, ?, ?, ?, ?, ?, ?)");
 
     try {
@@ -253,7 +193,7 @@ public class Item extends Base {
     PreparedStatement stmt;
     StringBuilder query = new StringBuilder();
     query.append("update inventory set name=?, quantity=?, price=?, ");
-    query.append("tax=?, unlimited=?, rentable=? where id=?");
+    query.append("tax_rate=?, unlimited=?, rentable=? where id=?");
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
@@ -287,34 +227,27 @@ public class Item extends Base {
       logger.error("SQL error removing inventory item", e);
     }
   }
-  
+
   //decrement the inventory if applicable
   public static void decrementInventory(Transaction transaction) throws SQLException {
-    //check to see if the transaction is special
-    if(Item.isSpecial(transaction.getFirstItem().getSku()))
-      return;
+    ArrayList<TransactionItem> items = transaction.getAllItems();
+    PreparedStatement stmt;
+    String decQuery = "update inventory set quantity=quantity-? where unlimited=0 and sku=?";
 
-    ArrayList<Item> items = transaction.getAllItems();
-      PreparedStatement stmt;
-      String decQuery = "update inventory set quantity=quantity-? where sku=?";
+    try {
+      stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(decQuery);
 
-      try {
-        stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(decQuery);
-
-        for(Item item : items) {
-            if(item.getUnlimited() || Item.isSpecial(item.getSku()) )
-                continue; //skip if its unlimited or special
-
-            stmt.setInt(1, item.getQuantity());
-            stmt.setString(2, item.getSku());
-            stmt.executeUpdate();
-        }
-
-        stmt.close();
+      for(TransactionItem item : items) {
+        stmt.setInt(1, item.getQuantity());
+        stmt.setString(2, item.getSku());
+        stmt.executeUpdate();
       }
-      catch (SQLException e) {
-        logger.error("SQL error decrementing item count in inventory", e);
-        throw e;
-      }
+
+      stmt.close();
+    }
+    catch (SQLException e) {
+      logger.error("SQL error decrementing item count in inventory", e);
+      throw e;
+    }
   }
 }

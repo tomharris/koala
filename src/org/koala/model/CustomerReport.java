@@ -41,7 +41,7 @@ public class CustomerReport extends Report {
   }
 
   public final void doReport() {
-    ArrayList<Item> transItems = null;
+    ArrayList<TransactionItem> transItems = null;
     Date currentDay = null;
     Money totalSpent = Money.ZERO;
     Money totalAdded = Money.ZERO;
@@ -62,7 +62,7 @@ public class CustomerReport extends Report {
       report.append(todayFormat.format(currentDay));
       report.append(":\n");
 
-      for(Item item : transItems) {
+      for(TransactionItem item : transItems) {
         report.append("\t");
         report.append(item.getName());
         report.append("\t");

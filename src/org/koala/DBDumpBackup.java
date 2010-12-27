@@ -53,9 +53,9 @@ public class DBDumpBackup extends BackupMethod {
 
 	public String createPackage(String tableName) {
 	    Config config = Config.getConfig();
-	    String cmd = config.renderString(config.getValue("db_backup_cmd"), tableName);
-	    String filename = config.renderString(config.getValue("db_backup_filename"), tableName);
-	    String backupDir = config.renderString(config.getValue("db_backup_dir"), "");
+	    String cmd = config.renderItem(config.getValue("db_backup_cmd"), tableName);
+	    String filename = config.renderItem(config.getValue("db_backup_filename"), tableName);
+	    String backupDir = config.renderItem(config.getValue("db_backup_dir"), "");
 
 	    SystemCommand sysCmd = new SystemCommand(cmd, backupDir + '/' + filename, SystemCommand.OUTPUT);
 	    if(!sysCmd.exec())
@@ -67,8 +67,8 @@ public class DBDumpBackup extends BackupMethod {
 	protected boolean loadPackage(String packageName) {
 	    Config config = Config.getConfig();
 
-	    String backupDir = config.renderString(config.getValue("db_backup_dir"), "");
-	    String cmd = config.renderString(config.getValue("db_restore_cmd"), null);
+	    String backupDir = config.renderItem(config.getValue("db_backup_dir"), "");
+	    String cmd = config.renderItem(config.getValue("db_restore_cmd"), null);
 
 	    SystemCommand sysCmd = new SystemCommand(cmd, backupDir + '/' + packageName, SystemCommand.INPUT);
 	    sysCmd.exec();

@@ -26,8 +26,9 @@ public class Config {
 
   public static synchronized Config getConfig() {
     //If you dont load a config, all you get is the defaults
-    if(Config.currentConfig == null)
+    if(Config.currentConfig == null) {
       Config.currentConfig = new Config(Config.loadDefaults());
+    }
 
     return currentConfig;
   }
@@ -36,7 +37,7 @@ public class Config {
     HashMap<String, String> defaults = new HashMap<String, String>();
 
     //database info
-    defaults.put("db_type", "postgresql");
+    defaults.put("db_type", "mysql");
     defaults.put("db_host", "localhost");
 
     //printer
@@ -54,50 +55,35 @@ public class Config {
     defaults.put("db_backup_cmd", "mysqldump --quick --host=$db_host$ --user=$db_user$ --password=$db_pass$ $db_name$ $_input$");
     defaults.put("db_restore_cmd", "mysql --host=$db_host$ --user=$db_user$ --password=$db_pass$ $db_name$");
 
-    //postgresql backup commands (no cmdline passwords; use a 'trust' account)
-    defaults.put("db_superuser", "postgres");
-    defaults.put("db_backup_cmd", "pg_dump --inserts --host=$db_host$ --username=$db_user$ <!--table=$_input$!> $db_name$");
-    defaults.put("db_restore_cmd", "psql -X -q -d $db_name$ -h $db_host$ -U $db_superuser$");
-
     return defaults;
   }
 
-  public String renderString(String string, String input) {
+  public String renderItem(String item, String input) {
+    String result = new String(item);
     String sRegex = "\\$(.+?)\\$";
-    String iRegex = "<!(.+?)!>";
     String variable = null;
     String backRef = null;
     Pattern pRegex = Pattern.compile(sRegex);
-    Pattern ipRegex = Pattern.compile(iRegex);
-    Matcher m = pRegex.matcher(string);
+    Matcher m = pRegex.matcher(result);
 
     while(m.find()) {
       backRef = m.group(1);
       variable = getValue(backRef);
-      if(variable != null)
-        string = m.replaceFirst(variable);
+      if(variable != null) {
+        result = m.replaceFirst(variable);
+      }
       else if(backRef.equals("currentdatetime")) {
         Date now = new Date();
-        string = m.replaceFirst(now.toString().replaceAll(" ","_"));
+        result = m.replaceFirst(now.toString().replaceAll(" ","_"));
       }
       else if(backRef.equals("_input")) {
-        string = m.replaceFirst(input);
+        result = m.replaceFirst(input);
       }
 
-      m = pRegex.matcher(string); //match against the new string
+      m = pRegex.matcher(result); //match against the new string
     }
 
-    //the <! dfsdf !> section only appears when 'input' is used
-    m = ipRegex.matcher(string);
-    if(m.find()) {
-      backRef = "";
-      if(input != null && input != "")
-        backRef = m.group(1);
-
-      string = m.replaceFirst(backRef);
-    }
-
-    return string;
+    return result;
   }
 
   public static void loadConfig(InputStream fileStream) {
@@ -116,13 +102,15 @@ public class Config {
       String line = null;
       while((line = bin.readLine()) != null) {
         //check for comment
-        if(line.startsWith("//") || line.startsWith("#") )
+        if(line.startsWith("//") || line.startsWith("#")) {
           continue;
+        }
 
         //check for blankline
         m = wsRegex.matcher(line);
-        if(m.find())
+        if(m.find()) {
           continue;
+        }
 
         //look for config vars
         m = pRegex.matcher(line);

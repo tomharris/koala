@@ -33,9 +33,6 @@ public class DatabaseConnection {
       if(currentConfig.getValue("db_type").equals("mysql")) {
         dbProfile = new MySQLProfile(); //mysql
       }
-      else if(currentConfig.getValue("db_type").equals("postgresql")) {
-        dbProfile = new PostgreSQLProfile(); //postgresql
-      }
       else {
         throw new ClassNotFoundException("Database Type: " + currentConfig.getValue("db_type") + " is not supported");
       }

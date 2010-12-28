@@ -234,6 +234,16 @@ public class Customer extends Base {
     catch (SQLException e) {
       logger.error("SQL error adding new customer", e);
     }
+
+    // Add to transaction log
+    Transaction customerTransaction = new Transaction();
+    if(this.isComplementary()) {
+      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.COMP_ACCOUNT_SKU, this, customerTransaction));
+    }
+    else {
+      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, this, customerTransaction));
+    }
+    customerTransaction.commit();
   }
 
   //change customer details

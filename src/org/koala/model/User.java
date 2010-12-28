@@ -285,8 +285,8 @@ public class User extends Base {
 
   public void doPartialCashTransaction(Customer customer) {
     //cash half needs to be first, otherwise we lose the transaction total
-    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF, customer, currentTransaction);
-    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF, customer, currentTransaction));
+    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, customer, currentTransaction);
+    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, customer, currentTransaction));
     currentTransaction.commit();
 
     currentTransaction = new Transaction();

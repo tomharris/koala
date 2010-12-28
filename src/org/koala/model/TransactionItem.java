@@ -29,8 +29,8 @@ public class TransactionItem extends Base {
   public static final String NEW_ACCOUNT_SKU = "newaccout";
   public static final String COMP_ACCOUNT_SKU = "compaccount";
   public static final String CASHOUT_SKU = "cashout";
-  public static final String PARTIALCASH_CREDITHALF = "partialcredithalf";
-  public static final String PARTIALCASH_CASHHALF = "partialcashhalf";
+  public static final String PARTIALCASH_CREDITHALF_SKU = "partialcredithalf";
+  public static final String PARTIALCASH_CASHHALF_SKU = "partialcashhalf";
 
   public TransactionItem() {
     super();
@@ -59,13 +59,13 @@ public class TransactionItem extends Base {
       specialItem.setName(TransactionItem.getSpecialItemName(sku));
       specialItem.setPrice(customer.getBalance());
     }
-    else if(sku.equals(TransactionItem.PARTIALCASH_CREDITHALF)) {
+    else if(sku.equals(TransactionItem.PARTIALCASH_CREDITHALF_SKU)) {
       specialItem = new TransactionItem();
       specialItem.setSku(sku);
       specialItem.setName(TransactionItem.getSpecialItemName(sku));
       specialItem.setPrice(transaction.getTotal().minus(customer.getBalance()).negate());
     }
-    else if(sku.equals(TransactionItem.PARTIALCASH_CASHHALF)) {
+    else if(sku.equals(TransactionItem.PARTIALCASH_CASHHALF_SKU)) {
       specialItem = new TransactionItem();
       specialItem.setSku(sku);
       specialItem.setName(TransactionItem.getSpecialItemName(sku));
@@ -81,8 +81,8 @@ public class TransactionItem extends Base {
       specialItemSkus.put(TransactionItem.CASHOUT_SKU, "Customer Cashout");
       specialItemSkus.put(TransactionItem.NEW_ACCOUNT_SKU, "New Customer Account");
       specialItemSkus.put(TransactionItem.COMP_ACCOUNT_SKU, "New Comp Customer Account");
-      specialItemSkus.put(TransactionItem.PARTIALCASH_CREDITHALF, "Credit Adjustment for Partial Cash");
-      specialItemSkus.put(TransactionItem.PARTIALCASH_CASHHALF, "Cash Adjustment for Partial Cash");
+      specialItemSkus.put(TransactionItem.PARTIALCASH_CREDITHALF_SKU, "Credit Adjustment for Partial Cash");
+      specialItemSkus.put(TransactionItem.PARTIALCASH_CASHHALF_SKU, "Cash Adjustment for Partial Cash");
     }
 
     return specialItemSkus.get(sku);

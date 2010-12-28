@@ -90,7 +90,7 @@ CREATE TABLE `transactions` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `transaction_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `code` char(1) NOT NULL DEFAULT '',
-  `user_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
   `customer_id` int(10) unsigned DEFAULT NULL,
   `account_subtotal` decimal(10,2) NOT NULL DEFAULT '0.00',
   `account_taxtotal` decimal(10,2) NOT NULL DEFAULT '0.00',

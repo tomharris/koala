@@ -236,15 +236,17 @@ public class Customer extends Base {
     }
 
     // Add to transaction log
-    Transaction customerTransaction = new Transaction();
-    if(this.isComplementary()) {
-      customerTransaction.setCode(Transaction.CODE_CREDITCOMPACCOUNT);
+    if(this.shouldDoTransaction()) {
+      Transaction customerTransaction = new Transaction();
+      if(this.isComplementary()) {
+        customerTransaction.setCode(Transaction.CODE_CREDITCOMPACCOUNT);
+      }
+      else {
+        customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
+      }
+      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.NEW_ACCOUNT_SKU, this.getBalance()));
+      customerTransaction.commit();
     }
-    else {
-      customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
-    }
-    customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, customer.getBalance()));
-    customerTransaction.commit();
   }
 
   //change customer details
@@ -275,7 +277,7 @@ public class Customer extends Base {
     // Add to transaction log
     Money changeAmount = this.getBalance().minus(originalCustomer.getBalance());
 
-    if(!changeAmount.isZero())
+    if(this.shouldDoTransaction() && !changeAmount.isZero()) {
       Transaction customerTransaction = new Transaction();
 
       if(changeAmount.isPlus()) {
@@ -284,7 +286,7 @@ public class Customer extends Base {
       else {
         customerTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
       }
-      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.CORRECTION_SKU, changeAmount));
+      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, changeAmount));
       customerTransaction.commit();
     }
   }
@@ -302,6 +304,13 @@ public class Customer extends Base {
     }
     catch (SQLException e) {
       logger.error("SQL error removing customer", e);
+    }
+
+    if(this.shouldDoTransaction()) {
+      Transaction customerTransaction = new Transaction();
+      customerTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
+      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, this.getBalance()));
+      customerTransaction.commit();
     }
   }
 }

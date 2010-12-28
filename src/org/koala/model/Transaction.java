@@ -286,6 +286,7 @@ public class Transaction extends Base {
       // debit the customer's account (reload account to be sure data is fresh)
       Customer customer = Customer.find(this.getCustomer().getId());
       customer.setBalance(customer.getBalance().minus(this.getTotal()));
+      customer.setDoTransaction(false);
       customer.update();
 
       DatabaseConnection.getInstance().getConnection().commit();

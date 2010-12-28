@@ -17,6 +17,7 @@ import org.koala.exception.EntryAlreadyExistsException;
 
 abstract public class Base {
   protected int id; //non-neg if valid
+  private boolean doTransaction = true;
 
   private static Logger logger = Logger.getLogger(Base.class);
 
@@ -30,6 +31,14 @@ abstract public class Base {
 
   public void setId(int id) {
     this.id = id;
+  }
+
+  public boolean shouldDoTransaction() {
+    return this.doTransaction;
+  }
+
+  public void setDoTransaction(boolean doTransaction) {
+    this.doTransaction = doTransaction;
   }
 
   public String toString() {

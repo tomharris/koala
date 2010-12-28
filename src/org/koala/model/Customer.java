@@ -249,6 +249,8 @@ public class Customer extends Base {
 
   //change customer details
   public void update() {
+    Customer originalCustomer = Customer.find(this.getId());
+
     PreparedStatement stmt;
     StringBuilder query = new StringBuilder();
     query.append("update customers set balance=?, firstname=?, ");
@@ -268,6 +270,22 @@ public class Customer extends Base {
     }
     catch (SQLException e) {
       logger.error("SQL error moddifying customer", e);
+    }
+
+    // Add to transaction log
+    Money changeAmount = this.getBalance().minus(originalCustomer.getBalance());
+
+    if(!changeAmount.isZero())
+      Transaction customerTransaction = new Transaction();
+
+      if(changeAmount.isPlus()) {
+        customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
+      }
+      else {
+        customerTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
+      }
+      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.CORRECTION_SKU, changeAmount));
+      customerTransaction.commit();
     }
   }
 

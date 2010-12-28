@@ -28,6 +28,7 @@ public class TransactionItem extends Base {
   //sku codes
   public static final String NEW_ACCOUNT_SKU = "newaccout";
   public static final String CASHOUT_SKU = "cashout";
+  public static final String CORRECTION_SKU = "correction";
   public static final String PARTIALCASH_CREDITHALF_SKU = "partialcredithalf";
   public static final String PARTIALCASH_CASHHALF_SKU = "partialcashhalf";
 
@@ -67,6 +68,7 @@ public class TransactionItem extends Base {
       specialItemSkus = new HashMap<String, String>(5);
       specialItemSkus.put(TransactionItem.CASHOUT_SKU, "Customer Cashout");
       specialItemSkus.put(TransactionItem.NEW_ACCOUNT_SKU, "New Customer Account");
+      specialItemSkus.put(TransactionItem.CORRECTION_SKU, "Correction Account");
       specialItemSkus.put(TransactionItem.PARTIALCASH_CREDITHALF_SKU, "Credit Adjustment for Partial Cash");
       specialItemSkus.put(TransactionItem.PARTIALCASH_CASHHALF_SKU, "Cash Adjustment for Partial Cash");
     }

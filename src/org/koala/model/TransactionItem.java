@@ -49,26 +49,14 @@ public class TransactionItem extends Base {
     this.quantity = quantity;
   }
 
-  public static final TransactionItem createSpecialItem(String sku, Customer customer, Transaction transaction) {
+  public static final TransactionItem createSpecialItem(String sku, Money price) {
     TransactionItem specialItem = null;
 
-    if(sku.equals(TransactionItem.CASHOUT_SKU) || sku.equals(TransactionItem.NEW_ACCOUNT_SKU)) {
+    if(TransactionItem.getSpecialItemName(sku) != null) {
       specialItem = new TransactionItem();
       specialItem.setSku(sku);
       specialItem.setName(TransactionItem.getSpecialItemName(sku));
-      specialItem.setPrice(customer.getBalance());
-    }
-    else if(sku.equals(TransactionItem.PARTIALCASH_CREDITHALF_SKU)) {
-      specialItem = new TransactionItem();
-      specialItem.setSku(sku);
-      specialItem.setName(TransactionItem.getSpecialItemName(sku));
-      specialItem.setPrice(transaction.getTotal().minus(customer.getBalance()).negate());
-    }
-    else if(sku.equals(TransactionItem.PARTIALCASH_CASHHALF_SKU)) {
-      specialItem = new TransactionItem();
-      specialItem.setSku(sku);
-      specialItem.setName(TransactionItem.getSpecialItemName(sku));
-      specialItem.setPrice(transaction.getTotal().minus(customer.getBalance()));
+      specialItem.setPrice(price);
     }
 
     return specialItem;

@@ -260,16 +260,14 @@ public class User extends Base {
   }
 
   public void addItem(String sku, int quantity, Customer customer) throws ItemNotFoundException {
-    TransactionItem currentItem = TransactionItem.createSpecialItem(sku, customer, currentTransaction); //check if this is special and create item
-    if(currentItem == null) {
-      InventoryItem inventoryItem = InventoryItem.findBySku(sku);
+    TransactionItem currentItem = null;
+    InventoryItem inventoryItem = InventoryItem.findBySku(sku);
 
-      if(inventoryItem != null) {
-        currentItem = new TransactionItem(inventoryItem, quantity);
-      }
-      else {
-        throw new ItemNotFoundException("add Item");
-      }
+    if(inventoryItem != null) {
+      currentItem = new TransactionItem(inventoryItem, quantity);
+    }
+    else {
+      throw new ItemNotFoundException("add Item");
     }
 
     if(currentTransaction == null) {
@@ -285,8 +283,8 @@ public class User extends Base {
 
   public void doPartialCashTransaction(Customer customer) {
     //cash half needs to be first, otherwise we lose the transaction total
-    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, customer, currentTransaction);
-    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, customer, currentTransaction));
+    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, currentTransaction.getTotal().minus(customer.getBalance()));
+    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, currentTransaction.getTotal().minus(customer.getBalance()).negate()));
     currentTransaction.commit();
 
     currentTransaction = new Transaction();

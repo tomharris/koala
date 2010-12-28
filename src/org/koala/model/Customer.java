@@ -243,7 +243,7 @@ public class Customer extends Base {
     else {
       customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
     }
-    customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, this, customerTransaction));
+    customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, customer.getBalance()));
     customerTransaction.commit();
   }
 

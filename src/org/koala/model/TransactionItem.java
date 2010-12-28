@@ -27,7 +27,6 @@ public class TransactionItem extends Base {
 
   //sku codes
   public static final String NEW_ACCOUNT_SKU = "newaccout";
-  public static final String COMP_ACCOUNT_SKU = "compaccount";
   public static final String CASHOUT_SKU = "cashout";
   public static final String PARTIALCASH_CREDITHALF_SKU = "partialcredithalf";
   public static final String PARTIALCASH_CASHHALF_SKU = "partialcashhalf";
@@ -53,7 +52,7 @@ public class TransactionItem extends Base {
   public static final TransactionItem createSpecialItem(String sku, Customer customer, Transaction transaction) {
     TransactionItem specialItem = null;
 
-    if(sku.equals(TransactionItem.CASHOUT_SKU) || sku.equals(TransactionItem.NEW_ACCOUNT_SKU) || sku.equals(TransactionItem.COMP_ACCOUNT_SKU)) {
+    if(sku.equals(TransactionItem.CASHOUT_SKU) || sku.equals(TransactionItem.NEW_ACCOUNT_SKU)) {
       specialItem = new TransactionItem();
       specialItem.setSku(sku);
       specialItem.setName(TransactionItem.getSpecialItemName(sku));
@@ -80,7 +79,6 @@ public class TransactionItem extends Base {
       specialItemSkus = new HashMap<String, String>(5);
       specialItemSkus.put(TransactionItem.CASHOUT_SKU, "Customer Cashout");
       specialItemSkus.put(TransactionItem.NEW_ACCOUNT_SKU, "New Customer Account");
-      specialItemSkus.put(TransactionItem.COMP_ACCOUNT_SKU, "New Comp Customer Account");
       specialItemSkus.put(TransactionItem.PARTIALCASH_CREDITHALF_SKU, "Credit Adjustment for Partial Cash");
       specialItemSkus.put(TransactionItem.PARTIALCASH_CASHHALF_SKU, "Cash Adjustment for Partial Cash");
     }

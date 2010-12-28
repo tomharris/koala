@@ -238,11 +238,12 @@ public class Customer extends Base {
     // Add to transaction log
     Transaction customerTransaction = new Transaction();
     if(this.isComplementary()) {
-      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.COMP_ACCOUNT_SKU, this, customerTransaction));
+      customerTransaction.setCode(Transaction.CODE_CREDITCOMPACCOUNT);
     }
     else {
-      customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, this, customerTransaction));
+      customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
     }
+    customerTransaction.addItem(TransactionItem.createSpecialItem(Transaction.NEW_ACCOUNT_SKU, this, customerTransaction));
     customerTransaction.commit();
   }
 

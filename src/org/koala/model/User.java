@@ -20,11 +20,9 @@ import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.exception.ItemNotFoundException;
 
 public class User extends Base {
-  private int id; //non-neg if valid
   private String userName;
   private String password;
   private String firstName, lastName;
-  private Transaction currentTransaction;
   private int accessLevel;
 
   //the various access levels
@@ -37,11 +35,6 @@ public class User extends Base {
 
   public User() {
     super();
-  }
-
-  protected void finalize() {
-    this.userName = null;
-    this.currentTransaction = null;
   }
 
   public String toString() {
@@ -250,88 +243,6 @@ public class User extends Base {
     catch (SQLException e) {
       logger.error("SQL error moddifying user", e);
     }
-  }
-
-  public void doTransaction() {
-    currentTransaction.commit();
-
-    //print receipt here
-    currentTransaction = null; //byebye; gc will clean up sometime
-  }
-
-  public void addItem(String sku, int quantity, Customer customer) throws ItemNotFoundException {
-    TransactionItem currentItem = null;
-    InventoryItem inventoryItem = InventoryItem.findBySku(sku);
-
-    if(inventoryItem != null) {
-      currentItem = new TransactionItem(inventoryItem, quantity);
-    }
-    else {
-      throw new ItemNotFoundException("add Item");
-    }
-
-    if(currentTransaction == null) {
-      currentTransaction = new Transaction();
-      currentTransaction.setCashier(this);
-      currentTransaction.setCustomer(customer);
-      currentTransaction.addItem(currentItem);
-    }
-    else {
-      currentTransaction.addItem(currentItem);
-    }
-  }
-
-  public void doPartialCashTransaction(Customer customer) {
-    //cash half needs to be first, otherwise we lose the transaction total
-    TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, currentTransaction.getTotal().minus(customer.getBalance()));
-    currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, currentTransaction.getTotal().minus(customer.getBalance()).negate()));
-    currentTransaction.commit();
-
-    currentTransaction = new Transaction();
-    currentTransaction.setCashier(this);
-    currentTransaction.setCustomer(new CashCustomer());
-    currentTransaction.addItem(cashHalf);
-    currentTransaction.commit();
-  }
-
-  public void removeItem(String sku) {
-    currentTransaction.removeItem(sku);
-  }
-
-  public void removeAllItems() {
-    currentTransaction = null; //gc will take care of it
-  }
-
-  public boolean isTransactionStarted() {
-    return currentTransaction != null;
-  }
-
-  public Money getTransactionSubTotal() {
-    if(currentTransaction == null)
-      return null;
-
-    return currentTransaction.getSubTotal();
-  }
-
-  public Money getTransactionTotal() {
-    if(currentTransaction == null)
-      return null;
-
-    return currentTransaction.getTotal();
-  }
-
-  public Money getTransactionTax() {
-    if(currentTransaction == null)
-      return null;
-
-    return currentTransaction.getTaxTotal();
-  }
-
-  public TransactionItem getLastItem() {
-    if(currentTransaction == null)
-      return null;
-
-    return currentTransaction.getLastItem();
   }
 
   //we just check to see if that user is in our database

@@ -7,11 +7,12 @@ import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 
 import org.koala.Money;
-import org.koala.model.Customer;
 import org.koala.model.CashCustomer;
-import org.koala.model.InventoryItem;
-import org.koala.model.TransactionItem;
+import org.koala.model.Customer;
 import org.koala.model.CustomerReport;
+import org.koala.model.InventoryItem;
+import org.koala.model.Transaction;
+import org.koala.model.TransactionItem;
 import org.koala.exception.ItemNotFoundException;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.ui.widget.ItemTable;
@@ -26,6 +27,8 @@ import org.koala.ui.widget.ItemTable;
  */
 public class CashierGUI extends DriverGUI {
   public static final long serialVersionUID = DriverGUI.serialVersionUID;
+
+  private Transaction currentTransaction;
 
   JPanel contentPane = null;
   JPanel northPanel = null;
@@ -335,10 +338,10 @@ public class CashierGUI extends DriverGUI {
       cancelButton.setFont(BUTTON_TEXT_FONT);
       cancelButton.setText("Cancel Sale");
       cancelButton.addActionListener(new java.awt.event.ActionListener() {
-              public void actionPerformed(java.awt.event.ActionEvent evt) {
-                  cancelButtonActionPerformed(evt);
-              }
-          });
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          cancelButtonActionPerformed(evt);
+        }
+      });
 
       JButton voidItemButton = new JButton();
       voidItemButton.setFont(BUTTON_TEXT_FONT);
@@ -397,54 +400,57 @@ public class CashierGUI extends DriverGUI {
    * Event Actions
    */
   private boolean saleButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    if(!currentUser.isTransactionStarted()) {
+    if(currentTransaction == null) {
       return false;
     }
 
     if(!(currentCustomer instanceof CashCustomer) &&
-      currentUser.getTransactionTotal().compareTo(currentCustomer.getBalance()) > 0) { //TransactionTotal > Balance
+      currentTransaction.getTotal().compareTo(currentCustomer.getBalance()) > 0) { //TransactionTotal > Balance
 
-      if(additionalFundsRequiredPopup(currentUser.getTransactionTotal().minus(currentCustomer.getBalance()))) {
-        currentUser.doPartialCashTransaction(currentCustomer);
-        currentUser.removeAllItems();
+      if(additionalFundsRequiredPopup(currentTransaction.getTotal().minus(currentCustomer.getBalance()))) {
+        //cash half needs to be first, otherwise we lose the transaction total
+        TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, currentTransaction.getTotal().minus(currentCustomer.getBalance()));
+        currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, currentTransaction.getTotal().minus(currentCustomer.getBalance()).negate()));
+        currentTransaction.commit();
+
+        currentTransaction = new Transaction();
+        currentTransaction.setCashier(currentUser);
+        currentTransaction.setCustomer(new CashCustomer());
+        currentTransaction.addItem(cashHalf);
+        currentTransaction.commit();
 
         return true;
       }
     }
     else if(currentCustomer instanceof CashCustomer) {
-      if(additionalFundsRequiredPopup(currentUser.getTransactionTotal())) {
-        currentUser.doTransaction();
-        currentUser.removeAllItems();
-
+      if(additionalFundsRequiredPopup(currentTransaction.getTotal())) {
+        currentTransaction.commit();
         return true;
       }
     }
     else {
-      currentUser.doTransaction(); //they must have enough money in their account
-      currentUser.removeAllItems();
-
+      currentTransaction.commit(); //they must have enough money in their account
       return true;
     }
+
+    currentTransaction = null;
 
     return false;
   }
 
   private void skuEnterButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    TransactionItem currentItem = null;
+    //quantity is one for now because we dont yet have a field for that
+    TransactionItem currentItem = new TransactionItem((InventoryItem)skuComboBox.getSelectedItem(), 1);
 
-    try { //quantity is one for now because we dont yet have a field for that
-      currentUser.addItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku(), 1, currentCustomer);
-      currentItem = currentUser.getLastItem();
+    if(currentTransaction == null) {
+      currentTransaction = new Transaction();
+      currentTransaction.setCashier(currentUser);
+      currentTransaction.setCustomer(currentCustomer);
     }
-    catch (ItemNotFoundException e) {
-      refreshTotals();
-      return;
-    }
+    currentTransaction.addItem(currentItem);
 
-    if(currentItem != null) {
-      Object[] data = {currentItem.getSku(), currentItem.getName(), currentItem.getPrice()};
-      ((DefaultTableModel) this.itemTable.getModel()).addRow(data);
-    }
+    Object[] data = {currentItem.getSku(), currentItem.getName(), currentItem.getPrice()};
+    ((DefaultTableModel) this.itemTable.getModel()).addRow(data);
 
     //update tax and total fields
     refreshTotals();
@@ -461,7 +467,7 @@ public class CashierGUI extends DriverGUI {
   private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
     //we will assume that a cancel means that they arent buying anything;
     // thus we can go to the next person in line
-    currentUser.removeAllItems();
+    currentTransaction = null;
     DriverGUI.backGui();
   }
 
@@ -469,7 +475,7 @@ public class CashierGUI extends DriverGUI {
     DefaultTableModel model = (DefaultTableModel) this.itemTable.getModel();
     for(int i=0; i < model.getRowCount(); i++) {
       if(model.getValueAt(i, 0).equals(((InventoryItem)skuComboBox.getSelectedItem()).getSku())) {
-        currentUser.removeItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku());
+        currentTransaction.removeItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku());
         model.removeRow(i);
         //update fields
         refreshTotals();
@@ -477,7 +483,6 @@ public class CashierGUI extends DriverGUI {
       }
     }
 
-    //skuTextField.setText("");
     skuComboBox.requestFocus();
   }
 
@@ -487,7 +492,7 @@ public class CashierGUI extends DriverGUI {
     }
 
     try {
-      if(currentUser.isTransactionStarted()) {
+      if(currentTransaction != null) {
         saleButtonActionPerformed(evt);
         //after we make the transaction, we need to refresh the info
         currentCustomer = Customer.find(currentCustomer.getId());
@@ -566,11 +571,9 @@ public class CashierGUI extends DriverGUI {
 
   private void refreshTotals() {
     try {
-      //subtotalTextField.setText(currentUser.getTransactionSubTotal().toString());
-      //taxTextField.setText(currentUser.getTransactionTax().toString());
-      this.totalLabel.setText("$" + currentUser.getTransactionTotal().toString());
+      this.totalLabel.setText("$" + currentTransaction.getTotal().toString());
       if(currentCustomer.getId() != 0) {
-        this.balanceLabel.setText("$" + currentCustomer.getBalance().minus(currentUser.getTransactionTotal()).toString());
+        this.balanceLabel.setText("$" + currentCustomer.getBalance().minus(currentTransaction.getTotal()).toString());
       }
     }
     catch (NullPointerException e) {

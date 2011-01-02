@@ -15,7 +15,6 @@ import javax.swing.*;
 import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
-import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;
 
 import java.awt.*;

@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.koala.*;
 import org.koala.model.Base;
 import org.koala.exception.EntryAlreadyExistsException;
-import org.koala.exception.ItemNotFoundException;
 
 public class User extends Base {
   private String userName;

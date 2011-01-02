@@ -13,7 +13,6 @@ import org.koala.model.CustomerReport;
 import org.koala.model.InventoryItem;
 import org.koala.model.Transaction;
 import org.koala.model.TransactionItem;
-import org.koala.exception.ItemNotFoundException;
 import org.koala.exception.EntryAlreadyExistsException;
 import org.koala.ui.widget.ItemTable;
 

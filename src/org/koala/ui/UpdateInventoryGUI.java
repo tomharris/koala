@@ -16,7 +16,6 @@ import org.koala.model.ForRent;
 import org.koala.model.ForSale;
 import org.koala.model.InventoryItem;
 import org.koala.exception.EntryAlreadyExistsException;
-import org.koala.exception.ItemNotFoundException;
 
 import java.awt.*;
 

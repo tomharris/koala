@@ -19,7 +19,6 @@ import javax.swing.JCheckBox;
 import org.koala.Money;
 import org.koala.model.Customer;
 import org.koala.exception.EntryAlreadyExistsException;
-import org.koala.exception.ItemNotFoundException;
 import org.koala.ui.widget.NoteTextArea;
 
 public class AccountMaintenanceGUI extends DriverGUI {

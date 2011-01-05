@@ -409,10 +409,17 @@ public class CashierGUI extends DriverGUI {
       if(additionalFundsRequiredPopup(currentTransaction.getTotal().minus(currentCustomer.getBalance()))) {
         //cash half needs to be first, otherwise we lose the transaction total
         TransactionItem cashHalf = TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CASHHALF_SKU, currentTransaction.getTotal().minus(currentCustomer.getBalance()));
+
         currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.PARTIALCASH_CREDITHALF_SKU, currentTransaction.getTotal().minus(currentCustomer.getBalance()).negate()));
         currentTransaction.commit();
+        Customer customer = currentTransaction.getCustomer();
+        customer.setBalance(Money.ZERO);
+        customer.setDoTransaction(false);
+        customer.update();
+        customer.setDoTransaction(true);
 
         currentTransaction = new Transaction();
+        currentTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
         currentTransaction.setCashier(currentUser);
         currentTransaction.setCustomer(new CashCustomer());
         currentTransaction.addItem(cashHalf);
@@ -429,6 +436,12 @@ public class CashierGUI extends DriverGUI {
     }
     else {
       currentTransaction.commit(); //they must have enough money in their account
+      Customer customer = currentTransaction.getCustomer();
+      customer.setBalance(customer.getBalance().minus(currentTransaction.getTotal()));
+      customer.setDoTransaction(false);
+      customer.update();
+      customer.setDoTransaction(true);
+
       return true;
     }
 
@@ -510,8 +523,17 @@ public class CashierGUI extends DriverGUI {
 
       switch(result) {
         case JOptionPane.OK_OPTION:
+          currentTransaction = new Transaction();
+          currentTransaction.setCode(Transaction.CODE_CLOSEACCOUNT);
+          currentTransaction.setCashier(currentUser);
+          currentTransaction.setCustomer(currentCustomer);
+          currentTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, currentCustomer.getBalance()));
+          currentTransaction.commit();
+
           currentCustomer.setBalance(Money.ZERO);
-          currentCustomer.save(); //this handles the transaction log
+          currentCustomer.setDoTransaction(false);
+          currentCustomer.save();
+          currentCustomer.setDoTransaction(true);
           DriverGUI.backGui();
         case JOptionPane.CANCEL_OPTION:
           break;

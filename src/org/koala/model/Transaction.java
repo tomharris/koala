@@ -273,7 +273,6 @@ public class Transaction extends Base {
    *  1: decrement all the items from total inventory
    *  2: store transaction totals
    *  3: store the transaction items
-   *  4: debit customer account (if applicable)
    */
   public void commit() {
     try {
@@ -295,12 +294,6 @@ public class Transaction extends Base {
       InventoryItem.decrementInventory(this);
       this.save();
       commitItems();
-
-      // debit the customer's account (reload account to be sure data is fresh)
-      Customer customer = Customer.find(this.getCustomer().getId());
-      customer.setBalance(customer.getBalance().minus(this.getTotal()));
-      customer.setDoTransaction(false);
-      customer.update();
 
       DatabaseConnection.getInstance().getConnection().commit();
       DatabaseConnection.getInstance().getConnection().setAutoCommit(true);

@@ -279,6 +279,19 @@ public class Transaction extends Base {
     try {
       DatabaseConnection.getInstance().getConnection().setAutoCommit(false); //enables sql transaction
 
+      // Adjust the transaction type for comp accounts
+      if(this.getCustomer().isComplementary()) {
+        if(this.getCode().equals(CODE_DEBITACCOUNT)) {
+          this.setCode(CODE_DEBITCOMPACCOUNT);
+        }
+        else if(this.getCode().equals(CODE_CREDITACCOUNT)) {
+          this.setCode(CODE_CREDITCOMPACCOUNT);
+        }
+        else if(this.getCode().equals(CODE_CLOSEACCOUNT)) {
+          this.setCode(CODE_CREDITCOMPACCOUNT);
+        }
+      }
+
       InventoryItem.decrementInventory(this);
       this.save();
       commitItems();

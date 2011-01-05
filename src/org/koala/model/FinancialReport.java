@@ -18,10 +18,10 @@ import org.koala.Money;
 public class FinancialReport extends Report {
   private ArrayList<Transaction> transactionsBundle = null;
 
-    public FinancialReport() {
-        super();
-        loadResources();
-    }
+  public FinancialReport() {
+    super();
+    loadResources();
+  }
 
   protected void finalize() {
     super.finalize();
@@ -33,7 +33,7 @@ public class FinancialReport extends Report {
     return true;
   }
 
-    //giving it a db should be safe as we are being called from a user
+  //giving it a db should be safe as we are being called from a user
   public final void doReport() {
     //Transaction currentTrans;
     Date currentDay = null, yesterDay = null;
@@ -99,24 +99,25 @@ public class FinancialReport extends Report {
       // catagorys: cash for accounts, cash sales, account sales,
       //  account refunds, ...
       if(currentTrans.getAcctCode().equals(Transaction.CODE_CASH)) {
-          cashSales = cashSales.plus(currentTrans.getTotal());
-          cashSalesTotal = cashSalesTotal.plus(currentTrans.getTotal());
+        cashSales = cashSales.plus(currentTrans.getTotal());
+        cashSalesTotal = cashSalesTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_DEBITACCOUNT)) {
-          accountSales = accountSales.plus(currentTrans.getTotal());
-          accountSalesTotal = accountSalesTotal.plus(currentTrans.getTotal());
+        accountSales = accountSales.plus(currentTrans.getTotal());
+        accountSalesTotal = accountSalesTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT)) {
-          accountRefunds = accountRefunds.plus(currentTrans.getTotal());
-          accountRefundsTotal = accountRefundsTotal.plus(currentTrans.getTotal());
+        accountRefunds = accountRefunds.plus(currentTrans.getTotal());
+        accountRefundsTotal = accountRefundsTotal.plus(currentTrans.getTotal());
+      }
+      else if(currentTrans.getAcctCode().equals(Transaction.CODE_CREATEACCOUNT)) {
+        accountsNumber++;
+        accountsNumberTotal++;
+
+        cashForAccounts = cashForAccounts.plus(currentTrans.getTotal());
+        cashForAccountsTotal = cashForAccountsTotal.plus(currentTrans.getTotal());
       }
       else if(currentTrans.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
-        //this works because a new account will be the only item in a transaction
-        if(currentTrans.getAllItems().get(0).getSku().equals(TransactionItem.NEW_ACCOUNT_SKU)) {
-          accountsNumber++;
-          accountsNumberTotal++;
-        }
-
         cashForAccounts = cashForAccounts.plus(currentTrans.getTotal());
         cashForAccountsTotal = cashForAccountsTotal.plus(currentTrans.getTotal());
       }

@@ -239,12 +239,12 @@ public class Customer extends Base {
     if(this.shouldDoTransaction()) {
       Transaction customerTransaction = new Transaction();
       if(this.isComplementary()) {
-        customerTransaction.setCode(Transaction.CODE_CREDITCOMPACCOUNT);
+        customerTransaction.setCode(Transaction.CODE_CREATECOMPACCOUNT);
       }
       else {
-        customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);
+        customerTransaction.setCode(Transaction.CODE_CREATEACCOUNT);
       }
-      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.NEW_ACCOUNT_SKU, this.getBalance()));
+      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, this.getBalance()));
       customerTransaction.commit();
     }
   }

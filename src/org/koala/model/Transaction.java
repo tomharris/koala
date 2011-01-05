@@ -37,10 +37,12 @@ public class Transaction extends Base {
   public static final String CODE_CASH = "a";
   public static final String CODE_CREDITACCOUNT = "b";
   public static final String CODE_DEBITACCOUNT = "c";
-  public static final String CODE_CLOSEACCOUNT = "d";
-  public static final String CODE_CREDITCOMPACCOUNT = "e";
-  public static final String CODE_DEBITCOMPACCOUNT = "f";
-  public static final String CODE_CLOSECOMPACCOUNT = "g";
+  public static final String CODE_CREATEACCOUNT = "d";
+  public static final String CODE_CLOSEACCOUNT = "e";
+  public static final String CODE_CREDITCOMPACCOUNT = "f";
+  public static final String CODE_DEBITCOMPACCOUNT = "g";
+  public static final String CODE_CREATECOMPACCOUNT = "h";
+  public static final String CODE_CLOSECOMPACCOUNT = "i";
 
   public Transaction() {
     super();

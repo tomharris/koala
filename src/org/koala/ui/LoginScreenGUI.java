@@ -30,29 +30,12 @@ public class LoginScreenGUI extends DriverGUI {
    * initialize the form.
    */
   private void initComponents() {
-    imageLabel1 = new JLabel();
-    imageLabel2 = new JLabel();
-    imageLabel3 = new JLabel();
     imageLabel4 = new JLabel();
 
-    //ImageIcon myImage1 = new ImageIcon(new String
-        //("posImages/lookUp.jpg"));
-    //ImageIcon myImage1 = new ImageIcon(
-        //getClass().getResource("images/lookUp.jpg"));
-    ImageIcon myImage1 = new ImageIcon(
-        getClass().getClassLoader().getResource("lookUp.jpg"));
-    ImageIcon myImage2 = new ImageIcon(
-        getClass().getClassLoader().getResource("lookGood.jpg"));
-    ImageIcon myImage3 = new ImageIcon(
-        getClass().getClassLoader().getResource("lookRight.jpg"));
     ImageIcon myImage4 = new ImageIcon(
         getClass().getClassLoader().getResource("comboTitleSmall2.jpg"));
-    imageLabel1.setIcon(myImage1);
-    imageLabel2.setIcon(myImage2);
-    imageLabel3.setIcon(myImage3);
     imageLabel4.setIcon(myImage4);
     loginLabelPanel = new JPanel();
-    systemLoginLabel = new JLabel();
     usernamePanel = new JPanel();
     usernameLabel = new JLabel();
     usernameTextField = new JTextField();
@@ -66,13 +49,6 @@ public class LoginScreenGUI extends DriverGUI {
     getContentPane().setLayout(new java.awt.GridLayout(4, 0));
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-//        loginLabelPanel.setLayout(new java.awt.BorderLayout());
-
-    systemLoginLabel.setFont(new java.awt.Font("Dialog", 1, 36));
-    systemLoginLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-    systemLoginLabel.setText("System Login");
-    systemLoginLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-    //loginLabelPanel.add(systemLoginLabel, java.awt.BorderLayout.CENTER);
 
     getContentPane().add(loginLabelPanel);
     loginLabelPanel.add(imageLabel4, java.awt.BorderLayout.CENTER);
@@ -83,11 +59,9 @@ public class LoginScreenGUI extends DriverGUI {
 
     usernameTextField.setMinimumSize(TEXTAREA_SIZE);
     usernameTextField.setPreferredSize(TEXTAREA_SIZE);
-    usernamePanel.add(usernameTextField, java.awt.BorderLayout.EAST);
+    usernamePanel.add(usernameTextField);
 
     getContentPane().add(usernamePanel);
-
-    usernamePanel.add(imageLabel1, java.awt.BorderLayout.WEST);
 
     passwordLabel.setFont(LABEL_TEXT_FONT);
     passwordLabel.setText("Password:");
@@ -96,8 +70,6 @@ public class LoginScreenGUI extends DriverGUI {
     passwordField.setMinimumSize(TEXTAREA_SIZE);
     passwordField.setPreferredSize(TEXTAREA_SIZE);
     passwordPanel.add(passwordField);
-
-    passwordPanel.add(imageLabel2);
 
     getContentPane().add(passwordPanel);
 
@@ -112,7 +84,6 @@ public class LoginScreenGUI extends DriverGUI {
       }
     });
 
-    //loginButtonPanel.add(imageLabel3);
     loginButtonPanel.add(loginButton);
 
     exitButton.setFont(BUTTON_TEXT_FONT);
@@ -198,9 +169,6 @@ public class LoginScreenGUI extends DriverGUI {
   }
 
   // Variables declaration
-  private JLabel imageLabel1;
-  private JLabel imageLabel2;
-  private JLabel imageLabel3;
   private JLabel imageLabel4;
   private JButton exitButton;
   private JButton loginButton;
@@ -209,7 +177,6 @@ public class LoginScreenGUI extends DriverGUI {
   private JPasswordField passwordField;
   private JLabel passwordLabel;
   private JPanel passwordPanel;
-  private JLabel systemLoginLabel;
   private JLabel usernameLabel;
   private JPanel usernamePanel;
   private JTextField usernameTextField;

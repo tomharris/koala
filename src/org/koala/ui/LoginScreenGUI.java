@@ -33,7 +33,7 @@ public class LoginScreenGUI extends DriverGUI {
     imageLabel4 = new JLabel();
 
     ImageIcon myImage4 = new ImageIcon(
-        getClass().getClassLoader().getResource("comboTitleSmall2.jpg"));
+        getClass().getClassLoader().getResource("comboTitleSmallWide.jpg"));
     imageLabel4.setIcon(myImage4);
     loginLabelPanel = new JPanel();
     usernamePanel = new JPanel();

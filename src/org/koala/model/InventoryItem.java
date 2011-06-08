@@ -42,8 +42,16 @@ public class InventoryItem extends Base {
     return sku;
   }
 
+  public void setSku(String sku) {
+    this.sku = sku;
+  }
+
   public String getName() {
     return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public int getQuantity() {
@@ -85,13 +93,8 @@ public class InventoryItem extends Base {
   public static InventoryItem findBySku(String sku) {
     PreparedStatement stmt;
     ResultSet rs;
-    String query = "select rentable, name, quantity, price, tax, unlimited from inventory where sku=?";
-
-    boolean rentable = false, unlimited = false;
-    String name = null;
-    int quantity = 0;
-    Money price = null;
-    Money taxRate = null;
+    String query = "select id, rentable, name, quantity, price, tax_rate, unlimited from inventory where sku=?";
+    InventoryItem item = null;
 
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query);
@@ -99,15 +102,20 @@ public class InventoryItem extends Base {
       rs = stmt.executeQuery();
 
       if(rs.next()) {
-        rentable = (rs.getInt("rentable") == 1);
-        name = rs.getString("name");
-        quantity = rs.getInt("quantity");
-        price = new Money(rs.getBigDecimal("price"));
-        taxRate = new Money(rs.getBigDecimal("tax_rate"));
-        unlimited = (rs.getInt("unlimited") == 1);
-      }
-      else {
-        return null;
+        if(rs.getInt("rentable") == 1) {
+          item = new ForRent();
+        }
+        else {
+          item = new ForSale();
+        }
+
+        item.setId(rs.getInt("id"));
+        item.setSku(sku);
+        item.setName(rs.getString("name"));
+        item.setQuantity(rs.getInt("quantity"));
+        item.setPrice(new Money(rs.getBigDecimal("price")));
+        item.setTaxRate(new Money(rs.getBigDecimal("tax_rate")));
+        item.setUnlimited(rs.getInt("unlimited") == 1);
       }
 
       rs.close();
@@ -117,18 +125,13 @@ public class InventoryItem extends Base {
       logger.error("SQL error looking up item", e);
     }
 
-    if(rentable) {
-      return new ForRent(sku, name, price, taxRate);
-    }
-
-    return new ForSale(sku, name, quantity, price, taxRate, unlimited);
+    return item;
   }
 
   public static ArrayList<InventoryItem> findAll() {
     PreparedStatement stmt;
     ResultSet rs;
-    String query = "select sku, rentable, name, quantity, price, tax_rate, unlimited from inventory";
-
+    String query = "select id, sku, rentable, name, quantity, price, tax_rate, unlimited from inventory";
     ArrayList<InventoryItem> items = new ArrayList<InventoryItem>();
 
     try {
@@ -136,20 +139,23 @@ public class InventoryItem extends Base {
       rs = stmt.executeQuery();
 
       while(rs.next()) {
-        String sku = rs.getString("sku");
-        boolean rentable = (rs.getInt("rentable") == 1);
-        String name = rs.getString("name");
-        int quantity = rs.getInt("quantity");
-        Money price = new Money(rs.getBigDecimal("price"));
-        Money taxRate = new Money(rs.getBigDecimal("tax_rate"));
-        boolean unlimited = (rs.getInt("unlimited") == 1);
+        InventoryItem item = null;
 
-        if(rentable) {
-          items.add(new ForRent(sku, name, price, taxRate));
+        if(rs.getInt("rentable") == 1) {
+          item = new ForRent();
         }
         else {
-          items.add(new ForSale(sku, name, quantity, price, taxRate, unlimited));
+          item = new ForSale();
         }
+
+        item.setId(rs.getInt("id"));
+        item.setSku(rs.getString("sku"));
+        item.setName(rs.getString("name"));
+        item.setQuantity(rs.getInt("quantity"));
+        item.setPrice(new Money(rs.getBigDecimal("price")));
+        item.setTaxRate(new Money(rs.getBigDecimal("tax_rate")));
+        item.setUnlimited(rs.getInt("unlimited") == 1);
+        items.add(item);
       }
 
       rs.close();

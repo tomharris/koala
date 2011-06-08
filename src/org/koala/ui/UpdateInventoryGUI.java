@@ -35,9 +35,9 @@ public class UpdateInventoryGUI extends DriverGUI {
   private JTextField skuTextField = null;
   private JPanel quantityPanel = null;
   private JTextField quantityTextField = null;
-  private JPanel descPanel = null;
-  private JLabel descLabel = null;
-  private JTextField descTextField = null;
+  private JPanel namePanel = null;
+  private JLabel nameLabel = null;
+  private JTextField nameTextField = null;
   private JPanel pricePanel = null;
   private JPanel taxPanel = null;
   private JLabel priceLabel = null;
@@ -111,7 +111,7 @@ public class UpdateInventoryGUI extends DriverGUI {
       centerPanel.add(getQuantityLabelPanel(), null);
       centerPanel.add(getUnlimitedPanel(), null);
       centerPanel.add(getQuantityPanel(), null);
-      centerPanel.add(getDescPanel(), null);
+      centerPanel.add(getNamePanel(), null);
       centerPanel.add(getPricePanel(), null);
       centerPanel.add(getTaxPanel(), null);
       centerPanel.add(getRentablePanel(), null);
@@ -166,7 +166,7 @@ public class UpdateInventoryGUI extends DriverGUI {
     if(invItem != null && !invItem.getSku().equals("")) {
       quantityTextField.setText(new Integer(invItem.getQuantity()).toString());
       quantityLabel.setText(quantityDefaultLabel + "(current: " + new Integer(invItem.getQuantity()).toString() + ")");
-      descTextField.setText(invItem.getName());
+      nameTextField.setText(invItem.getName());
       priceTextField.setText(invItem.getPrice().toString());
       taxTextField.setText(invItem.getTaxRate().toString());
       unlimitedCheckBox.setSelected(invItem.getUnlimited());
@@ -215,28 +215,28 @@ public class UpdateInventoryGUI extends DriverGUI {
    *
    * @return javax.swing.JPanel
    */
-  private JPanel getDescPanel() {
-    if (descPanel == null) {
-      descLabel = new JLabel();
-      descPanel = new JPanel();
-      descLabel.setText("Description: ");
-      descLabel.setPreferredSize(new java.awt.Dimension(85,15));
-      descPanel.add(descLabel, null);
-      descPanel.add(getDescTextField(), null);
+  private JPanel getNamePanel() {
+    if (namePanel == null) {
+      nameLabel = new JLabel();
+      namePanel = new JPanel();
+      nameLabel.setText("Name: ");
+      nameLabel.setPreferredSize(new java.awt.Dimension(85,15));
+      namePanel.add(nameLabel, null);
+      namePanel.add(getNameTextField(), null);
     }
-    return descPanel;
+    return namePanel;
   }
   /**
-   * This method initializes descTextField
+   * This method initializes nameTextField
    *
    * @return javax.swing.JTextField
    */
-  private JTextField getDescTextField() {
-    if (descTextField == null) {
-      descTextField = new JTextField();
-      descTextField.setPreferredSize(TEXTAREA_SIZE);
+  private JTextField getNameTextField() {
+    if (nameTextField == null) {
+      nameTextField = new JTextField();
+      nameTextField.setPreferredSize(TEXTAREA_SIZE);
     }
-    return descTextField;
+    return nameTextField;
   }
   /**
    * This method initializes jPanel
@@ -306,7 +306,7 @@ public class UpdateInventoryGUI extends DriverGUI {
       updateButton.setFont(BUTTON_TEXT_FONT);
       updateButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-            updateButtonActionPerformed(evt);
+          updateButtonActionPerformed(evt);
         }
       });
     }
@@ -324,7 +324,11 @@ public class UpdateInventoryGUI extends DriverGUI {
       item = new ForSale();
     }
 
+    item.setSku(skuTextField.getText());
+    item.setName(nameTextField.getText());
+
     if(unlimitedCheckBox.isSelected()) {
+      item.setUnlimited(unlimitedCheckBox.isSelected());
       item.setQuantity(0);
     }
     else {
@@ -357,7 +361,7 @@ public class UpdateInventoryGUI extends DriverGUI {
   private void clearFields() {
     skuTextField.setText("");
     quantityTextField.setText("");
-    descTextField.setText("");
+    nameTextField.setText("");
     priceTextField.setText("");
     taxTextField.setText("");
     unlimitedCheckBox.setSelected(false);

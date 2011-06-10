@@ -456,6 +456,7 @@ public class CashierGUI extends DriverGUI {
 
     if(currentTransaction == null) {
       currentTransaction = new Transaction();
+      currentTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
       currentTransaction.setCashier(currentUser);
       currentTransaction.setCustomer(currentCustomer);
     }

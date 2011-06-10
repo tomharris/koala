@@ -309,6 +309,7 @@ public final class Money implements Comparable<Money> {
 
   public Money times(Money aFactor){
     BigDecimal newAmount = fAmount.multiply(aFactor.getAmount());
+    newAmount = newAmount.setScale(getNumDecimalsForCurrency(), fRounding);
     return new Money(newAmount, fCurrency, fRounding);
   }
 

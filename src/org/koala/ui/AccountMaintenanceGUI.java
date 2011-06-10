@@ -233,6 +233,7 @@ public class AccountMaintenanceGUI extends DriverGUI {
     customer.setComplementary(compCheckBox.isSelected());
     customer.setRenewAmount(renewAmount);
     customer.setNote(noteTextArea.getText());
+    customer.setCreator(currentUser);
 
     try {
       customer.save();

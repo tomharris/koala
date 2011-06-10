@@ -46,6 +46,9 @@ public class Transaction extends Base {
 
   public Transaction() {
     super();
+    this.subTotal = Money.ZERO;
+    this.taxTotal = Money.ZERO;
+    this.items = new ArrayList<TransactionItem>();
   }
 
   protected void finalize() {
@@ -143,8 +146,6 @@ public class Transaction extends Base {
       }
     }
 
-    this.subTotal = Money.ZERO;
-    this.taxTotal = Money.ZERO;
     for(TransactionItem item : this.items) {
       this.subTotal = this.subTotal.plus(item.getTotal());
       this.taxTotal = this.taxTotal.plus(item.getPrice()).times(item.getTaxRate());
@@ -236,9 +237,8 @@ public class Transaction extends Base {
 
   //store the totals for the transaction and not the individual item ammounts
   // the individual ammounts are stored in another table however
-  public void create(Transaction transaction) throws SQLException {
+  public void create() {
     PreparedStatement stmt;
-    int autoIncKey = -1;
     StringBuilder query = new StringBuilder();
     query.append("insert into transactions (transaction_time, code, user_id, customer_id, subtotal, taxtotal) ");
     query.append("VALUES(");
@@ -248,16 +248,21 @@ public class Transaction extends Base {
     try {
       stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(query.toString());
 
-      stmt.setString(1, transaction.getAcctCode());
-      stmt.setInt(2, transaction.getCashier().getId());
-      if(transaction.getCustomer() == null || transaction.getCustomer() instanceof CashCustomer) {
+      stmt.setString(1, this.getAcctCode());
+      if(this.getCashier() == null) {
+        stmt.setNull(2, java.sql.Types.INTEGER);
+      }
+      else {
+        stmt.setInt(2, this.getCashier().getId());
+      }
+      if(this.getCustomer() == null || this.getCustomer() instanceof CashCustomer) {
         stmt.setNull(3, java.sql.Types.INTEGER);
       }
       else {
-        stmt.setInt(3, transaction.getCustomer().getId());
+        stmt.setInt(3, this.getCustomer().getId());
       }
-      stmt.setBigDecimal(4, transaction.getSubTotal().getAmount());
-      stmt.setBigDecimal(5, transaction.getTaxTotal().getAmount());
+      stmt.setBigDecimal(4, this.getSubTotal().getAmount());
+      stmt.setBigDecimal(5, this.getTaxTotal().getAmount());
       stmt.executeUpdate();
 
       //get the auto inc field of the row just inserted
@@ -266,8 +271,7 @@ public class Transaction extends Base {
       stmt.close();
     }
     catch (SQLException e) {
-      logger.error("SQL error recording transaction totals", e);
-      throw e;
+      logger.error("SQL error recording transaction totals with query: " + query.toString(), e);
     }
   }
 
@@ -337,7 +341,7 @@ public class Transaction extends Base {
       stmt.close();
     }
     catch (SQLException e) {
-      logger.error("SQL error recording transaction items", e);
+      logger.error("SQL error recording transaction items with query: " + query.toString(), e);
       throw e;
     }
   }

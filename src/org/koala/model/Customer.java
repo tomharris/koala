@@ -22,6 +22,7 @@ public class Customer extends Base {
   private Money renewAmount;
   private boolean comp;
   private String note; //some textual info that we need to keep
+  private User creator;
 
   private static Logger logger = Logger.getLogger(User.class);
 
@@ -75,6 +76,10 @@ public class Customer extends Base {
 
   public void setNote(String note) {
     this.note = note;
+  }
+
+  public void setCreator(User creator) {
+    this.creator = creator;
   }
 
   public String toString() {
@@ -238,6 +243,9 @@ public class Customer extends Base {
     // Add to transaction log
     if(this.shouldDoTransaction()) {
       Transaction customerTransaction = new Transaction();
+      customerTransaction.setCustomer(this);
+      customerTransaction.setCashier(this.creator);
+
       if(this.isComplementary()) {
         customerTransaction.setCode(Transaction.CODE_CREATECOMPACCOUNT);
       }
@@ -293,6 +301,14 @@ public class Customer extends Base {
 
   //remove customer from system
   public void destroy() {
+    if(this.shouldDoTransaction()) {
+      Transaction customerTransaction = new Transaction();
+      customerTransaction.setCustomer(this);
+      customerTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
+      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, this.getBalance()));
+      customerTransaction.commit();
+    }
+
     PreparedStatement stmt;
     String query = "delete from customers where id=?";
 
@@ -304,13 +320,6 @@ public class Customer extends Base {
     }
     catch (SQLException e) {
       logger.error("SQL error removing customer", e);
-    }
-
-    if(this.shouldDoTransaction()) {
-      Transaction customerTransaction = new Transaction();
-      customerTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
-      customerTransaction.addItem(TransactionItem.createSpecialItem(TransactionItem.CORRECTION_SKU, this.getBalance()));
-      customerTransaction.commit();
     }
   }
 }

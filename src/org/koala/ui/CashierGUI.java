@@ -43,8 +43,7 @@ public class CashierGUI extends DriverGUI {
 
   JTextArea noteTextArea = null;
   ItemTable itemTable = null;
-  //JTextField skuTextField = null;
-  JComboBox skuComboBox = null;
+  JTextField skuTextField = null;
   JButton addItemButton = null;
   JLabel totalLabel = null;
   JLabel customerNameLabel = null;
@@ -281,10 +280,15 @@ public class CashierGUI extends DriverGUI {
       skuLabel.setText("Item: ");
       this.skuPanel.add(skuLabel);
 
-      this.skuComboBox = new JComboBox(InventoryItem.findAll().toArray());
+      this.skuTextField = new JTextField();
+      this.skuTextField.setMinimumSize(TEXTAREA_SIZE);
+      this.skuTextField.setPreferredSize(TEXTAREA_SIZE);
+      this.skuTextField.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          skuEnterButtonActionPerformed(evt);
+        }
+      });
 
-      //this.skuTextField.setMinimumSize(TEXTAREA_SIZE);
-      //this.skuTextField.setPreferredSize(TEXTAREA_SIZE);
       this.addItemButton = new JButton();
       this.addItemButton.setText("Add");
       this.addItemButton.addActionListener(new java.awt.event.ActionListener() {
@@ -292,7 +296,7 @@ public class CashierGUI extends DriverGUI {
           skuEnterButtonActionPerformed(evt);
         }
       });
-      this.skuPanel.add(this.skuComboBox);
+      this.skuPanel.add(this.skuTextField);
       this.skuPanel.add(this.addItemButton);
     }
 
@@ -452,7 +456,7 @@ public class CashierGUI extends DriverGUI {
 
   private void skuEnterButtonActionPerformed(java.awt.event.ActionEvent evt) {
     //quantity is one for now because we dont yet have a field for that
-    TransactionItem currentItem = new TransactionItem((InventoryItem)skuComboBox.getSelectedItem(), 1);
+    TransactionItem currentItem = new TransactionItem(InventoryItem.findBySku(skuTextField.getText()), 1);
 
     if(currentTransaction == null) {
       currentTransaction = new Transaction();
@@ -473,8 +477,8 @@ public class CashierGUI extends DriverGUI {
     visible.y = this.itemTable.getBounds().height;
     this.itemTable.scrollRectToVisible(visible);
 
-    //skuTextField.setText("");
-    this.skuComboBox.requestFocus();
+    skuTextField.setText("");
+    this.skuTextField.requestFocus();
   }
 
   private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -487,8 +491,8 @@ public class CashierGUI extends DriverGUI {
   private void voidItemButtonActionPerformed(java.awt.event.ActionEvent evt) {
     DefaultTableModel model = (DefaultTableModel) this.itemTable.getModel();
     for(int i=0; i < model.getRowCount(); i++) {
-      if(model.getValueAt(i, 0).equals(((InventoryItem)skuComboBox.getSelectedItem()).getSku())) {
-        currentTransaction.removeItem(((InventoryItem)skuComboBox.getSelectedItem()).getSku());
+      if(model.getValueAt(i, 0).equals(skuTextField.getText())) {
+        currentTransaction.removeItem(skuTextField.getText());
         model.removeRow(i);
         //update fields
         refreshTotals();
@@ -496,7 +500,7 @@ public class CashierGUI extends DriverGUI {
       }
     }
 
-    skuComboBox.requestFocus();
+    skuTextField.requestFocus();
   }
 
   private void cashOutButtonActionPerformed(java.awt.event.ActionEvent evt) {

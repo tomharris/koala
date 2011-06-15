@@ -287,6 +287,7 @@ public class Customer extends Base {
 
     if(this.shouldDoTransaction() && !changeAmount.isZero()) {
       Transaction customerTransaction = new Transaction();
+      customerTransaction.setCustomer(this);
 
       if(changeAmount.isPlus()) {
         customerTransaction.setCode(Transaction.CODE_CREDITACCOUNT);

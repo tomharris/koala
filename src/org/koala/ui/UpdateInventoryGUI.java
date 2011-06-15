@@ -337,13 +337,18 @@ public class UpdateInventoryGUI extends DriverGUI {
 
     try {
       item.setPrice(new Money(priceTextField.getText().trim()));
-      item.setTaxRate(new Money(taxTextField.getText().trim()));
     }
     catch(NumberFormatException e) {
       //log later?
       priceTextField.setText("");
-      taxTextField.setText("");
       return;
+    }
+
+    try {
+      item.setTaxRate(new Money(taxTextField.getText().trim()));
+    }
+    catch(NumberFormatException e) {
+      item.setTaxRate(Money.ZERO);
     }
 
     try {

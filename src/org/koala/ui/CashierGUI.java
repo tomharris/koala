@@ -478,7 +478,7 @@ public class CashierGUI extends DriverGUI {
     this.itemTable.scrollRectToVisible(visible);
 
     skuTextField.setText("");
-    this.skuTextField.requestFocus();
+    skuTextField.requestFocus();
   }
 
   private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -500,6 +500,7 @@ public class CashierGUI extends DriverGUI {
       }
     }
 
+    skuTextField.setText("");
     skuTextField.requestFocus();
   }
 

@@ -45,10 +45,12 @@ public class CashierGUI extends DriverGUI {
   ItemTable itemTable = null;
   JTextField skuTextField = null;
   JButton addItemButton = null;
+  JButton voidItemButton = null;
   JLabel totalLabel = null;
   JLabel customerNameLabel = null;
   JLabel balanceLabel = null;
   JPanel morePanel = null;
+  JButton toggleVoidButton = null;
   JButton moreButton = null;
 
   JButton cashOutButton = null;
@@ -285,19 +287,35 @@ public class CashierGUI extends DriverGUI {
       this.skuTextField.setPreferredSize(TEXTAREA_SIZE);
       this.skuTextField.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-          skuEnterButtonActionPerformed(evt);
+          if(addItemButton.isVisible()) {
+            addItemButtonActionPerformed(evt);
+          }
+          else {
+            voidItemButtonActionPerformed(evt);
+          }
         }
       });
+      this.skuPanel.add(this.skuTextField);
 
       this.addItemButton = new JButton();
       this.addItemButton.setText("Add");
       this.addItemButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-          skuEnterButtonActionPerformed(evt);
+          addItemButtonActionPerformed(evt);
         }
       });
-      this.skuPanel.add(this.skuTextField);
       this.skuPanel.add(this.addItemButton);
+
+      this.voidItemButton = new JButton();
+      this.voidItemButton.setFont(BUTTON_TEXT_FONT);
+      this.voidItemButton.setText("Void");
+      this.voidItemButton.setVisible(false);
+      this.voidItemButton.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+          voidItemButtonActionPerformed(evt);
+        }
+      });
+      this.skuPanel.add(this.voidItemButton);
     }
 
     return this.skuPanel;
@@ -346,12 +364,12 @@ public class CashierGUI extends DriverGUI {
         }
       });
 
-      JButton voidItemButton = new JButton();
-      voidItemButton.setFont(BUTTON_TEXT_FONT);
-      voidItemButton.setText("Void Item");
-      voidItemButton.addActionListener(new java.awt.event.ActionListener() {
+      this.toggleVoidButton = new JButton();
+      this.toggleVoidButton.setFont(BUTTON_TEXT_FONT);
+      this.toggleVoidButton.setText("Void Item Mode");
+      this.toggleVoidButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
-          voidItemButtonActionPerformed(evt);
+          toggleVoidButtonActionPerformed(evt);
         }
       });
 
@@ -365,7 +383,7 @@ public class CashierGUI extends DriverGUI {
       });
 
       this.buttonPanel.add(saleButton);
-      this.buttonPanel.add(voidItemButton);
+      this.buttonPanel.add(toggleVoidButton);
       this.buttonPanel.add(cancelButton);
       this.buttonPanel.add(this.moreButton);
     }
@@ -454,7 +472,7 @@ public class CashierGUI extends DriverGUI {
     return false;
   }
 
-  private void skuEnterButtonActionPerformed(java.awt.event.ActionEvent evt) {
+  private void addItemButtonActionPerformed(java.awt.event.ActionEvent evt) {
     //quantity is one for now because we dont yet have a field for that
     TransactionItem currentItem = new TransactionItem(InventoryItem.findBySku(skuTextField.getText()), 1);
 
@@ -477,8 +495,8 @@ public class CashierGUI extends DriverGUI {
     visible.y = this.itemTable.getBounds().height;
     this.itemTable.scrollRectToVisible(visible);
 
-    skuTextField.setText("");
-    skuTextField.requestFocus();
+    this.skuTextField.setText("");
+    this.skuTextField.requestFocus();
   }
 
   private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -491,8 +509,8 @@ public class CashierGUI extends DriverGUI {
   private void voidItemButtonActionPerformed(java.awt.event.ActionEvent evt) {
     DefaultTableModel model = (DefaultTableModel) this.itemTable.getModel();
     for(int i=0; i < model.getRowCount(); i++) {
-      if(model.getValueAt(i, 0).equals(skuTextField.getText())) {
-        currentTransaction.removeItem(skuTextField.getText());
+      if(model.getValueAt(i, 0).equals(this.skuTextField.getText())) {
+        currentTransaction.removeItem(this.skuTextField.getText());
         model.removeRow(i);
         //update fields
         refreshTotals();
@@ -500,8 +518,24 @@ public class CashierGUI extends DriverGUI {
       }
     }
 
-    skuTextField.setText("");
-    skuTextField.requestFocus();
+    toggleVoidButtonActionPerformed(null);
+    this.skuTextField.setText("");
+    this.skuTextField.requestFocus();
+  }
+
+  private void toggleVoidButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    this.addItemButton.setVisible(!this.addItemButton.isVisible());
+    this.voidItemButton.setVisible(!this.voidItemButton.isVisible());
+
+    if(this.voidItemButton.isVisible()) {
+      this.toggleVoidButton.setText("Add Item Mode");
+    }
+    else {
+      this.toggleVoidButton.setText("Void Item Mode");
+    }
+
+    this.skuTextField.setText("");
+    this.skuTextField.requestFocus();
   }
 
   private void cashOutButtonActionPerformed(java.awt.event.ActionEvent evt) {

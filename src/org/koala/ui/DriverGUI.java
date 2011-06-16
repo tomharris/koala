@@ -25,7 +25,7 @@ public class DriverGUI extends javax.swing.JFrame {
   private static DriverGUI currentGui = null;
   private static DriverGUI modelGui = null;
 
-  protected static final String APP_VERSION = "v1.2.0.rc1";
+  protected static final String APP_VERSION = "v1.2.0.rc3";
   protected static final String APP_NAME = "Koala PoS! " + APP_VERSION;
 
   protected static final java.awt.Font LABEL_HEADER_FONT = new java.awt.Font("Dialog", 1, 30);
@@ -36,7 +36,7 @@ public class DriverGUI extends javax.swing.JFrame {
   protected static User currentUser;
   protected static Customer currentCustomer;
 
-  public static final long serialVersionUID = 20110609;
+  public static final long serialVersionUID = 20110616;
 
   public static void main(String[] args) {
 

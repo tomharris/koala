@@ -64,7 +64,16 @@ public class CustomerReport extends Report {
 
       for(TransactionItem item : transItems) {
         report.append("\t");
-        report.append(item.getName());
+
+        if(item.getSku().equals(TransactionItem.CORRECTION_SKU) && transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
+          report.append("Added Money");
+        }
+        else if(item.getSku().equals(TransactionItem.CORRECTION_SKU) && transaction.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT)) {
+          report.append("Closed Account");
+        }
+        else {
+          report.append(item.getName());
+        }
         report.append("\t");
         report.append(item.getPrice().abs().formattedString());
         report.append("\n");

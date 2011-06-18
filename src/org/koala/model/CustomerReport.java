@@ -41,8 +41,6 @@ public class CustomerReport extends Report {
   }
 
   public final void doReport() {
-    ArrayList<TransactionItem> transItems = null;
-    Date currentDay = null;
     Money totalSpent = Money.ZERO;
     Money totalAdded = Money.ZERO;
     Money totalRefunded = Money.ZERO;
@@ -55,14 +53,11 @@ public class CustomerReport extends Report {
     report.append("\n\n");
 
     for(Transaction transaction : transactions) {
-      transItems = transaction.getAllItems();
-      currentDay = transaction.getTransactionTime();
-
-      //print day header from currentDay
-      report.append(todayFormat.format(currentDay));
+      //print day header
+      report.append(todayFormat.format(transaction.getTransactionTime()));
       report.append(":\n");
 
-      for(TransactionItem item : transItems) {
+      for(TransactionItem item : transaction.getAllItems()) {
         report.append("\t");
 
         if(item.getSku().equals(TransactionItem.CORRECTION_SKU) && transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {

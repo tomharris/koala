@@ -366,6 +366,7 @@ public class UpdateInventoryGUI extends DriverGUI {
   private void clearFields() {
     skuTextField.setText("");
     quantityTextField.setText("");
+    quantityTextField.setEnabled(true);
     nameTextField.setText("");
     priceTextField.setText("");
     taxTextField.setText("");

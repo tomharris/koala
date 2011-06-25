@@ -60,10 +60,15 @@ public class CustomerReport extends Report {
       for(TransactionItem item : transaction.getAllItems()) {
         report.append("\t");
 
-        if(item.getSku().equals(TransactionItem.CORRECTION_SKU) && transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT)) {
+        if(item.getSku().equals(TransactionItem.CORRECTION_SKU) &&
+          (transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CREATEACCOUNT) ||
+            transaction.getAcctCode().equals(Transaction.CODE_CREDITCOMPACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CREATECOMPACCOUNT))) {
+
           report.append("Added Money");
         }
-        else if(item.getSku().equals(TransactionItem.CORRECTION_SKU) && transaction.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT)) {
+        else if(item.getSku().equals(TransactionItem.CORRECTION_SKU) &&
+          (transaction.getAcctCode().equals(Transaction.CODE_CLOSEACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CLOSECOMPACCOUNT))) {
+
           report.append("Closed Account");
         }
         else {
@@ -74,7 +79,11 @@ public class CustomerReport extends Report {
         report.append("\n");
       }
 
-      if(transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT) || transaction.getAcctCode().equals(Transaction.CODE_CREDITCOMPACCOUNT)) {
+      if(transaction.getAcctCode().equals(Transaction.CODE_CREDITACCOUNT) ||
+        transaction.getAcctCode().equals(Transaction.CODE_CREATEACCOUNT) ||
+        transaction.getAcctCode().equals(Transaction.CODE_CREDITCOMPACCOUNT) ||
+        transaction.getAcctCode().equals(Transaction.CODE_CREATECOMPACCOUNT)) {
+
         totalAdded = totalAdded.plus(transaction.getTotal());
         report.append("Total spent at this visit: $0.00\n\n");
       }

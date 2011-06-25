@@ -134,8 +134,7 @@ public class Transaction extends Base {
 
   public void addItem(TransactionItem newItem) {
     this.items.add(newItem);
-    this.subTotal = this.subTotal.plus(newItem.getTotal());
-    this.taxTotal = this.taxTotal.plus(newItem.getPrice().times(newItem.getTaxRate()));
+    recalculateTotals();
   }
 
   public void removeItem(String sku) {
@@ -146,10 +145,7 @@ public class Transaction extends Base {
       }
     }
 
-    for(TransactionItem item : this.items) {
-      this.subTotal = this.subTotal.plus(item.getTotal());
-      this.taxTotal = this.taxTotal.plus(item.getPrice()).times(item.getTaxRate());
-    }
+    recalculateTotals();
   }
 
   public static ArrayList<Transaction> getAll(Customer customer) {
@@ -343,6 +339,16 @@ public class Transaction extends Base {
     catch (SQLException e) {
       logger.error("SQL error recording transaction items with query: " + query.toString(), e);
       throw e;
+    }
+  }
+
+  private void recalculateTotals() {
+    this.subTotal = Money.ZERO;
+    this.taxTotal = Money.ZERO;
+
+    for(TransactionItem item : this.items) {
+      this.subTotal = this.subTotal.plus(item.getTotal());
+      this.taxTotal = this.taxTotal.plus(item.getPrice()).times(item.getTaxRate());
     }
   }
 }

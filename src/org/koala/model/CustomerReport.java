@@ -102,7 +102,7 @@ public class CustomerReport extends Report {
     //make sure numbers are rounded and formated properly
     report.append("\nTotal visits made: ");
     report.append(transactions.size());
-    report.append("\nTotal added to accout: ");
+    report.append("\nTotal added to account: ");
     report.append(totalAdded.formattedString());
     report.append("\nTotal spent: ");
     report.append(totalSpent.formattedString());

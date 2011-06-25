@@ -633,7 +633,7 @@ public class CashierGUI extends DriverGUI {
   private void refreshTotals() {
     try {
       this.totalLabel.setText("$" + currentTransaction.getTotal().toString());
-      if(currentCustomer.getId() != 0) {
+      if(!(currentCustomer instanceof CashCustomer)) {
         this.balanceLabel.setText("$" + currentCustomer.getBalance().minus(currentTransaction.getTotal()).toString());
       }
     }

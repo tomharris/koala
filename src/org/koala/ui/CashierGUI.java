@@ -452,6 +452,7 @@ public class CashierGUI extends DriverGUI {
     }
     else if(currentCustomer instanceof CashCustomer) {
       if(additionalFundsRequiredPopup(currentTransaction.getTotal())) {
+        currentTransaction.setCode(Transaction.CODE_CASH);
         currentTransaction.commit();
         return true;
       }

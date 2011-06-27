@@ -473,27 +473,31 @@ public class CashierGUI extends DriverGUI {
   }
 
   private void addItemButtonActionPerformed(java.awt.event.ActionEvent evt) {
-    //quantity is one for now because we dont yet have a field for that
-    TransactionItem currentItem = new TransactionItem(InventoryItem.findBySku(skuTextField.getText()), 1);
+    InventoryItem newItem = InventoryItem.findBySku(skuTextField.getText());
 
-    if(currentTransaction == null) {
-      currentTransaction = new Transaction();
-      currentTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
-      currentTransaction.setCashier(currentUser);
-      currentTransaction.setCustomer(currentCustomer);
+    if(newItem != null) {
+      //quantity is one for now because we dont yet have a field for that
+      TransactionItem currentItem = new TransactionItem(newItem, 1);
+
+      if(currentTransaction == null) {
+        currentTransaction = new Transaction();
+        currentTransaction.setCode(Transaction.CODE_DEBITACCOUNT);
+        currentTransaction.setCashier(currentUser);
+        currentTransaction.setCustomer(currentCustomer);
+      }
+      currentTransaction.addItem(currentItem);
+
+      Object[] data = {currentItem.getSku(), currentItem.getName(), currentItem.getPrice()};
+      ((DefaultTableModel) this.itemTable.getModel()).addRow(data);
+
+      //update tax and total fields
+      refreshTotals();
+
+      //scroll to bottom of table
+      Rectangle visible = this.itemTable.getVisibleRect();
+      visible.y = this.itemTable.getBounds().height;
+      this.itemTable.scrollRectToVisible(visible);
     }
-    currentTransaction.addItem(currentItem);
-
-    Object[] data = {currentItem.getSku(), currentItem.getName(), currentItem.getPrice()};
-    ((DefaultTableModel) this.itemTable.getModel()).addRow(data);
-
-    //update tax and total fields
-    refreshTotals();
-
-    //scroll to bottom of table
-    Rectangle visible = this.itemTable.getVisibleRect();
-    visible.y = this.itemTable.getBounds().height;
-    this.itemTable.scrollRectToVisible(visible);
 
     this.skuTextField.setText("");
     this.skuTextField.requestFocus();

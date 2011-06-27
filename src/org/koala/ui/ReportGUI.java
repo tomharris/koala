@@ -65,7 +65,7 @@ public class ReportGUI extends DriverGUI {
    * @return void
    */
   private void initialize() {
-    this.setSize(450,350);
+    this.setSize(475,450);
     this.setContentPane(getJContentPane());
   }
   /**
